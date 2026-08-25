@@ -6,11 +6,11 @@ const CryptoService = require(
 );
 
 const LicenseValidator = require(
-    "../../src/engines/license/LicenseValidator"
+    "../../src/engines/license/licenseValidator"
 );
 
 const LicenseEngine = require(
-    "../../src/engines/license/LicenseEngine"
+    "../../src/engines/license/licenseEngine"
 );
 
 const licenseFile = fs.readdirSync(__dirname)
