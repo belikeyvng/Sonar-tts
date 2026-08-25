@@ -69,9 +69,9 @@ app.whenReady().then(() => {
     // ③ Licensing must be wired up before windows start
     //    asking questions about plan/features.
     const publicKeyPem = fs.readFileSync(
-        path.join(__dirname, "../../keys/public_key.pem"),
-        "utf8"
-    );
+    path.join(__dirname, "../data/licenses/public_key.pem"),
+    "utf8"
+);
 
     registerLicenseIpc(publicKeyPem);
 
