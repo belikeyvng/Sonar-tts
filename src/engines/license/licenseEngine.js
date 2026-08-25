@@ -26,7 +26,8 @@ class LicenseEngine {
 
         return {
             success: true,
-            license: this.activeLicense
+            license: this.activeLicense,
+            rawLicense: license
         };
     }
 

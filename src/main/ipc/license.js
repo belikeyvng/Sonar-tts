@@ -12,47 +12,55 @@ const LicenseStore = require("../../engines/license/LicenseStore");
  * Call this once from main.js, after `app.whenReady()`.
  */
 function registerLicenseIpc(publicKeyPem) {
-    const cryptoService = new CryptoService();
-    const validator = new LicenseValidator(cryptoService, publicKeyPem);
-    const licenseEngine = new LicenseEngine(validator);
-    const licenseStore = new LicenseStore();
+  const cryptoService = new CryptoService();
+  const validator = new LicenseValidator(cryptoService, publicKeyPem);
+  const licenseEngine = new LicenseEngine(validator);
+  const licenseStore = new LicenseStore();
 
-    // On startup, try to restore whatever was persisted last time.
-    const storedLicense = licenseStore.load();
-    if (storedLicense) {
-        licenseEngine.activate(storedLicense);
+  // On startup, try to restore whatever was persisted last time.
+  const storedLicense = licenseStore.load();
+
+  console.log("LicenseStore.load on startup:", storedLicense);
+
+  if (storedLicense) {
+    const activateResult = licenseEngine.activate(storedLicense);
+    console.log("Re-activation from stored license:", activateResult);
+  }
+
+  if (storedLicense) {
+    licenseEngine.activate(storedLicense);
+  }
+
+  ipcMain.handle("license:activate", async (event, filePath) => {
+    const result = licenseEngine.activateFromFile(filePath);
+
+    if (result.success) {
+      licenseStore.save(result.rawLicense);
     }
 
-    ipcMain.handle("license:activate", async (event, filePath) => {
-        const result = licenseEngine.activateFromFile(filePath);
+    return result;
+  });
 
-        if (result.success) {
-            licenseStore.save(result.license);
-        }
+  ipcMain.handle("license:getStatus", async () => {
+    return {
+      activated: licenseEngine.isActivated(),
+      plan: licenseEngine.getPlan(),
+      license: licenseEngine.getLicense(),
+    };
+  });
 
-        return result;
-    });
+  ipcMain.handle("license:hasFeature", async (event, feature) => {
+    return licenseEngine.hasFeature(feature);
+  });
 
-    ipcMain.handle("license:getStatus", async () => {
-        return {
-            activated: licenseEngine.isActivated(),
-            plan: licenseEngine.getPlan(),
-            license: licenseEngine.getLicense()
-        };
-    });
+  ipcMain.handle("license:deactivate", async () => {
+    licenseEngine.deactivate();
+    licenseStore.clear();
+    return { success: true };
+  });
 
-    ipcMain.handle("license:hasFeature", async (event, feature) => {
-        return licenseEngine.hasFeature(feature);
-    });
-
-    ipcMain.handle("license:deactivate", async () => {
-        licenseEngine.deactivate();
-        licenseStore.clear();
-        return { success: true };
-    });
-
-    // Exposed in case other main-process code (not just IPC) needs it.
-    return licenseEngine;
+  // Exposed in case other main-process code (not just IPC) needs it.
+  return licenseEngine;
 }
 
 module.exports = registerLicenseIpc;
