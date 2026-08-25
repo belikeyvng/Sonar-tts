@@ -7,3 +7,6 @@ release/
 # App-specific ignores
 src/engines/tts/
 tools/license/keys/
+
+# Sonar DRM private signing key
+tools/license/keys/private_key.pem
