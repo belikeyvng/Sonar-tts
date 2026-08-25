@@ -10,3 +10,6 @@ tools/license/keys/
 
 # Sonar DRM private signing key
 tools/license/keys/private_key.pem
+
+# Generated/test licenses
+tools/license/*.json
