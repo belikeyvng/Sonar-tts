@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Electron build output
+release/
+
+# App-specific ignores
+src/engines/tts/
+tools/license/keys/
