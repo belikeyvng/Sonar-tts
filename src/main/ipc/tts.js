@@ -2,24 +2,59 @@ const { ipcMain, app } = require("electron");
 const path = require("node:path");
 
 const PiperEngine = require("../../engines/tts/piper/PiperEngine");
+const KokoroEngine = require("../../engines/tts/kokoro/KokoroEngine");
+const UsageStore = require("../../data/settings/UsageStore");
+
+const { FREE_KOKORO_VOICE_ID, FREE_KOKORO_GENERATION_LIMIT } = KokoroEngine;
 
 function registerTtsIpc(licenseEngine) {
-    const piperEngine = new PiperEngine();
+    const engines = {
+        piper: new PiperEngine(),
+        kokoro: new KokoroEngine(),
+    };
+
+    const usageStore = new UsageStore();
+
+    function getAllVoices() {
+        return Object.values(engines).flatMap((engine) => engine.getVoices());
+    }
 
     ipcMain.handle("tts:getVoices", async () => {
-        return piperEngine.getVoices();
+        return getAllVoices();
     });
 
     ipcMain.handle("tts:speak", async (event, { text, voiceId }) => {
-        const voices = piperEngine.getVoices();
+        const voices = getAllVoices();
         const voice = voices.find((v) => v.id === voiceId);
 
         if (!voice) {
             return { success: false, reason: "UNKNOWN_VOICE" };
         }
 
-        if (voice.tier === "pro" && !licenseEngine.hasFeature("advancedVoices")) {
+        const isPro = licenseEngine.hasFeature("advancedVoices");
+
+        if (voice.tier === "pro" && !isPro) {
             return { success: false, reason: "VOICE_REQUIRES_PRO" };
+        }
+
+        // Free users get a capped number of generations on the free
+        // Kokoro voice specifically (not Piper's free voices — Kokoro
+        // is the more expensive engine to run).
+        if (voiceId === FREE_KOKORO_VOICE_ID && !isPro) {
+            const used = usageStore.getCount(FREE_KOKORO_VOICE_ID);
+            if (used >= FREE_KOKORO_GENERATION_LIMIT) {
+                return {
+                    success: false,
+                    reason: "FREE_GENERATION_LIMIT_REACHED",
+                    limit: FREE_KOKORO_GENERATION_LIMIT,
+                    used,
+                };
+            }
+        }
+
+        const engine = engines[voice.engine];
+        if (!engine) {
+            return { success: false, reason: "UNKNOWN_ENGINE" };
         }
 
         const outputFile = path.join(
@@ -28,7 +63,17 @@ function registerTtsIpc(licenseEngine) {
         );
 
         try {
-            const file = await piperEngine.synthesize(text, voiceId, outputFile);
+            const file = await engine.synthesize(text, voiceId, outputFile);
+
+            if (voiceId === FREE_KOKORO_VOICE_ID && !isPro) {
+                const used = usageStore.increment(FREE_KOKORO_VOICE_ID);
+                return {
+                    success: true,
+                    file,
+                    usage: { used, limit: FREE_KOKORO_GENERATION_LIMIT },
+                };
+            }
+
             return { success: true, file };
         } catch (error) {
             return { success: false, reason: error.message };

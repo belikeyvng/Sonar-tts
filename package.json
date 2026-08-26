@@ -4,7 +4,11 @@
   "description": "Offline text-to-speech application",
   "main": "src/main/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "test:tts:voices": "node tools/tts/test-tts.js voices",
+    "test:tts:speak": "node tools/tts/test-tts.js speak",
+    "test:tts:limit": "node tools/tts/test-tts.js limit-test",
+    "test:license": "node tools/license/test-license.js"
   },
   "keywords": [],
   "author": "",
