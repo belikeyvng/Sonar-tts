@@ -8,7 +8,10 @@
     "test:tts:voices": "node tools/tts/test-tts.js voices",
     "test:tts:speak": "node tools/tts/test-tts.js speak",
     "test:tts:limit": "node tools/tts/test-tts.js limit-test",
-    "test:license": "node tools/license/test-license.js"
+    "test:license": "node tools/license/test-license.js",
+    "license:check": "node tools/license/license-cli.js check",
+    "license:activate": "node tools/license/license-cli.js activate",
+    "license:deactivate": "node tools/license/license-cli.js deactivate"
   },
   "keywords": [],
   "author": "",
