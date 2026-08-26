@@ -3,22 +3,23 @@ const path = require("node:path");
 
 const PiperEngine = require("../../engines/tts/piper/PiperEngine");
 
-// Voices that require a Pro license.
-const PRO_VOICES = new Set([
-    "en_US-arctic-medium",
-    "en_US-libritts_r-medium",
-    "en_US-libritts-high"
-]);
-
 function registerTtsIpc(licenseEngine) {
     const piperEngine = new PiperEngine();
 
+    ipcMain.handle("tts:getVoices", async () => {
+        return piperEngine.getVoices();
+    });
+
     ipcMain.handle("tts:speak", async (event, { text, voiceId }) => {
-        if (PRO_VOICES.has(voiceId) && !licenseEngine.hasFeature("advancedVoices")) {
-            return {
-                success: false,
-                reason: "VOICE_REQUIRES_PRO"
-            };
+        const voices = piperEngine.getVoices();
+        const voice = voices.find((v) => v.id === voiceId);
+
+        if (!voice) {
+            return { success: false, reason: "UNKNOWN_VOICE" };
+        }
+
+        if (voice.tier === "pro" && !licenseEngine.hasFeature("advancedVoices")) {
+            return { success: false, reason: "VOICE_REQUIRES_PRO" };
         }
 
         const outputFile = path.join(
