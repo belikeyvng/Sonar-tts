@@ -26,7 +26,7 @@ async function main() {
     const audio = await tts.generate(
         "Hello. This is Kokoro running locally inside Sonar.",
         {
-            voice: "af_heart"
+            voice: "af_nova"
         }
     );
 
