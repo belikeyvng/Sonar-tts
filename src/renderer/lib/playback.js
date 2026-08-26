@@ -25,4 +25,5 @@ async function speakAndPlay(text, voiceId) {
     return result;
 }
 
-window.sonar.tts.speakAndPlay = speakAndPlay;
+// window.sonar.tts.speakAndPlay = speakAndPlay;
+window.speakAndPlay = speakAndPlay;
