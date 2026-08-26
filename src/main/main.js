@@ -1,6 +1,9 @@
 const { app, BrowserWindow, Menu } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
+const registerTtsIpc = require("./ipc/tts");
+
+
 
 const registerLicenseIpc = require("./ipc/license");
 
@@ -26,6 +29,8 @@ function createWindow() {
 app.whenReady().then(() => {
   // Remove Electron's default menu
   Menu.setApplicationMenu(null);
+
+  registerTtsIpc();
 
   // Licensing must be wired up before windows start
   // asking questions about plan/features.

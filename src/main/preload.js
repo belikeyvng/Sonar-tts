@@ -13,5 +13,9 @@ contextBridge.exposeInMainWorld("sonar", {
 
         deactivate: () =>
             ipcRenderer.invoke("license:deactivate")
+    },
+    tts: {
+        speak: (text, voiceId) =>
+            ipcRenderer.invoke("tts:speak", { text, voiceId })
     }
 });
