@@ -14,8 +14,12 @@ const ACCENT_COLOR_OPTIONS = ["violet", "blue", "green", "rose", "amber"];
 const HAS_ONBOARDED_BEFORE = false;
 
 const state = {
+    // --- View routing ---
+    // "onboarding" | "app" | "upgrade"
+    currentView: HAS_ONBOARDED_BEFORE ? "app" : "onboarding",
+    previousView: "app", // where "Back to app" on the upgrade page returns to
+
     // --- Onboarding ---
-    onboardingComplete: HAS_ONBOARDED_BEFORE,
     onboardingStep: "name", // "name" | "preferences" | "license"
     onboardingData: {
         name: "",
@@ -98,12 +102,50 @@ const state = {
     // null = show empty-state; an object (one of `documents` above) =
     // show reader-view + player-panel + mini-player
     currentDocument: null,
+
+    // --- Plans (upgrade page) ---
+    plans: [
+        {
+            id: "free",
+            name: "Free",
+            badge: "YOUR PLAN",
+            priceAmount: "N0.00",
+            pricePeriod: "/ month",
+            description: "Standard document scanning and basic narration settings.",
+            features: [
+                "Basic voice options & standard narrators",
+                "3 PDF document uploads per day limit",
+                "Standard speeds (0.75x to 1.5x only)",
+                "Automatic line-by-line word highlighting",
+            ],
+            ctaLabel: "Current Tier Active",
+            ctaDisabled: true,
+        },
+        {
+            id: "pro",
+            name: "Pro",
+            badge: "RECOMMENDED",
+            priceAmount: "N4,500",
+            pricePeriod: "/ month",
+            description: "Unlock high fidelity voices with ultra-customizable controls.",
+            features: [
+                "Premium natural human-like voice options",
+                "Up to 10 PDF document uploads per day",
+                "Generate and download offline audio MP3s",
+                "Wider playback speeds (0.5x to 2x granular)",
+                "24/7 priority support and custom voice models",
+            ],
+            ctaLabel: "Upgrade to Pro",
+            ctaDisabled: false,
+        },
+    ],
 };
 
 // --- Root containers -----------------------------------------------------
 const roots = {
     onboarding: document.getElementById("onboarding-root"),
     appShell: document.getElementById("app-shell"),
+    upgradePage: document.getElementById("upgrade-page-root"),
 };
 
 // --- Slot elements (persistent — grabbed once) -----------------------
@@ -113,6 +155,7 @@ const slots = {
     main: document.getElementById("main-slot"),
     playerPanel: document.getElementById("player-panel-slot"),
     miniPlayer: document.getElementById("mini-player-slot"),
+    upgradePagePlans: document.getElementById("upgrade-page-plans-slot"),
 };
 
 // --- Helpers -----------------------------------------------------------
@@ -135,6 +178,67 @@ function bind(root, key, value) {
 function on(root, action, handler) {
     const el = root.querySelector(`[data-action="${action}"]`);
     if (el) el.addEventListener("click", handler);
+}
+
+// ==========================================================================
+// UPGRADE PAGE
+// ==========================================================================
+
+function renderUpgradePage() {
+    const root = roots.upgradePage;
+
+    on(root, "back-to-app", backToApp);
+    on(root, "cancel-subscription-info", () => {
+        // TODO: real behavior once settings exists — likely just
+        // navigates to a settings/billing view rather than doing
+        // anything inline here.
+        console.log("TODO: show cancel-subscription info (settings not built yet)");
+    });
+
+    const plansContainer = slots.upgradePagePlans;
+    plansContainer.replaceChildren();
+    for (const plan of state.plans) {
+        plansContainer.appendChild(renderPlanCard(plan));
+    }
+}
+
+function renderPlanCard(plan) {
+    const fragment = clone("tpl-plan-card");
+
+    const card = fragment.querySelector(".plan-card");
+    card.dataset.plan = plan.id;
+
+    bind(fragment, "planName", plan.name);
+    bind(fragment, "planBadge", plan.badge);
+    bind(fragment, "priceAmount", plan.priceAmount);
+    bind(fragment, "pricePeriod", plan.pricePeriod);
+    bind(fragment, "planDescription", plan.description);
+
+    const featureList = fragment.querySelector('[data-list="features"]');
+    for (const featureText of plan.features) {
+        const featureFragment = clone("tpl-plan-feature");
+        bind(featureFragment, "featureText", featureText);
+        featureList.appendChild(featureFragment);
+    }
+
+    const cta = fragment.querySelector('[data-action="plan-cta"]');
+    cta.textContent = plan.ctaLabel;
+    cta.disabled = plan.ctaDisabled;
+    if (!plan.ctaDisabled) {
+        cta.addEventListener("click", () => handlePlanCta(plan.id));
+    }
+
+    return fragment;
+}
+
+function handlePlanCta(planId) {
+    if (planId === "pro") {
+        // TODO: wire to real Paystack checkout flow. On success, that
+        // flow should call window.sonar.license.activate(...) (or an
+        // equivalent purchase-then-activate IPC call) and only then
+        // return the user to the app.
+        console.log("TODO: launch Paystack checkout for Pro upgrade");
+    }
 }
 
 // ==========================================================================
@@ -268,7 +372,7 @@ function finishOnboarding({ activateLicense }) {
         console.log("TODO: call window.sonar.license.activate(licensePath)");
     }
 
-    state.onboardingComplete = true;
+    state.currentView = "app";
     showActiveRoot();
     renderFileNav();
     render();
@@ -277,13 +381,25 @@ function finishOnboarding({ activateLicense }) {
 // --- Root switching --------------------------------------------------
 
 function showActiveRoot() {
-    if (state.onboardingComplete) {
-        roots.onboarding.style.display = "none";
-        roots.appShell.style.display = "";
-    } else {
-        roots.onboarding.style.display = "";
-        roots.appShell.style.display = "none";
+    roots.onboarding.style.display = state.currentView === "onboarding" ? "" : "none";
+    roots.appShell.style.display = state.currentView === "app" ? "" : "none";
+    roots.upgradePage.style.display = state.currentView === "upgrade" ? "" : "none";
+}
+
+function goToUpgradePage() {
+    // Remember where we came from so "Back to app" is correct whether
+    // triggered from the reader view, empty-state, or elsewhere.
+    if (state.currentView !== "upgrade") {
+        state.previousView = state.currentView;
     }
+    state.currentView = "upgrade";
+    showActiveRoot();
+    renderUpgradePage();
+}
+
+function backToApp() {
+    state.currentView = state.previousView;
+    showActiveRoot();
 }
 
 // ==========================================================================
@@ -298,6 +414,7 @@ function renderFileNav() {
 
     on(fragment, "toggle-pin", togglePin);
     on(fragment, "new-file", goToNewFile);
+    on(fragment, "upgrade-to-pro", goToUpgradePage);
 
     const pinnedList = fragment.querySelector('[data-list="pinned"]');
     for (const file of state.pinnedFiles) {
@@ -499,9 +616,9 @@ function render() {
 
 showActiveRoot();
 
-if (state.onboardingComplete) {
+if (state.currentView === "app") {
     renderFileNav();
     render();
-} else {
+} else if (state.currentView === "onboarding") {
     renderOnboardingStep();
 }

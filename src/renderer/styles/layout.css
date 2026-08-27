@@ -44,6 +44,165 @@
 }
 
 /* ==========================================================================
+   UPGRADE PAGE (own top-level root, full-screen, replaces app view)
+   ========================================================================== */
+
+.upgrade-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    overflow-y: auto;
+    padding: var(--space-6) var(--space-8) var(--space-12);
+}
+
+.upgrade-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--space-2) 0;
+    margin-bottom: var(--space-10);
+}
+
+.upgrade-page__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.upgrade-page__logo {
+    display: block;
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+}
+
+.upgrade-page__back {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: var(--space-2);
+}
+
+.upgrade-page__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 640px;
+    margin-bottom: var(--space-10);
+}
+
+.upgrade-page__heading {
+    margin: 0 0 var(--space-3) 0;
+}
+
+.upgrade-page__subheading {
+    margin: 0 0 var(--space-6) 0;
+}
+
+.upgrade-page__payment-note {
+    margin: 0;
+}
+
+.upgrade-page__cancel-link {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.upgrade-page__plans {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: var(--space-8);
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 900px;
+}
+
+/* ==========================================================================
+   PLAN CARD (used twice — Free and Pro — inside .upgrade-page__plans)
+   ========================================================================== */
+
+.plan-card {
+    display: flex;
+    flex-direction: column;
+    width: 340px;
+    padding: var(--space-8);
+    border-width: 1px;
+    border-style: solid;
+}
+
+.plan-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+.plan-card__name {
+    margin: 0;
+}
+
+.plan-card__badge {
+    padding: var(--space-1) var(--space-2);
+}
+
+.plan-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    margin: 0 0 var(--space-4) 0;
+}
+
+.plan-card__description {
+    margin: 0 0 var(--space-6) 0;
+}
+
+.plan-card__divider {
+    width: 100%;
+    border: none;
+    border-top-width: 1px;
+    border-top-style: solid;
+    margin: 0 0 var(--space-5) 0;
+}
+
+.plan-card__feature-list {
+    list-style: none;
+    margin: 0 0 var(--space-6) 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    flex: 1;
+}
+
+.plan-card__feature {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+}
+
+.plan-card__feature-icon {
+    display: block;
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.plan-card__cta {
+    width: 100%;
+    height: var(--control-input-height);
+    border: none;
+    cursor: pointer;
+}
+
+/* ==========================================================================
    ONBOARDING (own top-level root, separate from app-shell)
    ========================================================================== */
 
