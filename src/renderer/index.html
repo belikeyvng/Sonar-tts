@@ -285,7 +285,7 @@
                 </ul>
             </nav>
 
-              <div class="file-nav__footer">
+            <div class="file-nav__footer">
                 <button class="file-nav__upgrade" type="button" data-tier="pro-upsell" data-action="upgrade-to-pro">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_356_2098)">
@@ -377,16 +377,22 @@
 
             <div class="empty-state__content">
                 <div class="empty-state__orb-wrap">
-                    <div class="empty-state__orb" aria-hidden="true"></div>
+                    <video src="./assets/orb/orb-2.webm" autoplay loop width="300" height="300"></video>
                 </div>
 
                 <h1 class="empty-state__heading">
                     Welcome, <span data-bind="firstName">Alex</span>
                 </h1>
-                <p class="empty-state__subheading">What would you like to do today?</p>
+                <p class="empty-state__subheading">What document would you like to work with?</p>
 
                 <div class="empty-state__dropzone" data-action="dropzone">
-                    <div class="empty-state__dropzone-icon" aria-hidden="true"></div>
+                    <div class="empty-state__dropzone-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M10.0003 10.8331V17.5M13.3335 14.1665L10.0003 10.8331L6.6672 14.1665M3.33434 12.4159C2.71524 11.7833 2.2482 11.0181 1.96861 10.1782C1.68901 9.3384 1.60419 8.44594 1.72056 7.56846C1.83693 6.69099 2.15145 5.8515 2.64029 5.11359C3.12913 4.37568 3.77946 3.7587 4.54205 3.30938C5.30463 2.86007 6.15945 2.5902 7.04177 2.52021C7.92408 2.45023 8.81076 2.58197 9.63462 2.90546C10.4585 3.22895 11.1979 3.73569 11.797 4.38732C12.396 5.03894 12.8389 5.81836 13.0921 6.66652H14.5837C15.3883 6.66643 16.1715 6.92513 16.8177 7.40441C17.464 7.88369 17.9389 8.55813 18.1725 9.3281C18.406 10.0981 18.3857 10.9228 18.1146 11.6803C17.8435 12.4379 17.3359 13.0881 16.6669 13.5351"
+                                stroke="#38BDF8" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
                     <p class="empty-state__dropzone-title">Upload a PDF to get started</p>
                     <p class="empty-state__dropzone-hint">
                         Drag and drop or

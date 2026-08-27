@@ -13,7 +13,6 @@ const ACCENT_COLOR_OPTIONS = ["violet", "blue", "green", "rose", "amber"];
 // flow is always visible during development.
 const HAS_ONBOARDED_BEFORE = false;
 
-
 const SUN_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.5458 1.38933C6.34549 1.47489 5.19102 1.88442 4.20569 2.57415C3.22037 3.26388 2.44121 4.20791 1.95145 5.3054C1.46169 6.40289 1.27972 7.6126 1.425 8.80531C1.57027 9.99802 2.03732 11.1289 2.77625 12.0772C3.51519 13.0255 4.49825 13.7556 5.62042 14.1894C6.7426 14.6232 7.96173 14.7446 9.14758 14.5404C10.3334 14.3362 11.4415 13.8142 12.3533 13.0302C13.2652 12.2462 13.9466 11.2295 14.3247 10.0889C13.1666 10.5664 11.8836 10.6514 10.6725 10.331C9.46134 10.0105 8.38888 9.30227 7.61956 8.31484C6.85023 7.32742 6.42651 6.1153 6.41335 4.86435C6.40019 3.6134 6.79833 2.39267 7.54671 1.38933M2.94606e-08 8.00504C-9.90165e-05 6.85143 0.249546 5.71143 0.731834 4.66314C1.21412 3.61484 1.91765 2.68302 2.79424 1.93151C3.67083 1.17999 4.69975 0.626543 5.81052 0.309071C6.9213 -0.00840044 8.08768 -0.0823922 9.22977 0.0921649C9.36363 0.112574 9.48848 0.172022 9.58862 0.263042C9.68876 0.354062 9.75973 0.472596 9.79262 0.603757C9.82551 0.734919 9.81885 0.872859 9.77348 1.00025C9.72811 1.12765 9.64605 1.23882 9.53761 1.3198C9.07553 1.66606 8.68713 2.10071 8.39506 2.5984C8.10299 3.0961 7.91309 3.64688 7.83643 4.21862C7.75978 4.79036 7.79791 5.37162 7.9486 5.92849C8.09929 6.48536 8.35952 7.00671 8.71412 7.46211C9.06871 7.91752 9.51058 8.29787 10.0139 8.58099C10.5173 8.8641 11.0721 9.04432 11.6459 9.11112C12.2198 9.17792 12.8012 9.12997 13.3563 8.97006C13.9114 8.81016 14.429 8.5415 14.879 8.17976C14.9842 8.09429 15.1123 8.04179 15.2473 8.02887C15.3822 8.01595 15.518 8.04319 15.6375 8.10714C15.757 8.1711 15.8549 8.26893 15.9188 8.38831C15.9827 8.50769 16.0099 8.64328 15.9968 8.77803C15.7955 10.8225 14.8146 12.7115 13.2573 14.054C11.6999 15.3966 9.68518 16.0899 7.63006 15.9906C5.57494 15.8913 3.63671 15.007 2.21646 13.5205C0.796206 12.0341 0.00264918 10.0594 2.94606e-08 8.00504Z" fill="#94A3B8"/></svg>`;
 
 const MOON_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 3.33333C8.64583 3.33333 9.25 3.45486 9.8125 3.69792C10.375 3.94097 10.8715 4.27431 11.3021 4.69792C11.7326 5.12153 12.066 5.61458 12.3021 6.17708C12.5382 6.73958 12.6597 7.34722 12.6667 8C12.6667 8.64583 12.5451 9.25 12.3021 9.8125C12.059 10.375 11.7257 10.8715 11.3021 11.3021C10.8785 11.7326 10.3854 12.066 9.82292 12.3021C9.26042 12.5382 8.65278 12.6597 8 12.6667C7.35417 12.6667 6.75 12.5451 6.1875 12.3021C5.625 12.059 5.12847 11.7257 4.69792 11.3021C4.26736 10.8785 3.93403 10.3854 3.69792 9.82292C3.46181 9.26042 3.34028 8.65278 3.33333 8C3.33333 7.35417 3.45486 6.75 3.69792 6.1875C3.94097 5.625 4.27431 5.12847 4.69792 4.69792C5.12153 4.26736 5.61458 3.93403 6.17708 3.69792C6.73958 3.46181 7.34722 3.34028 8 3.33333ZM8 11.3333C8.45833 11.3333 8.88889 11.2465 9.29167 11.0729C9.69444 10.8993 10.0451 10.6632 10.3438 10.3646C10.6424 10.066 10.8819 9.71181 11.0625 9.30208C11.2431 8.89236 11.3333 8.45833 11.3333 8C11.3333 7.54167 11.2465 7.11111 11.0729 6.70833C10.8993 6.30556 10.6597 5.95486 10.3542 5.65625C10.0486 5.35764 9.69444 5.11806 9.29167 4.9375C8.88889 4.75694 8.45833 4.66667 8 4.66667C7.54167 4.66667 7.11111 4.75347 6.70833 4.92708C6.30556 5.10069 5.95139 5.34028 5.64583 5.64583C5.34028 5.95139 5.10069 6.30556 4.92708 6.70833C4.75347 7.11111 4.66667 7.54167 4.66667 8C4.66667 8.45833 4.75347 8.88889 4.92708 9.29167C5.10069 9.69444 5.33681 10.0486 5.63542 10.3542C5.93403 10.6597 6.28819 10.8993 6.69792 11.0729C7.10764 11.2465 7.54167 11.3333 8 11.3333ZM8.66667 2H7.33333V0H8.66667V2ZM3.28125 4.22917L1.875 2.8125L2.8125 1.875L4.22917 3.28125L3.28125 4.22917ZM2 8.66667H0V7.33333H2V8.66667ZM3.28125 11.7708L4.22917 12.7188L2.8125 14.125L1.875 13.1875L3.28125 11.7708ZM7.33333 14H8.66667V16H7.33333V14ZM12.7188 11.7708L14.125 13.1875L13.1875 14.125L11.7708 12.7188L12.7188 11.7708ZM16 7.33333V8.66667H14V7.33333H16ZM12.7188 4.22917L11.7708 3.28125L13.1875 1.875L14.125 2.8125L12.7188 4.22917Z" fill="#94A3B8"/></svg>`;
@@ -22,181 +21,174 @@ const MOON_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" x
 // moon when currently light → click to go dark) into every mounted
 // theme-toggle button. Both empty-state and reading-pane have one.
 function updateThemeToggleIcons() {
-    const isDark = document.documentElement.dataset.theme === "dark";
-    const icon = isDark ? SUN_ICON : MOON_ICON;
+  const isDark = document.documentElement.dataset.theme === "dark";
+  const icon = isDark ? SUN_ICON : MOON_ICON;
 
-    document.querySelectorAll(
-        ".empty-state__theme-icon, .reading-pane__theme-icon"
-    ).forEach((el) => {
-        el.innerHTML = icon;
+  document
+    .querySelectorAll(".empty-state__theme-icon, .reading-pane__theme-icon")
+    .forEach((el) => {
+      el.innerHTML = icon;
     });
 }
 
 const state = {
-    // --- View routing ---
-    // "onboarding" | "app" | "upgrade"
-    currentView: HAS_ONBOARDED_BEFORE ? "app" : "onboarding",
-    previousView: "app", // where "Back to app" on the upgrade page returns to
+  // --- View routing ---
+  // "onboarding" | "app" | "upgrade"
+  currentView: HAS_ONBOARDED_BEFORE ? "app" : "onboarding",
+  previousView: "app", // where "Back to app" on the upgrade page returns to
 
-    // --- Onboarding ---
-    onboardingStep: "name", // "name" | "preferences" | "license"
-    onboardingData: {
-        name: "",
-        voiceGender: "female",
-        theme: "light",
-        accentColor: "violet",
-        licensePath: null,
-        licenseStatus: "", // "", "checking", "valid", "invalid"
+  // --- Onboarding ---
+  onboardingStep: "name", // "name" | "preferences" | "license"
+  onboardingData: {
+    name: "",
+    voiceGender: "female",
+    theme: "light",
+    accentColor: "violet",
+    licensePath: null,
+    licenseStatus: "", // "", "checking", "valid", "invalid"
+  },
+
+  // --- Main app ---
+  accountName: "Alexander Chen",
+  accountEmail: "alex@sonar.ai",
+  firstName: "Alex",
+
+  pinnedFiles: [{ id: "meeting-notes", name: "Meeting_Notes.pdf" }],
+  recentFiles: [
+    { id: "project-notes", name: "Project_Notes.pdf" },
+    { id: "cook", name: "Cook.pdf" },
+    { id: "story", name: "Story.pdf" },
+  ],
+
+  // Sample documents keyed by file id — stands in for real PDF loading/
+  // extraction until that pipeline exists. TODO: replace with actual
+  // PDF text extraction + IPC call when that's wired up.
+  documents: {
+    "meeting-notes": {
+      fileName: "Meeting_Notes.pdf",
+      title: "Meeting Notes",
+      paragraphs: [
+        "Placeholder content for Meeting_Notes.pdf.",
+        "Real PDF text extraction isn't wired up yet — this is stand-in copy.",
+      ],
+      narratorName: "Helen (NGA)",
+      timeElapsed: "0:00",
+      timeTotal: "0:00",
+      progress: 0,
+      sectionLabel: "Section 1 of 1",
     },
-
-    // --- Main app ---
-    accountName: "Alexander Chen",
-    accountEmail: "alex@sonar.ai",
-    firstName: "Alex",
-
-    pinnedFiles: [
-        { id: "meeting-notes", name: "Meeting_Notes.pdf" },
-    ],
-    recentFiles: [
-        { id: "project-notes", name: "Project_Notes.pdf" },
-        { id: "cook", name: "Cook.pdf" },
-        { id: "story", name: "Story.pdf" },
-    ],
-
-    // Sample documents keyed by file id — stands in for real PDF loading/
-    // extraction until that pipeline exists. TODO: replace with actual
-    // PDF text extraction + IPC call when that's wired up.
-    documents: {
-        "meeting-notes": {
-            fileName: "Meeting_Notes.pdf",
-            title: "Meeting Notes",
-            paragraphs: [
-                "Placeholder content for Meeting_Notes.pdf.",
-                "Real PDF text extraction isn't wired up yet — this is stand-in copy.",
-            ],
-            narratorName: "Helen (NGA)",
-            timeElapsed: "0:00",
-            timeTotal: "0:00",
-            progress: 0,
-            sectionLabel: "Section 1 of 1",
-        },
-        "project-notes": {
-            fileName: "Project_Notes.pdf",
-            title: "Project Notes",
-            paragraphs: [
-                "Placeholder content for Project_Notes.pdf.",
-            ],
-            narratorName: "Helen (NGA)",
-            timeElapsed: "0:00",
-            timeTotal: "0:00",
-            progress: 0,
-            sectionLabel: "Section 1 of 1",
-        },
-        "cook": {
-            fileName: "Cook.pdf",
-            title: "Cook",
-            paragraphs: [
-                "Placeholder content for Cook.pdf.",
-            ],
-            narratorName: "Helen (NGA)",
-            timeElapsed: "0:00",
-            timeTotal: "0:00",
-            progress: 0,
-            sectionLabel: "Section 1 of 1",
-        },
-        "story": {
-            fileName: "Story.pdf",
-            title: "Story",
-            paragraphs: [
-                "Placeholder content for Story.pdf.",
-            ],
-            narratorName: "Helen (NGA)",
-            timeElapsed: "0:00",
-            timeTotal: "0:00",
-            progress: 0,
-            sectionLabel: "Section 1 of 1",
-        },
+    "project-notes": {
+      fileName: "Project_Notes.pdf",
+      title: "Project Notes",
+      paragraphs: ["Placeholder content for Project_Notes.pdf."],
+      narratorName: "Helen (NGA)",
+      timeElapsed: "0:00",
+      timeTotal: "0:00",
+      progress: 0,
+      sectionLabel: "Section 1 of 1",
     },
+    cook: {
+      fileName: "Cook.pdf",
+      title: "Cook",
+      paragraphs: ["Placeholder content for Cook.pdf."],
+      narratorName: "Helen (NGA)",
+      timeElapsed: "0:00",
+      timeTotal: "0:00",
+      progress: 0,
+      sectionLabel: "Section 1 of 1",
+    },
+    story: {
+      fileName: "Story.pdf",
+      title: "Story",
+      paragraphs: ["Placeholder content for Story.pdf."],
+      narratorName: "Helen (NGA)",
+      timeElapsed: "0:00",
+      timeTotal: "0:00",
+      progress: 0,
+      sectionLabel: "Section 1 of 1",
+    },
+  },
 
-    // null = show empty-state; an object (one of `documents` above) =
-    // show reader-view + player-panel + mini-player
-    currentDocument: null,
+  // null = show empty-state; an object (one of `documents` above) =
+  // show reader-view + player-panel + mini-player
+  currentDocument: null,
 
-    // --- Plans (upgrade page) ---
-    plans: [
-        {
-            id: "free",
-            name: "Free",
-            badge: "YOUR PLAN",
-            priceAmount: "N0.00",
-            pricePeriod: "/ month",
-            description: "Standard document scanning and basic narration settings.",
-            features: [
-                "Basic voice options & standard narrators",
-                "3 PDF document uploads per day limit",
-                "Standard speeds (0.75x to 1.5x only)",
-                "Automatic line-by-line word highlighting",
-            ],
-            ctaLabel: "Current Tier Active",
-            ctaDisabled: true,
-        },
-        {
-            id: "pro",
-            name: "Pro",
-            badge: "RECOMMENDED",
-            priceAmount: "N4,500",
-            pricePeriod: "/ month",
-            description: "Unlock high fidelity voices with ultra-customizable controls.",
-            features: [
-                "Premium natural human-like voice options",
-                "Up to 10 PDF document uploads per day",
-                "Generate and download offline audio MP3s",
-                "Wider playback speeds (0.5x to 2x granular)",
-                "24/7 priority support and custom voice models",
-            ],
-            ctaLabel: "Upgrade to Pro",
-            ctaDisabled: false,
-        },
-    ],
+  // --- Plans (upgrade page) ---
+  plans: [
+    {
+      id: "free",
+      name: "Free",
+      badge: "YOUR PLAN",
+      priceAmount: "N0.00",
+      pricePeriod: "/ month",
+      description: "Standard document scanning and basic narration settings.",
+      features: [
+        "Basic voice options & standard narrators",
+        "3 PDF document uploads per day limit",
+        "Standard speeds (0.75x to 1.5x only)",
+        "Automatic line-by-line word highlighting",
+      ],
+      ctaLabel: "Current Tier Active",
+      ctaDisabled: true,
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      badge: "RECOMMENDED",
+      priceAmount: "N4,500",
+      pricePeriod: "/ month",
+      description:
+        "Unlock high fidelity voices with ultra-customizable controls.",
+      features: [
+        "Premium natural human-like voice options",
+        "Up to 10 PDF document uploads per day",
+        "Generate and download offline audio MP3s",
+        "Wider playback speeds (0.5x to 2x granular)",
+        "24/7 priority support and custom voice models",
+      ],
+      ctaLabel: "Upgrade to Pro",
+      ctaDisabled: false,
+    },
+  ],
 };
 
 // --- Root containers -----------------------------------------------------
 const roots = {
-    onboarding: document.getElementById("onboarding-root"),
-    appShell: document.getElementById("app-shell"),
-    upgradePage: document.getElementById("upgrade-page-root"),
+  onboarding: document.getElementById("onboarding-root"),
+  appShell: document.getElementById("app-shell"),
+  upgradePage: document.getElementById("upgrade-page-root"),
 };
 
 // --- Slot elements (persistent — grabbed once) -----------------------
 const slots = {
-    onboardingStep: document.getElementById("onboarding-step-slot"),
-    fileNav: document.getElementById("file-nav-slot"),
-    main: document.getElementById("main-slot"),
-    playerPanel: document.getElementById("player-panel-slot"),
-    miniPlayer: document.getElementById("mini-player-slot"),
-    upgradePagePlans: document.getElementById("upgrade-page-plans-slot"),
+  onboardingStep: document.getElementById("onboarding-step-slot"),
+  fileNav: document.getElementById("file-nav-slot"),
+  main: document.getElementById("main-slot"),
+  playerPanel: document.getElementById("player-panel-slot"),
+  miniPlayer: document.getElementById("mini-player-slot"),
+  upgradePagePlans: document.getElementById("upgrade-page-plans-slot"),
 };
 
 // --- Helpers -----------------------------------------------------------
 
 function clone(templateId) {
-    const tpl = document.getElementById(templateId);
-    return tpl.content.cloneNode(true);
+  const tpl = document.getElementById(templateId);
+  return tpl.content.cloneNode(true);
 }
 
 function bind(root, key, value) {
-    const el = root.querySelector(`[data-bind="${key}"]`);
-    if (!el) return;
-    if (el.tagName === "INPUT") {
-        el.value = value;
-    } else {
-        el.textContent = value;
-    }
+  const el = root.querySelector(`[data-bind="${key}"]`);
+  if (!el) return;
+  if (el.tagName === "INPUT") {
+    el.value = value;
+  } else {
+    el.textContent = value;
+  }
 }
 
 function on(root, action, handler) {
-    const el = root.querySelector(`[data-action="${action}"]`);
-    if (el) el.addEventListener("click", handler);
+  const el = root.querySelector(`[data-action="${action}"]`);
+  if (el) el.addEventListener("click", handler);
 }
 
 // ==========================================================================
@@ -204,60 +196,60 @@ function on(root, action, handler) {
 // ==========================================================================
 
 function renderUpgradePage() {
-    const root = roots.upgradePage;
+  const root = roots.upgradePage;
 
-    on(root, "back-to-app", backToApp);
-    on(root, "cancel-subscription-info", () => {
-        // TODO: real behavior once settings exists — likely just
-        // navigates to a settings/billing view rather than doing
-        // anything inline here.
-        console.log("TODO: show cancel-subscription info (settings not built yet)");
-    });
+  on(root, "back-to-app", backToApp);
+  on(root, "cancel-subscription-info", () => {
+    // TODO: real behavior once settings exists — likely just
+    // navigates to a settings/billing view rather than doing
+    // anything inline here.
+    console.log("TODO: show cancel-subscription info (settings not built yet)");
+  });
 
-    const plansContainer = slots.upgradePagePlans;
-    plansContainer.replaceChildren();
-    for (const plan of state.plans) {
-        plansContainer.appendChild(renderPlanCard(plan));
-    }
+  const plansContainer = slots.upgradePagePlans;
+  plansContainer.replaceChildren();
+  for (const plan of state.plans) {
+    plansContainer.appendChild(renderPlanCard(plan));
+  }
 }
 
 function renderPlanCard(plan) {
-    const fragment = clone("tpl-plan-card");
+  const fragment = clone("tpl-plan-card");
 
-    const card = fragment.querySelector(".plan-card");
-    card.dataset.plan = plan.id;
+  const card = fragment.querySelector(".plan-card");
+  card.dataset.plan = plan.id;
 
-    bind(fragment, "planName", plan.name);
-    bind(fragment, "planBadge", plan.badge);
-    bind(fragment, "priceAmount", plan.priceAmount);
-    bind(fragment, "pricePeriod", plan.pricePeriod);
-    bind(fragment, "planDescription", plan.description);
+  bind(fragment, "planName", plan.name);
+  bind(fragment, "planBadge", plan.badge);
+  bind(fragment, "priceAmount", plan.priceAmount);
+  bind(fragment, "pricePeriod", plan.pricePeriod);
+  bind(fragment, "planDescription", plan.description);
 
-    const featureList = fragment.querySelector('[data-list="features"]');
-    for (const featureText of plan.features) {
-        const featureFragment = clone("tpl-plan-feature");
-        bind(featureFragment, "featureText", featureText);
-        featureList.appendChild(featureFragment);
-    }
+  const featureList = fragment.querySelector('[data-list="features"]');
+  for (const featureText of plan.features) {
+    const featureFragment = clone("tpl-plan-feature");
+    bind(featureFragment, "featureText", featureText);
+    featureList.appendChild(featureFragment);
+  }
 
-    const cta = fragment.querySelector('[data-action="plan-cta"]');
-    cta.textContent = plan.ctaLabel;
-    cta.disabled = plan.ctaDisabled;
-    if (!plan.ctaDisabled) {
-        cta.addEventListener("click", () => handlePlanCta(plan.id));
-    }
+  const cta = fragment.querySelector('[data-action="plan-cta"]');
+  cta.textContent = plan.ctaLabel;
+  cta.disabled = plan.ctaDisabled;
+  if (!plan.ctaDisabled) {
+    cta.addEventListener("click", () => handlePlanCta(plan.id));
+  }
 
-    return fragment;
+  return fragment;
 }
 
 function handlePlanCta(planId) {
-    if (planId === "pro") {
-        // TODO: wire to real Paystack checkout flow. On success, that
-        // flow should call window.sonar.license.activate(...) (or an
-        // equivalent purchase-then-activate IPC call) and only then
-        // return the user to the app.
-        console.log("TODO: launch Paystack checkout for Pro upgrade");
-    }
+  if (planId === "pro") {
+    // TODO: wire to real Paystack checkout flow. On success, that
+    // flow should call window.sonar.license.activate(...) (or an
+    // equivalent purchase-then-activate IPC call) and only then
+    // return the user to the app.
+    console.log("TODO: launch Paystack checkout for Pro upgrade");
+  }
 }
 
 // ==========================================================================
@@ -265,160 +257,169 @@ function handlePlanCta(planId) {
 // ==========================================================================
 
 function renderOnboardingStep() {
-    const step = state.onboardingStep;
+  const step = state.onboardingStep;
 
-    if (step === "name") {
-        renderOnboardingName();
-    } else if (step === "preferences") {
-        renderOnboardingPreferences();
-    } else if (step === "license") {
-        renderOnboardingLicense();
-    }
+  if (step === "name") {
+    renderOnboardingName();
+  } else if (step === "preferences") {
+    renderOnboardingPreferences();
+  } else if (step === "license") {
+    renderOnboardingLicense();
+  }
 }
 
 function renderOnboardingName() {
-    const fragment = clone("tpl-onboarding-name");
-    const data = state.onboardingData;
+  const fragment = clone("tpl-onboarding-name");
+  const data = state.onboardingData;
 
-    const input = fragment.querySelector('[data-bind="nameInput"]');
-    input.value = data.name;
-    input.addEventListener("input", (e) => {
-        data.name = e.target.value;
-    });
+  const input = fragment.querySelector('[data-bind="nameInput"]');
+  input.value = data.name;
+  input.addEventListener("input", (e) => {
+    data.name = e.target.value;
+  });
 
-    on(fragment, "next", () => {
-        // Minimal validation — real UX would show an inline message
-        // instead of blocking silently. Left as a TODO since this is
-        // structure-only, no visual/error-state design yet.
-        if (!data.name.trim()) return;
-        state.onboardingStep = "preferences";
-        renderOnboardingStep();
-    });
+  on(fragment, "next", () => {
+    // Minimal validation — real UX would show an inline message
+    // instead of blocking silently. Left as a TODO since this is
+    // structure-only, no visual/error-state design yet.
+    if (!data.name.trim()) return;
+    state.onboardingStep = "preferences";
+    renderOnboardingStep();
+  });
 
-    slots.onboardingStep.replaceChildren(fragment);
+  slots.onboardingStep.replaceChildren(fragment);
 }
 
 function renderOnboardingPreferences() {
-    const fragment = clone("tpl-onboarding-preferences");
-    const data = state.onboardingData;
+  const fragment = clone("tpl-onboarding-preferences");
+  const data = state.onboardingData;
 
-    fragment.querySelector('[data-bind="voiceGenderFemale"]').checked = data.voiceGender === "female";
-    fragment.querySelector('[data-bind="voiceGenderMale"]').checked = data.voiceGender === "male";
-    fragment.querySelectorAll('input[name="voiceGender"]').forEach((el) => {
-        el.addEventListener("change", (e) => {
-            data.voiceGender = e.target.value;
-        });
+  fragment.querySelector('[data-bind="voiceGenderFemale"]').checked =
+    data.voiceGender === "female";
+  fragment.querySelector('[data-bind="voiceGenderMale"]').checked =
+    data.voiceGender === "male";
+  fragment.querySelectorAll('input[name="voiceGender"]').forEach((el) => {
+    el.addEventListener("change", (e) => {
+      data.voiceGender = e.target.value;
     });
+  });
 
-    fragment.querySelector('[data-bind="themeLight"]').checked = data.theme === "light";
-    fragment.querySelector('[data-bind="themeDark"]').checked = data.theme === "dark";
-    fragment.querySelectorAll('input[name="theme"]').forEach((el) => {
-        el.addEventListener("change", (e) => {
-            data.theme = e.target.value;
-            document.documentElement.dataset.theme = e.target.value;
-        });
+  fragment.querySelector('[data-bind="themeLight"]').checked =
+    data.theme === "light";
+  fragment.querySelector('[data-bind="themeDark"]').checked =
+    data.theme === "dark";
+  fragment.querySelectorAll('input[name="theme"]').forEach((el) => {
+    el.addEventListener("change", (e) => {
+      data.theme = e.target.value;
+      document.documentElement.dataset.theme = e.target.value;
     });
+  });
 
-    const swatchGroup = fragment.querySelector('[data-group="accentColor"]');
-    for (const color of ACCENT_COLOR_OPTIONS) {
-        const swatch = clone("tpl-onboarding-swatch");
-        const button = swatch.querySelector(".onboarding-step__swatch");
-        button.dataset.colorValue = color;
-        button.textContent = color;
-        button.setAttribute("aria-pressed", String(color === data.accentColor));
-        button.addEventListener("click", () => {
-            data.accentColor = color;
-            swatchGroup.querySelectorAll(".onboarding-step__swatch").forEach((el) => {
-                el.setAttribute("aria-pressed", String(el.dataset.colorValue === color));
-            });
-        });
-        swatchGroup.appendChild(swatch);
-    }
-
-    on(fragment, "back", () => {
-        state.onboardingStep = "name";
-        renderOnboardingStep();
+  const swatchGroup = fragment.querySelector('[data-group="accentColor"]');
+  for (const color of ACCENT_COLOR_OPTIONS) {
+    const swatch = clone("tpl-onboarding-swatch");
+    const button = swatch.querySelector(".onboarding-step__swatch");
+    button.dataset.colorValue = color;
+    button.textContent = color;
+    button.setAttribute("aria-pressed", String(color === data.accentColor));
+    button.addEventListener("click", () => {
+      data.accentColor = color;
+      swatchGroup.querySelectorAll(".onboarding-step__swatch").forEach((el) => {
+        el.setAttribute(
+          "aria-pressed",
+          String(el.dataset.colorValue === color),
+        );
+      });
     });
-    on(fragment, "next", () => {
-        state.onboardingStep = "license";
-        renderOnboardingStep();
-    });
+    swatchGroup.appendChild(swatch);
+  }
 
-    slots.onboardingStep.replaceChildren(fragment);
+  on(fragment, "back", () => {
+    state.onboardingStep = "name";
+    renderOnboardingStep();
+  });
+  on(fragment, "next", () => {
+    state.onboardingStep = "license";
+    renderOnboardingStep();
+  });
+
+  slots.onboardingStep.replaceChildren(fragment);
 }
 
 function renderOnboardingLicense() {
-    const fragment = clone("tpl-onboarding-license");
-    const data = state.onboardingData;
+  const fragment = clone("tpl-onboarding-license");
+  const data = state.onboardingData;
 
-    bind(fragment, "licensePathDisplay", data.licensePath || "");
-    bind(fragment, "licenseStatus", data.licenseStatus);
+  bind(fragment, "licensePathDisplay", data.licensePath || "");
+  bind(fragment, "licenseStatus", data.licenseStatus);
 
-    on(fragment, "browse-license", async () => {
-        // TODO: wire to a real file picker via IPC (e.g. an
-        // "dialog:openFile" handler in main process, filtered to .json).
-        console.log("TODO: open native file picker for license file");
-    });
+  on(fragment, "browse-license", async () => {
+    // TODO: wire to a real file picker via IPC (e.g. an
+    // "dialog:openFile" handler in main process, filtered to .json).
+    console.log("TODO: open native file picker for license file");
+  });
 
-    on(fragment, "back", () => {
-        state.onboardingStep = "preferences";
-        renderOnboardingStep();
-    });
+  on(fragment, "back", () => {
+    state.onboardingStep = "preferences";
+    renderOnboardingStep();
+  });
 
-    on(fragment, "skip", () => {
-        finishOnboarding({ activateLicense: false });
-    });
+  on(fragment, "skip", () => {
+    finishOnboarding({ activateLicense: false });
+  });
 
-    on(fragment, "activate-and-finish", async () => {
-        // TODO: wire to window.sonar.license.activate(data.licensePath)
-        // once a real file path exists from the picker above.
-        finishOnboarding({ activateLicense: Boolean(data.licensePath) });
-    });
+  on(fragment, "activate-and-finish", async () => {
+    // TODO: wire to window.sonar.license.activate(data.licensePath)
+    // once a real file path exists from the picker above.
+    finishOnboarding({ activateLicense: Boolean(data.licensePath) });
+  });
 
-    slots.onboardingStep.replaceChildren(fragment);
+  slots.onboardingStep.replaceChildren(fragment);
 }
 
 function finishOnboarding({ activateLicense }) {
-    const data = state.onboardingData;
+  const data = state.onboardingData;
 
-    // Carry onboarding choices into the main app state.
-    state.firstName = data.name.trim() || state.firstName;
-    // TODO: persist name/voiceGender/theme/accentColor/license choice to
-    // a real settings file (IPC-backed) so this survives app restarts —
-    // currently in-memory only, resets every launch.
+  // Carry onboarding choices into the main app state.
+  state.firstName = data.name.trim() || state.firstName;
+  // TODO: persist name/voiceGender/theme/accentColor/license choice to
+  // a real settings file (IPC-backed) so this survives app restarts —
+  // currently in-memory only, resets every launch.
 
-    if (activateLicense) {
-        console.log("TODO: call window.sonar.license.activate(licensePath)");
-    }
+  if (activateLicense) {
+    console.log("TODO: call window.sonar.license.activate(licensePath)");
+  }
 
-    state.currentView = "app";
-    showActiveRoot();
-    renderFileNav();
-    render();
+  state.currentView = "app";
+  showActiveRoot();
+  renderFileNav();
+  render();
 }
 
 // --- Root switching --------------------------------------------------
 
 function showActiveRoot() {
-    roots.onboarding.style.display = state.currentView === "onboarding" ? "" : "none";
-    roots.appShell.style.display = state.currentView === "app" ? "" : "none";
-    roots.upgradePage.style.display = state.currentView === "upgrade" ? "" : "none";
+  roots.onboarding.style.display =
+    state.currentView === "onboarding" ? "" : "none";
+  roots.appShell.style.display = state.currentView === "app" ? "" : "none";
+  roots.upgradePage.style.display =
+    state.currentView === "upgrade" ? "" : "none";
 }
 
 function goToUpgradePage() {
-    // Remember where we came from so "Back to app" is correct whether
-    // triggered from the reader view, empty-state, or elsewhere.
-    if (state.currentView !== "upgrade") {
-        state.previousView = state.currentView;
-    }
-    state.currentView = "upgrade";
-    showActiveRoot();
-    renderUpgradePage();
+  // Remember where we came from so "Back to app" is correct whether
+  // triggered from the reader view, empty-state, or elsewhere.
+  if (state.currentView !== "upgrade") {
+    state.previousView = state.currentView;
+  }
+  state.currentView = "upgrade";
+  showActiveRoot();
+  renderUpgradePage();
 }
 
 function backToApp() {
-    state.currentView = state.previousView;
-    showActiveRoot();
+  state.currentView = state.previousView;
+  showActiveRoot();
 }
 
 // ==========================================================================
@@ -426,26 +427,26 @@ function backToApp() {
 // ==========================================================================
 
 function renderFileNav() {
-    const fragment = clone("tpl-file-nav");
+  const fragment = clone("tpl-file-nav");
 
-    bind(fragment, "accountName", state.accountName);
-    bind(fragment, "accountEmail", state.accountEmail);
+  bind(fragment, "accountName", state.accountName);
+  bind(fragment, "accountEmail", state.accountEmail);
 
-    on(fragment, "toggle-pin", togglePin);
-    on(fragment, "new-file", goToNewFile);
-    on(fragment, "upgrade-to-pro", goToUpgradePage);
+  on(fragment, "toggle-pin", togglePin);
+  on(fragment, "new-file", goToNewFile);
+  on(fragment, "upgrade-to-pro", goToUpgradePage);
 
-    const pinnedList = fragment.querySelector('[data-list="pinned"]');
-    for (const file of state.pinnedFiles) {
-        pinnedList.appendChild(renderFileNavItem(file));
-    }
+  const pinnedList = fragment.querySelector('[data-list="pinned"]');
+  for (const file of state.pinnedFiles) {
+    pinnedList.appendChild(renderFileNavItem(file));
+  }
 
-    const recentsList = fragment.querySelector('[data-list="recents"]');
-    for (const file of state.recentFiles) {
-        recentsList.appendChild(renderFileNavItem(file));
-    }
+  const recentsList = fragment.querySelector('[data-list="recents"]');
+  for (const file of state.recentFiles) {
+    recentsList.appendChild(renderFileNavItem(file));
+  }
 
-    slots.fileNav.replaceChildren(fragment);
+  slots.fileNav.replaceChildren(fragment);
 }
 
 // Click-to-pin toggles a class on the mounted .file-nav element directly
@@ -453,138 +454,153 @@ function renderFileNav() {
 // this through state + render()). Clicking outside the pinned sidebar
 // un-pins it — standard rail/drawer UX.
 function togglePin() {
-    const fileNavEl = slots.fileNav.querySelector(".file-nav");
-    if (!fileNavEl) return;
-    state.sidebarPinned = fileNavEl.classList.toggle("file-nav--pinned");
+  const fileNavEl = slots.fileNav.querySelector(".file-nav");
+  if (!fileNavEl) return;
+  state.sidebarPinned = fileNavEl.classList.toggle("file-nav--pinned");
 }
 
 document.addEventListener("click", (event) => {
-    const fileNavEl = slots.fileNav.querySelector(".file-nav");
-    if (!fileNavEl || !fileNavEl.classList.contains("file-nav--pinned")) return;
-    if (!fileNavEl.contains(event.target)) {
-        fileNavEl.classList.remove("file-nav--pinned");
-        state.sidebarPinned = false;
-    }
+  const fileNavEl = slots.fileNav.querySelector(".file-nav");
+  if (!fileNavEl || !fileNavEl.classList.contains("file-nav--pinned")) return;
+  if (!fileNavEl.contains(event.target)) {
+    fileNavEl.classList.remove("file-nav--pinned");
+    state.sidebarPinned = false;
+  }
 });
 
 function renderFileNavItem(file) {
-    const fragment = clone("tpl-recent-file-nav-item");
-    bind(fragment, "fileName", file.name);
-    fragment.querySelector(".file-nav__item-button")
-        .addEventListener("click", () => openFile(file.id));
-    return fragment;
+  const fragment = clone("tpl-recent-file-nav-item");
+  bind(fragment, "fileName", file.name);
+  fragment
+    .querySelector(".file-nav__item-button")
+    .addEventListener("click", () => openFile(file.id));
+  return fragment;
 }
 
 // --- Render: main slot (empty-state OR reader-view) --------------------
 
 function renderMain() {
-    if (!state.currentDocument) {
-        renderEmptyState();
-    } else {
-        renderReaderView();
-    }
+  if (!state.currentDocument) {
+    renderEmptyState();
+  } else {
+    renderReaderView();
+  }
 }
 
 function renderEmptyState() {
-    const fragment = clone("tpl-empty-state");
+  const fragment = clone("tpl-empty-state");
 
-    bind(fragment, "firstName", state.firstName);
-    on(fragment, "toggle-theme", toggleTheme);
-    on(fragment, "browse-files", browseFiles);
+  bind(fragment, "firstName", state.firstName);
+  on(fragment, "toggle-theme", toggleTheme);
+  on(fragment, "browse-files", browseFiles);
 
-    const dropzone = fragment.querySelector('[data-action="dropzone"]');
-    dropzone.addEventListener("dragover", (e) => e.preventDefault());
-    dropzone.addEventListener("drop", handleFileDrop);
+  const dropzone = fragment.querySelector('[data-action="dropzone"]');
+  dropzone.addEventListener("click", browseFiles);
+  dropzone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropzone.classList.add("empty-state__dropzone--drag-over");
+  });
+  dropzone.addEventListener("dragleave", () => {
+    dropzone.classList.remove("empty-state__dropzone--drag-over");
+  });
+  dropzone.addEventListener("drop", (e) => {
+    dropzone.classList.remove("empty-state__dropzone--drag-over");
+    handleFileDrop(e);
+  });
 
-    slots.main.replaceChildren(fragment);
-    updateThemeToggleIcons();
+  slots.main.replaceChildren(fragment);
+  updateThemeToggleIcons();
 }
 
 function renderReaderView() {
-    const doc = state.currentDocument;
-    const fragment = clone("tpl-reader-view");
+  const doc = state.currentDocument;
+  const fragment = clone("tpl-reader-view");
 
-    bind(fragment, "documentTitle", doc.title);
-    on(fragment, "toggle-theme", toggleTheme);
+  bind(fragment, "documentTitle", doc.title);
+  on(fragment, "toggle-theme", toggleTheme);
 
-    const body = fragment.querySelector('[data-bind="documentBody"]');
-    for (const paragraph of doc.paragraphs) {
-        const p = document.createElement("p");
-        p.className = "reading-pane__paragraph";
-        p.textContent = paragraph;
-        body.appendChild(p);
-    }
+  const body = fragment.querySelector('[data-bind="documentBody"]');
+  for (const paragraph of doc.paragraphs) {
+    const p = document.createElement("p");
+    p.className = "reading-pane__paragraph";
+    p.textContent = paragraph;
+    body.appendChild(p);
+  }
 
-    slots.main.replaceChildren(fragment);
-     updateThemeToggleIcons();
+  slots.main.replaceChildren(fragment);
+  updateThemeToggleIcons();
 }
 
 // --- Render: player-panel + mini-player (only when a document is loaded) --
 
 function renderPlayerPanel() {
-    if (!state.currentDocument) {
-        slots.playerPanel.replaceChildren();
-        return;
-    }
+  if (!state.currentDocument) {
+    slots.playerPanel.replaceChildren();
+    return;
+  }
 
-    const doc = state.currentDocument;
-    const fragment = clone("tpl-player-panel");
+  const doc = state.currentDocument;
+  const fragment = clone("tpl-player-panel");
 
-    bind(fragment, "narratorName", doc.narratorName);
-    bind(fragment, "timeElapsed", doc.timeElapsed);
-    bind(fragment, "timeTotal", doc.timeTotal);
-    bind(fragment, "progress", doc.progress);
+  bind(fragment, "narratorName", doc.narratorName);
+  bind(fragment, "timeElapsed", doc.timeElapsed);
+  bind(fragment, "timeTotal", doc.timeTotal);
+  bind(fragment, "progress", doc.progress);
 
-    on(fragment, "play-pause", playPause);
-    on(fragment, "rewind", rewind);
-    on(fragment, "skip-forward", skipForward);
-    on(fragment, "regenerate", regenerate);
+  on(fragment, "play-pause", playPause);
+  on(fragment, "rewind", rewind);
+  on(fragment, "skip-forward", skipForward);
+  on(fragment, "regenerate", regenerate);
 
-    slots.playerPanel.replaceChildren(fragment);
+  slots.playerPanel.replaceChildren(fragment);
 }
 
 function renderMiniPlayer() {
-    if (!state.currentDocument) {
-        slots.miniPlayer.replaceChildren();
-        return;
-    }
+  if (!state.currentDocument) {
+    slots.miniPlayer.replaceChildren();
+    return;
+  }
 
-    const doc = state.currentDocument;
-    const fragment = clone("tpl-mini-player");
+  const doc = state.currentDocument;
+  const fragment = clone("tpl-mini-player");
 
-    bind(fragment, "fileName", doc.fileName);
-    bind(fragment, "fileMeta", `${doc.sectionLabel} · ${doc.timeElapsed} / ${doc.timeTotal}`);
-    bind(fragment, "timeElapsed", doc.timeElapsed);
-    bind(fragment, "timeTotal", doc.timeTotal);
-    bind(fragment, "progress", doc.progress);
-    bind(fragment, "narratorName", doc.narratorName);
-    bind(fragment, "speedLabel", "1x");
+  bind(fragment, "fileName", doc.fileName);
+  bind(
+    fragment,
+    "fileMeta",
+    `${doc.sectionLabel} · ${doc.timeElapsed} / ${doc.timeTotal}`,
+  );
+  bind(fragment, "timeElapsed", doc.timeElapsed);
+  bind(fragment, "timeTotal", doc.timeTotal);
+  bind(fragment, "progress", doc.progress);
+  bind(fragment, "narratorName", doc.narratorName);
+  bind(fragment, "speedLabel", "1x");
 
-    on(fragment, "play-pause", playPause);
+  on(fragment, "play-pause", playPause);
 
-    slots.miniPlayer.replaceChildren(fragment);
+  slots.miniPlayer.replaceChildren(fragment);
 }
 
 // --- Actions (stubs — wire to real IPC/engine calls as they land) ------
 
 function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.dataset.theme === "dark" ? "light" : "dark";
-    html.dataset.theme = next;
-    updateThemeToggleIcons();
+  const html = document.documentElement;
+  const next = html.dataset.theme === "dark" ? "light" : "dark";
+  html.dataset.theme = next;
+  updateThemeToggleIcons();
 }
 
 function browseFiles() {
-    // TODO: open native file picker via IPC, then call openFile() (or a
-    // new loadDroppedOrPickedFile()) with the real extracted PDF content.
-    console.log("TODO: open file picker dialog");
+  // TODO: open native file picker via IPC, then call openFile() (or a
+  // new loadDroppedOrPickedFile()) with the real extracted PDF content.
+  console.log("TODO: open file picker dialog");
 }
 
 function handleFileDrop(event) {
-    event.preventDefault();
-    // TODO: same as browseFiles — extract real PDF text, then set
-    // state.currentDocument to the extracted result and render().
-    console.log("TODO: handle dropped file", event.dataTransfer.files);
+  event.preventDefault();
+  // TODO: same as browseFiles — extract real PDF text, then set
+  // state.currentDocument to the extracted result and render().
+  console.log("TODO: handle dropped file", event.dataTransfer.files);
 }
 
 // Wired: clicking a sidebar file now genuinely swaps the center pane +
@@ -593,45 +609,45 @@ function handleFileDrop(event) {
 // upload/extraction pipeline exists — nothing else here should need to
 // change, since render() already reacts to state.currentDocument.
 function openFile(fileId) {
-    const doc = state.documents[fileId];
-    if (!doc) {
-        console.warn(`No document found for file id "${fileId}"`);
-        return;
-    }
-    state.currentDocument = doc;
-    render();
+  const doc = state.documents[fileId];
+  if (!doc) {
+    console.warn(`No document found for file id "${fileId}"`);
+    return;
+  }
+  state.currentDocument = doc;
+  render();
 }
 
 // "New file" returns to the welcome/upload screen — same state as a
 // fresh launch with no document loaded. Sidebar itself is untouched
 // since it never re-renders.
 function goToNewFile() {
-    state.currentDocument = null;
-    render();
+  state.currentDocument = null;
+  render();
 }
 
 function playPause() {
-    console.log("TODO: toggle playback");
+  console.log("TODO: toggle playback");
 }
 
 function rewind() {
-    console.log("TODO: rewind");
+  console.log("TODO: rewind");
 }
 
 function skipForward() {
-    console.log("TODO: skip forward");
+  console.log("TODO: skip forward");
 }
 
 function regenerate() {
-    console.log("TODO: regenerate audio");
+  console.log("TODO: regenerate audio");
 }
 
 // --- Full re-render (call after any state mutation) --------------------
 
 function render() {
-    renderMain();
-    renderPlayerPanel();
-    renderMiniPlayer();
+  renderMain();
+  renderPlayerPanel();
+  renderMiniPlayer();
 }
 
 // --- Boot ----------------------------------------------------------------
@@ -639,8 +655,8 @@ function render() {
 showActiveRoot();
 
 if (state.currentView === "app") {
-    renderFileNav();
-    render();
+  renderFileNav();
+  render();
 } else if (state.currentView === "onboarding") {
-    renderOnboardingStep();
+  renderOnboardingStep();
 }

@@ -638,9 +638,9 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--orb-size);
-    height: var(--orb-size);
-    margin-bottom: var(--space-6);
+    width: 120px;
+    height: 120px;
+    margin-bottom: var(--space-4);
 }
 
 .empty-state__orb {
