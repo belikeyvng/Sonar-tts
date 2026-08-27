@@ -297,6 +297,7 @@ function renderFileNav() {
     bind(fragment, "accountEmail", state.accountEmail);
 
     on(fragment, "toggle-pin", togglePin);
+    on(fragment, "new-file", goToNewFile);
 
     const pinnedList = fragment.querySelector('[data-list="pinned"]');
     for (const file of state.pinnedFiles) {
@@ -459,6 +460,14 @@ function openFile(fileId) {
         return;
     }
     state.currentDocument = doc;
+    render();
+}
+
+// "New file" returns to the welcome/upload screen — same state as a
+// fresh launch with no document loaded. Sidebar itself is untouched
+// since it never re-renders.
+function goToNewFile() {
+    state.currentDocument = null;
     render();
 }
 
