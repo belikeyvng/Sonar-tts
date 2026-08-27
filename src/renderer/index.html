@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8" />
     <title>Sonar</title>
     <link rel="stylesheet" href="styles/layout.css" />
     <link rel="stylesheet" href="styles/visual.css" />
 </head>
+
 <body>
 
     <!-- ======================================================================
@@ -43,17 +45,13 @@
 
             <div class="onboarding-step__field">
                 <label class="onboarding-step__label" for="onboarding-name-input">Your name</label>
-                <input
-                    class="onboarding-step__input"
-                    type="text"
-                    id="onboarding-name-input"
-                    placeholder="Alex"
-                    data-bind="nameInput"
-                />
+                <input class="onboarding-step__input" type="text" id="onboarding-name-input" placeholder="Alex"
+                    data-bind="nameInput" />
             </div>
 
             <div class="onboarding-step__actions">
-                <button class="onboarding-step__button onboarding-step__button--primary" type="button" data-action="next">
+                <button class="onboarding-step__button onboarding-step__button--primary" type="button"
+                    data-action="next">
                     Continue
                 </button>
             </div>
@@ -105,7 +103,8 @@
 
             <div class="onboarding-step__actions">
                 <button class="onboarding-step__button" type="button" data-action="back">Back</button>
-                <button class="onboarding-step__button onboarding-step__button--primary" type="button" data-action="next">
+                <button class="onboarding-step__button onboarding-step__button--primary" type="button"
+                    data-action="next">
                     Continue
                 </button>
             </div>
@@ -131,14 +130,8 @@
             <div class="onboarding-step__field">
                 <label class="onboarding-step__label" for="onboarding-license-input">License file</label>
                 <div class="onboarding-step__file-row">
-                    <input
-                        class="onboarding-step__input"
-                        type="text"
-                        id="onboarding-license-input"
-                        placeholder="No file selected"
-                        readonly
-                        data-bind="licensePathDisplay"
-                    />
+                    <input class="onboarding-step__input" type="text" id="onboarding-license-input"
+                        placeholder="No file selected" readonly data-bind="licensePathDisplay" />
                     <button class="onboarding-step__button" type="button" data-action="browse-license">Browse</button>
                 </div>
                 <p class="onboarding-step__field-status" data-bind="licenseStatus"></p>
@@ -147,7 +140,8 @@
             <div class="onboarding-step__actions">
                 <button class="onboarding-step__button" type="button" data-action="back">Back</button>
                 <button class="onboarding-step__button" type="button" data-action="skip">Skip, continue free</button>
-                <button class="onboarding-step__button onboarding-step__button--primary" type="button" data-action="activate-and-finish">
+                <button class="onboarding-step__button onboarding-step__button--primary" type="button"
+                    data-action="activate-and-finish">
                     Activate &amp; finish
                 </button>
             </div>
@@ -164,20 +158,17 @@
             <div class="file-nav__brand">
                 <span class="file-nav__logo" aria-hidden="true"></span>
                 <span class="file-nav__name">Sonar</span>
-                <button class="file-nav__pin-toggle" type="button" aria-label="Pin sidebar open" data-action="toggle-pin">
+                <button class="file-nav__pin-toggle" type="button" aria-label="Pin sidebar open"
+                    data-action="toggle-pin">
                     <span class="file-nav__pin-icon" aria-hidden="true"></span>
                 </button>
             </div>
 
             <div class="file-nav__search">
-                <input
-                    type="search"
-                    class="file-nav__search-input"
-                    placeholder="Search files..."
-                />
+                <input type="search" class="file-nav__search-input" placeholder="Search files..." />
             </div>
 
-            <button class="file-nav__new-file" type="button">
+            <button class="file-nav__new-file" type="button" data-action="new-file">
                 <span class="file-nav__new-file-icon" aria-hidden="true"></span>
                 <span class="file-nav__new-file-label">New file</span>
             </button>
@@ -229,7 +220,8 @@
     <template id="tpl-empty-state">
         <main class="empty-state">
             <div class="empty-state__toolbar">
-                <button class="empty-state__theme-toggle" type="button" aria-label="Toggle theme" data-action="toggle-theme">
+                <button class="empty-state__theme-toggle" type="button" aria-label="Toggle theme"
+                    data-action="toggle-theme">
                     <span class="empty-state__theme-icon" aria-hidden="true"></span>
                 </button>
             </div>
@@ -249,7 +241,8 @@
                     <p class="empty-state__dropzone-title">Upload a PDF to get started</p>
                     <p class="empty-state__dropzone-hint">
                         Drag and drop or
-                        <button class="empty-state__browse-link" type="button" data-action="browse-files">Browse files</button>
+                        <button class="empty-state__browse-link" type="button" data-action="browse-files">Browse
+                            files</button>
                     </p>
                     <p class="empty-state__dropzone-constraint">Supports .pdf files up to 25MB.</p>
                 </div>
@@ -261,7 +254,8 @@
     <template id="tpl-reader-view">
         <main class="reading-pane">
             <div class="reading-pane__toolbar">
-                <button class="reading-pane__theme-toggle" type="button" aria-label="Toggle theme" data-action="toggle-theme">
+                <button class="reading-pane__theme-toggle" type="button" aria-label="Toggle theme"
+                    data-action="toggle-theme">
                     <span class="reading-pane__theme-icon" aria-hidden="true"></span>
                 </button>
             </div>
@@ -292,7 +286,8 @@
             <div class="player-panel__generation-controls">
                 <div class="player-panel__control" data-control="voice-model" data-tier="pro">
                     <label class="player-panel__control-label" for="voice-model-select">Voice model</label>
-                    <select class="player-panel__control-input" id="voice-model-select" data-bind="voiceModelOptions"></select>
+                    <select class="player-panel__control-input" id="voice-model-select"
+                        data-bind="voiceModelOptions"></select>
                 </div>
 
                 <div class="player-panel__control" data-control="speed">
@@ -302,41 +297,32 @@
 
                 <div class="player-panel__control" data-control="volume">
                     <label class="player-panel__control-label" for="volume-slider">Volume</label>
-                    <input
-                        class="player-panel__control-input player-panel__control-input--range"
-                        type="range"
-                        id="volume-slider"
-                        min="0"
-                        max="100"
-                        data-bind="volume"
-                    />
+                    <input class="player-panel__control-input player-panel__control-input--range" type="range"
+                        id="volume-slider" min="0" max="100" data-bind="volume" />
                 </div>
             </div>
 
             <div class="player-panel__scrubber">
                 <div class="player-panel__time player-panel__time--elapsed" data-bind="timeElapsed"></div>
                 <div class="player-panel__time player-panel__time--total" data-bind="timeTotal"></div>
-                <input
-                    class="player-panel__progress"
-                    type="range"
-                    min="0"
-                    max="100"
-                    aria-label="Playback position"
-                    data-bind="progress"
-                />
+                <input class="player-panel__progress" type="range" min="0" max="100" aria-label="Playback position"
+                    data-bind="progress" />
             </div>
 
             <div class="player-panel__transport">
                 <button class="player-panel__transport-button" type="button" aria-label="Rewind" data-action="rewind">
                     <span class="player-panel__transport-icon" aria-hidden="true"></span>
                 </button>
-                <button class="player-panel__transport-button" type="button" aria-label="Skip forward" data-action="skip-forward">
+                <button class="player-panel__transport-button" type="button" aria-label="Skip forward"
+                    data-action="skip-forward">
                     <span class="player-panel__transport-icon" aria-hidden="true"></span>
                 </button>
-                <button class="player-panel__transport-button player-panel__transport-button--primary" type="button" aria-label="Play/pause" data-action="play-pause">
+                <button class="player-panel__transport-button player-panel__transport-button--primary" type="button"
+                    aria-label="Play/pause" data-action="play-pause">
                     <span class="player-panel__transport-icon" aria-hidden="true"></span>
                 </button>
-                <button class="player-panel__transport-button" type="button" aria-label="Regenerate" data-action="regenerate">
+                <button class="player-panel__transport-button" type="button" aria-label="Regenerate"
+                    data-action="regenerate">
                     <span class="player-panel__transport-icon" aria-hidden="true"></span>
                 </button>
             </div>
@@ -357,14 +343,8 @@
 
             <div class="mini-player__scrubber">
                 <span class="mini-player__time mini-player__time--elapsed" data-bind="timeElapsed"></span>
-                <input
-                    class="mini-player__progress"
-                    type="range"
-                    min="0"
-                    max="100"
-                    aria-label="Playback position"
-                    data-bind="progress"
-                />
+                <input class="mini-player__progress" type="range" min="0" max="100" aria-label="Playback position"
+                    data-bind="progress" />
                 <span class="mini-player__time mini-player__time--total" data-bind="timeTotal"></span>
             </div>
 
@@ -378,7 +358,8 @@
         </footer>
     </template>
 
-    <script src="app.js"></script>
     <script src="./lib/playback.js"></script>
+    <script src="app.js"></script>
 </body>
+
 </html>
