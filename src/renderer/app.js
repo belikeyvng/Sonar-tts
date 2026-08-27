@@ -113,7 +113,11 @@ const state = {
   // show reader-view + player-panel + mini-player
   currentDocument: null,
 
-  // --- Plans (upgrade page) ---
+  // Set while pdf:load/pdf:browse is in flight, or to an error message
+  // string if the last attempt failed. Empty-state reads this to show
+  // a spinner/error instead of the default dropzone copy.
+  dropzoneStatus: null, // null | "loading" | { error: string }e) ---
+
   plans: [
     {
       id: "free",
@@ -495,9 +499,25 @@ function renderEmptyState() {
   on(fragment, "browse-files", browseFiles);
 
   const dropzone = fragment.querySelector('[data-action="dropzone"]');
-  dropzone.addEventListener("click", browseFiles);
+  const isLoading = state.dropzoneStatus === "loading";
+
+  if (isLoading) {
+    dropzone.classList.add("empty-state__dropzone--loading");
+    const title = fragment.querySelector(".empty-state__dropzone-title");
+    if (title) title.textContent = "Reading your PDF...";
+  } else if (state.dropzoneStatus && state.dropzoneStatus.error) {
+    dropzone.classList.add("empty-state__dropzone--error");
+    const title = fragment.querySelector(".empty-state__dropzone-title");
+    if (title) title.textContent = state.dropzoneStatus.error;
+  }
+
+  dropzone.addEventListener("click", () => {
+    if (isLoading) return;
+    browseFiles();
+  });
   dropzone.addEventListener("dragover", (e) => {
     e.preventDefault();
+    if (isLoading) return;
     dropzone.classList.add("empty-state__dropzone--drag-over");
   });
   dropzone.addEventListener("dragleave", () => {
@@ -505,6 +525,7 @@ function renderEmptyState() {
   });
   dropzone.addEventListener("drop", (e) => {
     dropzone.classList.remove("empty-state__dropzone--drag-over");
+    if (isLoading) return;
     handleFileDrop(e);
   });
 
@@ -590,19 +611,76 @@ function toggleTheme() {
   updateThemeToggleIcons();
 }
 
-function browseFiles() {
-  // TODO: open native file picker via IPC, then call openFile() (or a
-  // new loadDroppedOrPickedFile()) with the real extracted PDF content.
-  console.log("TODO: open file picker dialog");
+async function browseFiles() {
+  state.dropzoneStatus = "loading";
+  renderMain();
+
+  const result = await window.sonar.pdf.browse();
+  handlePdfLoadResult(result);
 }
 
-function handleFileDrop(event) {
+async function handleFileDrop(event) {
   event.preventDefault();
-  // TODO: same as browseFiles — extract real PDF text, then set
-  // state.currentDocument to the extracted result and render().
-  console.log("TODO: handle dropped file", event.dataTransfer.files);
+
+  const file = event.dataTransfer.files?.[0];
+  if (!file) return;
+
+  state.dropzoneStatus = "loading";
+  renderMain();
+
+  // webUtils.getPathForFile only works in preload — that's why this
+  // goes through window.sonar.pdf rather than reading file.path
+  // directly (removed in newer Electron under contextIsolation).
+  const filePath = window.sonar.pdf.getPathForFile(file);
+  const result = await window.sonar.pdf.load(filePath);
+  handlePdfLoadResult(result);
 }
 
+// Shared by both browse and drop paths — turns a pdf:load/pdf:browse
+// IPC result into a documents entry (or a dropzoneStatus error) and
+// re-renders.
+function handlePdfLoadResult(result) {
+  if (!result.ok) {
+    // User just closed the dialog — not an error, quietly reset.
+    if (result.error === "canceled") {
+      state.dropzoneStatus = null;
+      renderMain();
+      return;
+    }
+    state.dropzoneStatus = { error: result.message || "Couldn't load that file." };
+    renderMain();
+    return;
+  }
+
+  const docId = result.filePath; // path is unique per file, good enough as a key for now
+
+  const doc = {
+    fileName: result.fileName,
+    title: result.title,
+    paragraphs: result.paragraphs.length
+      ? result.paragraphs
+      : ["This PDF doesn't contain any extractable text."],
+    narratorName: "Helen (NGA)",
+    timeElapsed: "0:00",
+    timeTotal: "0:00",
+    progress: 0,
+    sectionLabel: result.pageCount
+      ? `Section 1 of ${result.pageCount}`
+      : "Section 1 of 1",
+  };
+
+  state.documents[docId] = doc;
+  state.dropzoneStatus = null;
+  state.currentDocument = doc;
+
+  // New file becomes the most recent recent-file too, so it shows up
+  // in the sidebar next time. (Sidebar itself never re-renders, so
+  // this only takes effect on next full boot/renderFileNav call —
+  // fine for now, flagging as a known limitation.)
+  state.recentFiles.unshift({ id: docId, name: doc.fileName });
+
+  render();
+}
 // Wired: clicking a sidebar file now genuinely swaps the center pane +
 // mounts the player-panel/mini-player, using the placeholder `documents`
 // map above. Swap the lookup for real extracted PDF content once the

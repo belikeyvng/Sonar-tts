@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 contextBridge.exposeInMainWorld("sonar", {
   license: {
@@ -15,5 +15,19 @@ contextBridge.exposeInMainWorld("sonar", {
 
     speak: (text, voiceId) =>
       ipcRenderer.invoke("tts:speak", { text, voiceId }),
+  },
+  pdf: {
+    // Renderer hands us the real dropped File object; webUtils resolves
+    // its on-disk path (only available here in preload, not in the
+    // sandboxed renderer itself) so main can read + parse it.
+    getPathForFile: (file) => webUtils.getPathForFile(file),
+
+    // Load + extract a PDF already on disk (used by both drag-drop,
+    // once we have a path, and anywhere else a path is already known).
+    load: (filePath) => ipcRenderer.invoke("pdf:load", filePath),
+
+    // Opens the native "Browse files" dialog and extracts the chosen
+    // PDF in one round-trip.
+    browse: () => ipcRenderer.invoke("pdf:browse"),
   },
 });
