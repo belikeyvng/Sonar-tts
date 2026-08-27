@@ -136,7 +136,7 @@
     color: var(--color-text-primary);
 }
 
-.file-nav__account-status {
+.file-nav__account-email {
     font-size: var(--text-xs);
     color: var(--color-text-tertiary);
 }
