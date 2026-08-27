@@ -1,0 +1,7 @@
+/* ==========================================================================
+   PLAYER-PANEL.CSS
+   Visual styling for the .player-panel component (orb glow/animation,
+   control styling, tier-gated graying via [data-tier="pro"], transport
+   button styling). Empty pending design approval — layout.css already
+   defines this component's structure independently of this file.
+   ========================================================================== */

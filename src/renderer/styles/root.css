@@ -1,0 +1,12 @@
+/* ==========================================================================
+   ROOT.CSS
+   Shared visual tokens: colors, typography, shadows, radii, theme
+   definitions ([data-theme="light"|"dark"] on <html>). Every file in
+   styles/visual/ should reference variables defined here rather than
+   hardcoding values, so a theme/brand change happens in one place.
+
+   Intentionally empty for now — no visual design has been approved yet.
+   Component files below (file-nav.css, player-panel.css, etc.) are
+   empty for the same reason. This split just sets up where each
+   decision will live once the design pass happens.
+   ========================================================================== */

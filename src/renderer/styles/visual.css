@@ -1,7 +1,15 @@
 /* ==========================================================================
    VISUAL.CSS
-   Colors, typography personality, shadows, radii, gradients, the orb's
-   glow/animation, tier-gated graying treatment — all intentionally left
-   for the next pass. layout.css alone should already produce a correctly
-   proportioned, colorless wireframe of the screen.
+   Entry point only — imports the token file and every per-component
+   visual stylesheet. Add new component files to styles/visual/ and
+   list them here; keep this file itself free of actual rules.
    ========================================================================== */
+
+@import url("visual/root.css");
+
+@import url("visual/file-nav.css");
+@import url("visual/empty-state.css");
+@import url("visual/reading-pane.css");
+@import url("visual/player-panel.css");
+@import url("visual/mini-player.css");
+@import url("visual/onboarding.css");
