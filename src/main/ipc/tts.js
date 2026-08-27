@@ -4,6 +4,7 @@ const path = require("node:path");
 const PiperEngine = require("../../engines/tts/piper/PiperEngine");
 const KokoroEngine = require("../../engines/tts/kokoro/KokoroEngine");
 const UsageStore = require("../../data/settings/UsageStore");
+const { checkTextLength } = require("../../data/settings/text-limits");
 
 const { FREE_KOKORO_VOICE_ID, FREE_KOKORO_GENERATION_LIMIT } = KokoroEngine;
 
@@ -32,6 +33,20 @@ function registerTtsIpc(licenseEngine) {
         }
 
         const isPro = licenseEngine.hasFeature("advancedVoices");
+
+        // Defensive check — the renderer should already block this at
+        // upload time so users see it before generation, not after, but
+        // this catches anyone bypassing that (devtools, scripting) since
+        // it's the last gate before real synthesis work happens.
+        const lengthCheck = checkTextLength(text, isPro);
+        if (!lengthCheck.allowed) {
+            return {
+                success: false,
+                reason: lengthCheck.reason,
+                limit: lengthCheck.limit,
+                actual: lengthCheck.actual,
+            };
+        }
 
         if (voice.tier === "pro" && !isPro) {
             return { success: false, reason: "VOICE_REQUIRES_PRO" };
