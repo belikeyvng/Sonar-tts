@@ -1,12 +1,135 @@
 /* ==========================================================================
-   ROOT.CSS
-   Shared visual tokens: colors, typography, shadows, radii, theme
-   definitions ([data-theme="light"|"dark"] on <html>). Every file in
-   styles/visual/ should reference variables defined here rather than
-   hardcoding values, so a theme/brand change happens in one place.
+   ROOT.CSS — visual tokens
+   Colors, typography, shadows, radii — sampled directly from the
+   approved mockups (light empty-state, light reader, dark upgrade page).
+   Every other file in styles/ should reference these variables rather
+   than hardcoding values, so a theme/brand change happens in exactly
+   one place.
 
-   Intentionally empty for now — no visual design has been approved yet.
-   Component files below (file-nav.css, player-panel.css, etc.) are
-   empty for the same reason. This split just sets up where each
-   decision will live once the design pass happens.
+   [data-theme="dark"] on <html> (toggled in app.js) swaps the color
+   block. Structural values (spacing, sizing) live in layout.css.
    ========================================================================== */
+
+@font-face {
+    font-family: "Geist Mono";
+    src: url("../assets/fonts/GeistMono-VariableFont_wght.ttf") format("truetype-variations"),
+         url("../assets/fonts/GeistMono-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 900; /* variable font — full weight axis */
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --font-ui-mono: "Geist Mono", var(--font-mono);
+
+    /* --- Brand gradient (orb glow, primary CTAs — same family in both
+       themes: blue → purple, seen on "Upgrade to Pro" buttons and the
+       reading orb in every mockup) --- */
+    --gradient-brand-start: #4f6df0;
+    --gradient-brand-end: #9333ea;
+    --gradient-brand: linear-gradient(135deg, var(--gradient-brand-start), var(--gradient-brand-end));
+
+    /* --- Accent (logo mark, links, focus rings, Pro card border/glow) --- */
+    --color-accent: #8b5cf6;
+    --color-accent-hover: #7c3aed;
+    --color-accent-subtle: #ede9fe;
+    --color-accent-thin: #ccc1fc;
+
+    /* --- Radii --- */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-full: 999px;
+
+    /* --- Shadows --- */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.16);
+    --shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.24);
+    /* Pro plan card's purple glow border, seen in the dark upgrade page */
+    --shadow-accent-glow: 0 0 0 1px var(--color-accent), 0 0 24px rgba(139, 92, 246, 0.35);
+    --shadow-accent-glow-subtle: 0 0 0 .5px var(--color-accent), 0 0 24px rgba(138, 92, 246, 0.171);
+
+    /* --- Typography ---
+       Headings ("Welcome, Alex", "Upgrade Your Reading Experience") use
+       a serif display face in both mockups — everything else is sans. */
+    --font-body: -apple-system, "Segoe UI", system-ui, sans-serif;
+    --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    --font-mono: "SF Mono", Consolas, monospace; /* timestamps, counters */
+
+    --text-xs: 12px;
+    --text-sm: 13px;
+    --text-base: 14px;
+    --text-md: 16px;
+    --text-lg: 20px;
+    --text-xl: 28px;
+    --text-display: 36px; /* page-level headings like "Upgrade Your Reading Experience" */
+
+    --weight-regular: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+
+    /* --- Pro-gated control treatment (shared across file-nav, player-panel) --- */
+    --tier-pro-opacity: 0.5;
+}
+
+/* --- Light theme (default — sampled from the light mockups) --- */
+:root,
+[data-theme="light"] {
+    --color-bg: #fdfdfc;
+    --color-bg-subtle: #fafaf8;
+    --color-bg-raised: #ffffff;
+    --color-border: #e8e8e6;
+    --color-border-strong: #d4d4d2;
+
+    --color-text-primary: #18181b;
+    --color-text-secondary: #71717a;
+    --color-text-tertiary: #a1a1aa;
+    --color-text-on-accent: #ffffff;
+
+    --color-overlay-scrim: rgba(0, 0, 0, 0.12);
+
+    /* Dropzone upload icon circle (light blue), seen on the empty state */
+    --color-icon-chip-bg: #dbeafe;
+    --color-icon-chip-fg: #3b82f6;
+
+    --color-link: #3b82f6;
+}
+
+/* --- Dark theme (sampled from the upgrade page — near-black, not just
+   inverted light values) --- */
+[data-theme="dark"] {
+    --color-bg: #09090b;
+    --color-bg-subtle: #141416;
+    --color-bg-raised: #18181b;
+    --color-border: #27272a;
+    --color-border-strong: #3a3a40;
+
+    --color-text-primary: #f4f4f5;
+    --color-text-secondary: #8b8b93;
+    --color-text-tertiary: #6b6b74;
+    --color-text-on-accent: #ffffff;
+
+    --color-overlay-scrim: rgba(0, 0, 0, 0.56);
+
+    --color-icon-chip-bg: #1e293b;
+    --color-icon-chip-fg: #60a5fa;
+
+    --color-link: #60a5fa;
+}
+
+/* --- Plan card badge variants (upgrade page) --- */
+:root {
+    --badge-neutral-bg: var(--color-bg-subtle);
+    --badge-neutral-fg: var(--color-text-secondary);
+    --badge-accent-bg: #2e2a4d; /* dark-purple chip behind "RECOMMENDED" */
+    --badge-accent-fg: #c4b5fd;
+}
+
+body {
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+}

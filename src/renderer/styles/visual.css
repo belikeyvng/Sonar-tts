@@ -5,12 +5,12 @@
    list them here; keep this file itself free of actual rules.
    ========================================================================== */
 
-@import url("visual/root.css");
+@import url("root.css");
 
-@import url("visual/upgrade-page.css");
-@import url("visual/file-nav.css");
-@import url("visual/empty-state.css");
-@import url("visual/reading-pane.css");
-@import url("visual/player-panel.css");
-@import url("visual/mini-player.css");
-@import url("visual/onboarding.css");
+@import url("upgrade-page.css");
+@import url("file-nav.css");
+@import url("empty-state.css");
+@import url("reading-pane.css");
+@import url("player-panel.css");
+@import url("mini-player.css");
+@import url("onboarding.css");

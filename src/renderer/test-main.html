@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Sonar — Style Test (Main Screen)</title>
+    <link rel="stylesheet" href="styles/layout.css" />
+    <link rel="stylesheet" href="styles/visual.css" />
+</head>
+
+<body>
+
+    <!-- ==========================================================
+         STATIC TEST PAGE — no JS, no <template> cloning. Just the
+         main-screen markup hardcoded with sample content, so you can
+         open this directly and style with devtools without app.js
+         getting in the way. NOT wired to app.js — edits here don't
+         affect the real app; once styling is settled, port the same
+         classes/structure decisions into the actual per-component
+         visual.css files.
+
+         Toggle dark mode by hand: change data-theme="light" to "dark"
+         on <html> above, or flip it in devtools.
+         ========================================================== -->
+
+    <div class="app-shell">
+
+        <!-- ============ FILE NAV ============ -->
+        <div class="file-nav">
+            <div class="file-nav__brand">
+                <span class="file-nav__logo" aria-hidden="true">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="12" fill="#3B82F6" />
+                        <rect width="24" height="24" rx="12" fill="url(#paint0_linear_356_1831)" />
+                        <g clip-path="url(#clip0_356_1831)">
+                            <path
+                                d="M6 10.6667V12.6667M8.4 8V15.3333M10.8 6V18M13.2 9.33333V14M15.6 7.33333V16M18 10.6667V12.6667"
+                                stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                        <defs>
+                            <linearGradient id="paint0_linear_356_1831" x1="0" y1="0" x2="24" y2="0"
+                                gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#3B82F6" />
+                                <stop offset="1" stop-color="#9333EA" />
+                            </linearGradient>
+                            <clipPath id="clip0_356_1831">
+                                <rect width="12" height="12" fill="white" transform="translate(6 6)" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+
+                </span>
+                <span class="file-nav__name">Sonar</span>
+                <button class="file-nav__pin-toggle" type="button" aria-label="Pin sidebar open">
+                    <span class="file-nav__pin-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <div class="file-nav__search">
+                <input type="search" class="file-nav__search-input" placeholder="Search files..." />
+            </div>
+
+            <button class="file-nav__new-file" type="button">
+                <span class="file-nav__new-file-icon" aria-hidden="true">
+                    <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 10V5.5M6 5.5V1M6 5.5H11M6 5.5H1" stroke="#94A3B8" stroke-width="2"
+                            stroke-linecap="round" />
+                    </svg>
+
+                </span>
+                <span class="file-nav__new-file-label">New file</span>
+            </button>
+
+            <nav class="file-nav__section" aria-label="Pinned files">
+                <h2 class="file-nav__section-label">Pinned</h2>
+                <ul class="file-nav__list">
+                    <li class="file-nav__item">
+                        <button class="file-nav__item-button" type="button">
+                            <span class="file-nav__item-icon" aria-hidden="true">
+                                <svg class="h-3.5 w-3.5 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 17v5"></path>
+                                    <path
+                                        d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 0-1-1H10a1 1 0 0 0-1 1z">
+                                    </path>
+                                </svg>
+                            </span>
+                            <span class="file-nav__item-name">Meeting_Notes.pdf</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <nav class="file-nav__section" aria-label="Recent files">
+                <h2 class="file-nav__section-label">Recents</h2>
+                <ul class="file-nav__list">
+                    <li class="file-nav__item">
+                        <button class="file-nav__item-button" type="button">
+                            <span class="file-nav__item-icon" aria-hidden="true">
+                                <svg class="h-3.5 w-3.5 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <path d="M14 2v6h6"></path>
+                                    <path d="M16 13H8"></path>
+                                    <path d="M16 17H8"></path>
+                                    <path d="M10 9H8"></path>
+                                </svg>
+                            </span>
+                            <span class="file-nav__item-name">Project_Notes.pdf</span>
+                        </button>
+                    </li>
+                    <li class="file-nav__item">
+                        <button class="file-nav__item-button" type="button">
+                            <span class="file-nav__item-icon" aria-hidden="true">
+                                <svg class="h-3.5 w-3.5 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <path d="M14 2v6h6"></path>
+                                    <path d="M16 13H8"></path>
+                                    <path d="M16 17H8"></path>
+                                    <path d="M10 9H8"></path>
+                                </svg>
+                            </span>
+                            <span class="file-nav__item-name">Cook.pdf</span>
+                        </button>
+                    </li>
+                    <li class="file-nav__item">
+                        <button class="file-nav__item-button" type="button">
+                            <span class="file-nav__item-icon" aria-hidden="true">
+                                <svg class="h-3.5 w-3.5 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <path d="M14 2v6h6"></path>
+                                    <path d="M16 13H8"></path>
+                                    <path d="M16 17H8"></path>
+                                    <path d="M10 9H8"></path>
+                                </svg>
+                            </span>
+                            <span class="file-nav__item-name">Story.pdf</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="file-nav__footer">
+                <button class="file-nav__upgrade" type="button" data-tier="pro-upsell">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_356_2098)">
+                            <path
+                                d="M11.6673 1.16715V3.5004M12.8341 2.33378H10.5005M6.42678 1.64223C6.45177 1.50842 6.52279 1.38756 6.62752 1.30059C6.73225 1.21362 6.8641 1.16602 7.00024 1.16602C7.13638 1.16602 7.26823 1.21362 7.37296 1.30059C7.47769 1.38756 7.54871 1.50842 7.5737 1.64223L8.18684 4.88427C8.23038 5.11476 8.34241 5.32678 8.50829 5.49264C8.67418 5.65851 8.88622 5.77052 9.11674 5.81406L12.3592 6.42712C12.493 6.45212 12.6139 6.52312 12.7008 6.62784C12.7878 6.73256 12.8354 6.86439 12.8354 7.00052C12.8354 7.13664 12.7878 7.26848 12.7008 7.37319C12.6139 7.47791 12.493 7.54892 12.3592 7.57391L9.11674 8.18697C8.88622 8.23051 8.67418 8.34252 8.50829 8.50839C8.34241 8.67426 8.23038 8.88627 8.18684 9.11677L7.5737 12.3588C7.54871 12.4926 7.47769 12.6135 7.37296 12.7004C7.26823 12.7874 7.13638 12.835 7.00024 12.835C6.8641 12.835 6.73225 12.7874 6.62752 12.7004C6.52279 12.6135 6.45177 12.4926 6.42678 12.3588L5.81364 9.11677C5.7701 8.88627 5.65807 8.67426 5.49218 8.50839C5.3263 8.34252 5.11426 8.23051 4.88374 8.18697L1.64131 7.57391C1.50748 7.54892 1.38661 7.47791 1.29963 7.37319C1.21265 7.26848 1.16504 7.13664 1.16504 7.00052C1.16504 6.86439 1.21265 6.73256 1.29963 6.62784C1.38661 6.52312 1.50748 6.45212 1.64131 6.42712L4.88374 5.81406C5.11426 5.77052 5.3263 5.65851 5.49218 5.49264C5.65807 5.32678 5.7701 5.11476 5.81364 4.88427L6.42678 1.64223ZM3.49998 11.6667C3.49998 12.311 2.97761 12.8334 2.33322 12.8334C1.68884 12.8334 1.16646 12.311 1.16646 11.6667C1.16646 11.0224 1.68884 10.5001 2.33322 10.5001C2.97761 10.5001 3.49998 11.0224 3.49998 11.6667Z"
+                                stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_356_2098">
+                                <rect width="14" height="14" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+
+                    <span class="file-nav__upgrade-label">Upgrade to Pro</span>
+                </button>
+
+                <div class="file-nav__account">
+                    <span class="file-nav__avatar" aria-hidden="true"></span>
+                    <div class="file-nav__account-info">
+                        <span class="file-nav__account-name">Alexander Chen</span>
+                        <span class="file-nav__account-status">Free</span>
+                    </div>
+                    <button class="file-nav__settings" type="button" aria-label="Settings">
+                        <span class="file-nav__settings-icon" aria-hidden="true">
+                            <svg width="19" height="18" viewBox="0 0 19 18" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12.0994 8.62443C12.0994 10.2853 10.7675 11.6317 9.12441 11.6317C7.48136 11.6317 6.14941 10.2853 6.14941 8.62443C6.14941 6.96357 7.48136 5.61719 9.12441 5.61719C10.7675 5.61719 12.0994 6.96357 12.0994 8.62443Z"
+                                    stroke="#94A3B8" stroke-width="1.25" />
+                                <path
+                                    d="M16.7844 10.4263C17.228 10.3054 17.4498 10.2449 17.5374 10.1293C17.625 10.0137 17.625 9.82772 17.625 9.45576V7.79431C17.625 7.42235 17.625 7.23633 17.5374 7.12077C17.4497 7.00512 17.228 6.94463 16.7844 6.82372C15.1265 6.37179 14.0889 4.61979 14.5168 2.95495C14.6344 2.49709 14.6933 2.26817 14.6371 2.1339C14.5809 1.99963 14.4197 1.90711 14.0972 1.72206L12.6313 0.880691C12.3149 0.699105 12.1567 0.608312 12.0147 0.627644C11.8727 0.646977 11.7126 0.808517 11.3921 1.13158C10.1518 2.38238 8.09956 2.38233 6.85919 1.1315C6.53882 0.808431 6.37863 0.646899 6.23664 0.627559C6.09466 0.608226 5.93645 0.699019 5.62005 0.880605L4.15406 1.72198C3.83165 1.90702 3.67044 1.99954 3.61426 2.13378C3.55808 2.26803 3.61689 2.49699 3.73451 2.95489C4.16216 4.61978 3.12376 6.37182 1.46567 6.82374C1.02205 6.94463 0.800245 7.00512 0.712618 7.12068C0.625 7.23633 0.625 7.42235 0.625 7.79431V9.45576C0.625 9.82772 0.625 10.0137 0.712618 10.1293C0.800228 10.2449 1.02204 10.3054 1.46567 10.4263C3.12349 10.8783 4.16107 12.6303 3.73321 14.2951C3.61555 14.753 3.55671 14.9819 3.61289 15.1162C3.66907 15.2505 3.83028 15.343 4.15271 15.528L5.61871 16.3694C5.93513 16.551 6.09334 16.6418 6.23534 16.6224C6.37734 16.6031 6.5375 16.4415 6.8578 16.1184C8.0988 14.8666 10.1525 14.8666 11.3936 16.1183C11.7138 16.4415 11.874 16.603 12.016 16.6224C12.158 16.6417 12.3162 16.5509 12.6326 16.3693L14.0986 15.5279C14.4211 15.3429 14.5823 15.2504 14.6384 15.1161C14.6946 14.9818 14.6358 14.7529 14.5181 14.295C14.09 12.6303 15.1268 10.8784 16.7844 10.4263Z"
+                                    stroke="#94A3B8" stroke-width="1.25" stroke-linecap="round" />
+                            </svg>
+
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ READING PANE ============ -->
+        <main class="reading-pane">
+            <div class="reading-pane__toolbar">
+                <button class="reading-pane__theme-toggle" type="button" aria-label="Toggle theme">
+                    <span class="reading-pane__theme-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <article class="reading-pane__document">
+                <h1 class="reading-pane__title">The Impact of Artificial Intelligence on Modern Healthcare</h1>
+
+                <div class="reading-pane__body">
+                    <p class="reading-pane__paragraph">
+                        Artificial Intelligence (AI) has emerged as an exceptionally powerful tool in
+                        contemporary clinical settings, fundamentally altering diagnosis, treatment
+                        protocols, and workflow automation. From automated billing pipelines to
+                        sophisticated diagnostic imaging assistants, machines now perform tasks that
+                        once required years of specialized medical training.
+                    </p>
+                    <p class="reading-pane__paragraph">
+                        Perhaps the most significant breakthrough lies in deep learning systems trained
+                        on millions of clinical records. These models can identify subtle patterns in
+                        multi-modal datasets — such as medical images, genome sequences, and
+                        laboratory histories — to predict patient outcomes before symptoms even
+                        manifest. Over the next decade, clinical validation studies will determine whether
+                        these algorithms can successfully transition from laboratory environments into
+                        widespread real-world deployment.
+                    </p>
+                    <p class="reading-pane__paragraph">
+                        However, despite these advances, several hurdles prevent immediate widespread
+                        clinical adoption. Foremost among these is the challenge of algorithm
+                        explainability. Clinicians must understand not just the statistical probability of a
+                        diagnostic output, but the underlying biological drivers that led the machine to its
+                        conclusion.
+                    </p>
+                </div>
+            </article>
+        </main>
+
+        <!-- ============ PLAYER PANEL ============ -->
+        <aside class="player-panel">
+            <h2 class="player-panel__heading">Currently Reading</h2>
+
+            <div class="player-panel__orb-wrap">
+                <div class="player-panel__orb" aria-hidden="true"></div>
+            </div>
+
+            <p class="player-panel__narrator">
+                Narrator: <span class="player-panel__narrator-name">Helen (NGA)</span>
+            </p>
+
+            <div class="player-panel__generation-controls">
+                <div class="player-panel__control" data-control="voice-model" data-tier="pro">
+                    <label class="player-panel__control-label" for="voice-model-select">Voice model</label>
+                    <select class="player-panel__control-input" id="voice-model-select">
+                        <option>Helen (NGA)</option>
+                    </select>
+                </div>
+
+                <div class="player-panel__control" data-control="speed">
+                    <label class="player-panel__control-label" for="speed-select">Speed</label>
+                    <select class="player-panel__control-input" id="speed-select">
+                        <option>1x</option>
+                    </select>
+                </div>
+
+                <div class="player-panel__control" data-control="volume">
+                    <label class="player-panel__control-label" for="volume-slider">Volume</label>
+                    <input class="player-panel__control-input player-panel__control-input--range" type="range"
+                        id="volume-slider" min="0" max="100" value="70" />
+                </div>
+            </div>
+
+            <div class="player-panel__scrubber">
+                <div class="player-panel__time player-panel__time--elapsed">2:34</div>
+                <div class="player-panel__time player-panel__time--total">12:08</div>
+                <input class="player-panel__progress" type="range" min="0" max="100" value="21"
+                    aria-label="Playback position" />
+            </div>
+
+            <div class="player-panel__transport">
+                <button class="player-panel__transport-button" type="button" aria-label="Rewind">
+                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                </button>
+                <button class="player-panel__transport-button" type="button" aria-label="Skip forward">
+                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                </button>
+                <button class="player-panel__transport-button player-panel__transport-button--primary" type="button"
+                    aria-label="Play/pause">
+                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                </button>
+                <button class="player-panel__transport-button" type="button" aria-label="Regenerate">
+                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ============ MINI PLAYER ============ -->
+        <footer class="mini-player">
+            <button class="mini-player__play-button" type="button" aria-label="Play/pause">
+                <span class="mini-player__play-icon" aria-hidden="true"></span>
+            </button>
+
+            <div class="mini-player__info">
+                <span class="mini-player__filename">Research_Paper.pdf</span>
+                <span class="mini-player__meta">Section 2 of 14 · 2:34 / 12:08</span>
+            </div>
+
+            <div class="mini-player__scrubber">
+                <span class="mini-player__time mini-player__time--elapsed">2:34</span>
+                <input class="mini-player__progress" type="range" min="0" max="100" value="21"
+                    aria-label="Playback position" />
+                <span class="mini-player__time mini-player__time--total">12:08</span>
+            </div>
+
+            <div class="mini-player__meta-controls">
+                <span class="mini-player__narrator">Helen (NGA)</span>
+                <button class="mini-player__speed" type="button">1x</button>
+                <button class="mini-player__volume-button" type="button" aria-label="Volume">
+                    <span class="mini-player__volume-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+        </footer>
+
+    </div>
+</body>
+
+</html>

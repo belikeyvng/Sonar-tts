@@ -1,7 +1,161 @@
 /* ==========================================================================
    FILE-NAV.CSS
-   Visual styling for the .file-nav component (colors, type, shadows,
-   the rail/pinned/hover overlay treatment, pro-upsell button styling).
-   Empty pending design approval — layout.css already defines this
-   component's structure independently of this file.
+   Visual styling for .file-nav — colors, type, the rail/pinned/hover
+   overlay treatment (structure defined in layout.css's @media block),
+   and the pro-upsell button. Sampled from the light mockup; dark theme
+   falls out automatically via the token swap in root.css.
    ========================================================================== */
+
+.file-nav {
+    background: var(--color-bg-subtle);
+    border-right: 1px solid var(--color-border);
+}
+
+/* --- Brand row --- */
+
+.file-nav__logo {
+    /* background: var(--gradient-brand);
+    border-radius: var(--radius-full); */
+    margin-right: var(--space-2);
+}
+
+.file-nav__name {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-primary);
+}
+
+.file-nav__pin-toggle {
+    color: var(--color-text-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.file-nav__pin-toggle:hover {
+    background: var(--color-bg-raised);
+    color: var(--color-text-secondary);
+}
+
+/* --- Search --- */
+
+.file-nav__search-input {
+    background: var(--color-bg-raised);
+    /* border: 1px solid var(--color-accent-thin); */
+    box-shadow: var(--shadow-accent-glow-subtle);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: var(--text-sm);
+}
+
+.file-nav__search-input::placeholder {
+    color: var(--color-text-tertiary);
+}
+
+.file-nav__search-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-subtle);
+}
+
+/* --- New file --- */
+
+.file-nav__new-file {
+    background: none;
+    color: var(--color-text-secondary);
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    border-radius: var(--radius-md);
+}
+
+.file-nav__new-file:hover {
+    background: var(--color-bg-raised);
+    color: var(--color-text-primary);
+}
+
+.file-nav__new-file-icon {
+    color: var(--color-text-tertiary);
+}
+
+/* --- Section labels + lists --- */
+
+.file-nav__section-label {
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.file-nav__item-button {
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-sm);
+}
+
+.file-nav__item-button:hover {
+    background: var(--color-bg-raised);
+    color: var(--color-text-primary);
+}
+
+.file-nav__item-icon {
+    color: var(--color-text-tertiary);
+}
+
+.file-nav__item-name {
+    color: inherit;
+}
+
+/* --- Footer: upgrade CTA + account row --- */
+
+.file-nav__upgrade {
+    background: var(--gradient-brand);
+    color: var(--color-text-on-accent);
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.file-nav__upgrade:hover {
+    filter: brightness(1.05);
+}
+
+.file-nav__avatar {
+    background: var(--color-border-strong);
+    border-radius: var(--radius-full);
+    background-size: cover;
+    background-position: center;
+}
+
+.file-nav__account-name {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-primary);
+}
+
+.file-nav__account-status {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+}
+
+.file-nav__settings {
+    color: var(--color-text-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.file-nav__settings:hover {
+    background: var(--color-bg-raised);
+    color: var(--color-text-secondary);
+}
+
+/* --- Collapsed rail state (narrow widths) — overlay elevation --- */
+
+@media (max-width: 960px) {
+    .file-nav:hover,
+    .file-nav--pinned {
+        box-shadow: var(--shadow-overlay);
+    }
+}
