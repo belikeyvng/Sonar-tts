@@ -1,0 +1,802 @@
+/* ==========================================================================
+   LAYOUT.CSS
+   Structural units only. No color, no typography personality, no shadows,
+   no border-radius decisions — that's visual.css's job. This file answers
+   "where does everything sit and how big is it," not "what does it look like."
+   ========================================================================== */
+
+:root {
+    /* --- Spacing scale --- */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* --- Structural sizing --- */
+    --file-nav-width: 280px;
+    --file-nav-rail-width: 64px;
+    --player-panel-width: 360px;
+    --mini-player-height: 76px;
+    --reading-toolbar-height: 56px;
+
+    /* --- Component sizing --- */
+    --orb-size: 200px;
+    --avatar-size: 36px;
+    --icon-size-sm: 16px;
+    --icon-size-md: 20px;
+    --icon-size-lg: 24px;
+    --transport-button-size: 44px;
+    --transport-button-size-primary: 52px;
+    --control-input-height: 40px;
+
+    /* --- Content width constraints --- */
+    --document-max-width: 640px;
+
+    /* --- Layout-only radii placeholder (visual.css overrides shapes;
+       these exist only so structural spacing math doesn't shift when
+       visual.css sets real values) --- */
+    --radius-none: 0px;
+}
+
+/* ==========================================================================
+   ONBOARDING (own top-level root, separate from app-shell)
+   ========================================================================== */
+
+.onboarding-root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+}
+
+.onboarding-step {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 480px;
+    padding: var(--space-8) var(--space-6);
+}
+
+.onboarding-step__progress {
+    margin: 0 0 var(--space-4) 0;
+}
+
+.onboarding-step__heading {
+    margin: 0 0 var(--space-2) 0;
+}
+
+.onboarding-step__subheading {
+    margin: 0 0 var(--space-8) 0;
+}
+
+.onboarding-step__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+}
+
+.onboarding-step__label {
+    display: block;
+}
+
+.onboarding-step__input {
+    height: var(--control-input-height);
+    padding: 0 var(--space-3);
+    border: none;
+    width: 100%;
+}
+
+.onboarding-step__file-row {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.onboarding-step__file-row .onboarding-step__input {
+    flex: 1;
+}
+
+.onboarding-step__field-status {
+    margin: 0;
+}
+
+.onboarding-step__option-group {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.onboarding-step__option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.onboarding-step__swatch-group {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.onboarding-step__swatch {
+    width: var(--space-8);
+    height: var(--space-8);
+    padding: 0;
+    border-width: 2px;
+    border-style: solid;
+    cursor: pointer;
+}
+
+.onboarding-step__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.onboarding-step__button {
+    height: var(--control-input-height);
+    padding: 0 var(--space-5);
+    border: none;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   APP SHELL — CSS Grid, 3 columns x 2 rows
+   [ file-nav ][ reading-pane ][ player-panel ]
+   [           mini-player (full span)          ]
+   ========================================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.app-shell {
+    display: grid;
+    grid-template-columns: var(--file-nav-width) 1fr var(--player-panel-width);
+    grid-template-rows: 1fr var(--mini-player-height);
+    grid-template-areas:
+        "file-nav main player-panel"
+        "mini-player mini-player mini-player";
+    height: 100vh;
+    width: 100vw;
+    /* Deliberately no overflow: hidden here — the collapsed sidebar rail
+       expands via position: fixed at narrow widths, and an ancestor's
+       overflow: hidden would clip that fixed overlay in most browsers
+       despite it being fixed. Each inner slot clips its own scrolling
+       independently instead (see .file-nav, .reading-pane, etc). */
+}
+
+/* Slot wrappers ARE the grid items — the templates cloned inside them
+   (.file-nav, .reading-pane, .empty-state, etc.) fill them at 100%
+   width/height rather than becoming grid items themselves. This keeps
+   the grid-area assignment in one place regardless of which template
+   is currently mounted in a slot. */
+#file-nav-slot { grid-area: file-nav; min-height: 0; min-width: 0; }
+#main-slot { grid-area: main; min-height: 0; min-width: 0; overflow: hidden; }
+#player-panel-slot { grid-area: player-panel; min-height: 0; min-width: 0; }
+#mini-player-slot { grid-area: mini-player; min-height: 0; min-width: 0; }
+
+#file-nav-slot > *,
+#main-slot > *,
+#player-panel-slot > *,
+#mini-player-slot > * {
+    height: 100%;
+    width: 100%;
+}
+
+/* When player-panel/mini-player slots are empty (no document loaded),
+   collapse their grid tracks so main expands to fill the space.
+   Scoped to desktop widths only — otherwise this out-specifies the
+   mobile breakpoint below (a :has() clause counts as a class for
+   specificity, beating the plain .app-shell selector there regardless
+   of source order) and the sidebar never collapses on narrow screens. */
+@media (min-width: 961px) {
+    .app-shell:has(#player-panel-slot:empty) {
+        grid-template-columns: var(--file-nav-width) 1fr 0;
+    }
+    .app-shell:has(#mini-player-slot:empty) {
+        grid-template-rows: 1fr 0;
+    }
+}
+
+/* ==========================================================================
+   FILE NAV (left sidebar)
+   ========================================================================== */
+
+.file-nav {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--space-5) var(--space-4);
+    overflow-y: auto;
+}
+
+.file-nav__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+}
+
+.file-nav__logo {
+    display: block;
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+    flex-shrink: 0;
+}
+
+.file-nav__search {
+    margin-bottom: var(--space-4);
+}
+
+.file-nav__search-input {
+    width: 100%;
+    height: var(--control-input-height);
+    padding: 0 var(--space-3);
+    border: none;
+}
+
+.file-nav__new-file {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    height: var(--control-input-height);
+    padding: 0 var(--space-3);
+    margin-bottom: var(--space-6);
+    border: none;
+    cursor: pointer;
+}
+
+.file-nav__new-file-icon {
+    display: block;
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+    flex-shrink: 0;
+}
+
+.file-nav__section {
+    margin-bottom: var(--space-6);
+}
+
+.file-nav__section-label {
+    margin: 0 0 var(--space-2) 0;
+    padding: 0 var(--space-2);
+}
+
+.file-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.file-nav__item-button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-2);
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+}
+
+.file-nav__item-icon {
+    display: block;
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+    flex-shrink: 0;
+}
+
+.file-nav__item-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-nav__footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+}
+
+.file-nav__upgrade {
+    width: 100%;
+    height: var(--control-input-height);
+    border: none;
+    cursor: pointer;
+}
+
+.file-nav__account {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.file-nav__avatar {
+    display: block;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    flex-shrink: 0;
+}
+
+.file-nav__account-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-nav__account-name,
+.file-nav__account-email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-nav__settings {
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.file-nav__settings-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ==========================================================================
+   READING PANE (center)
+   ========================================================================== */
+
+.reading-pane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--space-6);
+}
+
+.reading-pane__toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: var(--reading-toolbar-height);
+    flex-shrink: 0;
+}
+
+.reading-pane__theme-toggle {
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.reading-pane__theme-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.reading-pane__document {
+    flex: 1;
+    max-width: var(--document-max-width);
+    margin: 0 auto;
+    width: 100%;
+    overflow-y: auto;
+    padding: var(--space-8) var(--space-6);
+}
+
+.reading-pane__title {
+    margin: 0 0 var(--space-6) 0;
+}
+
+.reading-pane__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.reading-pane__paragraph {
+    margin: 0;
+}
+
+/* ==========================================================================
+   EMPTY STATE (center — no document loaded yet)
+   ========================================================================== */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--space-6);
+}
+
+.empty-state__toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: var(--reading-toolbar-height);
+    flex-shrink: 0;
+}
+
+.empty-state__theme-toggle {
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.empty-state__theme-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.empty-state__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: var(--space-2);
+}
+
+.empty-state__orb-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--orb-size);
+    height: var(--orb-size);
+    margin-bottom: var(--space-6);
+}
+
+.empty-state__orb {
+    width: 100%;
+    height: 100%;
+}
+
+.empty-state__heading {
+    margin: 0;
+}
+
+.empty-state__subheading {
+    margin: 0 0 var(--space-8) 0;
+}
+
+.empty-state__dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    max-width: 480px;
+    padding: var(--space-8) var(--space-6);
+    border-width: 2px;
+    border-style: dashed;
+    cursor: pointer;
+}
+
+.empty-state__dropzone-icon {
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+    margin-bottom: var(--space-2);
+}
+
+.empty-state__dropzone-title {
+    margin: 0;
+}
+
+.empty-state__dropzone-hint {
+    margin: 0;
+}
+
+.empty-state__browse-link {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.empty-state__dropzone-constraint {
+    margin: var(--space-2) 0 0 0;
+}
+
+/* ==========================================================================
+   PLAYER PANEL (right sidebar — audio/generation controls)
+   ========================================================================== */
+
+.player-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: var(--space-8) var(--space-6);
+    overflow-y: auto;
+}
+
+.player-panel__heading {
+    margin: 0 0 var(--space-8) 0;
+}
+
+.player-panel__orb-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--orb-size);
+    height: var(--orb-size);
+    margin-bottom: var(--space-4);
+}
+
+.player-panel__orb {
+    width: 100%;
+    height: 100%;
+}
+
+.player-panel__narrator {
+    margin: 0 0 var(--space-8) 0;
+    text-align: center;
+}
+
+.player-panel__generation-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    width: 100%;
+    margin-bottom: var(--space-8);
+}
+
+.player-panel__control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.player-panel__control-input {
+    height: var(--control-input-height);
+    padding: 0 var(--space-3);
+    border: none;
+    width: 100%;
+}
+
+.player-panel__control-input--range {
+    height: auto;
+    padding: 0;
+}
+
+.player-panel__scrubber {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    margin-bottom: var(--space-4);
+}
+
+.player-panel__progress {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.player-panel__time--elapsed {
+    grid-row: 2;
+    grid-column: 1;
+}
+
+.player-panel__time--total {
+    grid-row: 2;
+    grid-column: 3;
+}
+
+.player-panel__transport {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+}
+
+.player-panel__transport-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--transport-button-size);
+    height: var(--transport-button-size);
+    padding: 0;
+    border: none;
+    cursor: pointer;
+}
+
+.player-panel__transport-button--primary {
+    width: var(--transport-button-size-primary);
+    height: var(--transport-button-size-primary);
+}
+
+.player-panel__transport-icon {
+    display: block;
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+}
+
+/* ==========================================================================
+   MINI PLAYER (bottom bar, full width)
+   ========================================================================== */
+
+.mini-player {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: var(--space-5);
+    height: 100%;
+    padding: 0 var(--space-6);
+}
+
+.mini-player__play-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--transport-button-size);
+    height: var(--transport-button-size);
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.mini-player__play-icon {
+    display: block;
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+}
+
+.mini-player__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 140px;
+}
+
+.mini-player__filename,
+.mini-player__meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mini-player__scrubber {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.mini-player__meta-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-shrink: 0;
+}
+
+.mini-player__speed {
+    padding: var(--space-1) var(--space-2);
+    border: none;
+    cursor: pointer;
+}
+
+.mini-player__volume-button {
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.mini-player__volume-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ==========================================================================
+   RESPONSIVE — below ~960px, file-nav collapses into a persistent icon
+   rail. Hover peeks it open as a fixed overlay (doesn't push content);
+   clicking the pin toggle keeps it open until toggled again or a click
+   lands outside it (see app.js togglePin/click-outside handler).
+   main/player-panel/mini-player stack vertically in the remaining column
+   — the rail column persists across all three rows.
+   ========================================================================== */
+
+@media (max-width: 960px) {
+    .app-shell {
+        grid-template-columns: var(--file-nav-rail-width) 1fr;
+        grid-template-rows: 1fr auto var(--mini-player-height);
+        grid-template-areas:
+            "file-nav main"
+            "file-nav player-panel"
+            "file-nav mini-player";
+    }
+
+    .player-panel {
+        max-height: 50vh;
+    }
+
+    /* Collapsed rail state (default at this breakpoint) */
+    .file-nav {
+        width: var(--file-nav-rail-width);
+        overflow: hidden;
+        transition: width 0.15s ease;
+    }
+
+    /* Text/labels hidden in rail state — icons (separate elements)
+       remain visible at all times. Restored below once expanded. */
+    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__name,
+    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__search,
+    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__new-file-label,
+    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__section-label,
+    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__item-name,
+    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__upgrade-label,
+    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__account-info {
+        display: none;
+    }
+
+    /* Expanded state — hover-to-peek OR click-to-pin. Fixed overlay so
+       it covers content instead of pushing it (grid column still
+       reserves rail width beneath it for layout purposes). */
+    .file-nav:hover,
+    .file-nav--pinned {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--file-nav-width);
+        height: 100vh;
+        z-index: 100;
+    }
+
+    .file-nav__pin-toggle {
+        display: flex;
+    }
+}
+
+/* Pin toggle button only exists as a control at the collapsible
+   breakpoint — hidden entirely above it. */
+.file-nav__pin-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}

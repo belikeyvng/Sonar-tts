@@ -1,10 +1,384 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Sonar</title>
+    <link rel="stylesheet" href="styles/layout.css" />
+    <link rel="stylesheet" href="styles/visual.css" />
 </head>
 <body>
+
+    <!-- ======================================================================
+         ONBOARDING — shown before the app shell on first run. Own top-level
+         container (not part of app-shell) since there's no file-nav to
+         anchor to yet. app.js toggles which of these two roots is visible.
+         ====================================================================== -->
+    <div class="onboarding-root" id="onboarding-root">
+        <div id="onboarding-step-slot" data-slot="onboarding-step"></div>
+    </div>
+
+    <!-- ======================================================================
+         APP SHELL — persistent slots. file-nav-slot mounts once and is never
+         re-rendered. main-slot / player-panel-slot / mini-player-slot swap
+         based on app state (see app.js).
+         ====================================================================== -->
+    <div class="app-shell" id="app-shell">
+        <div id="file-nav-slot" data-slot="file-nav"></div>
+        <div id="main-slot" data-slot="main"></div>
+        <div id="player-panel-slot" data-slot="player-panel"></div>
+        <div id="mini-player-slot" data-slot="mini-player"></div>
+    </div>
+
+    <!-- ======================================================================
+         ONBOARDING TEMPLATES
+         ====================================================================== -->
+
+    <!-- ---------- STEP 1: NAME ---------- -->
+    <template id="tpl-onboarding-name">
+        <section class="onboarding-step" data-step="name">
+            <p class="onboarding-step__progress">Step 1 of 3</p>
+
+            <h1 class="onboarding-step__heading">What should we call you?</h1>
+            <p class="onboarding-step__subheading">This is how Sonar will greet you.</p>
+
+            <div class="onboarding-step__field">
+                <label class="onboarding-step__label" for="onboarding-name-input">Your name</label>
+                <input
+                    class="onboarding-step__input"
+                    type="text"
+                    id="onboarding-name-input"
+                    placeholder="Alex"
+                    data-bind="nameInput"
+                />
+            </div>
+
+            <div class="onboarding-step__actions">
+                <button class="onboarding-step__button onboarding-step__button--primary" type="button" data-action="next">
+                    Continue
+                </button>
+            </div>
+        </section>
+    </template>
+
+    <!-- ---------- STEP 2: PREFERENCES ---------- -->
+    <template id="tpl-onboarding-preferences">
+        <section class="onboarding-step" data-step="preferences">
+            <p class="onboarding-step__progress">Step 2 of 3</p>
+
+            <h1 class="onboarding-step__heading">Set up your preferences</h1>
+            <p class="onboarding-step__subheading">You can change these anytime in settings.</p>
+
+            <div class="onboarding-step__field">
+                <span class="onboarding-step__label">Voice</span>
+                <div class="onboarding-step__option-group" data-group="voiceGender">
+                    <label class="onboarding-step__option">
+                        <input type="radio" name="voiceGender" value="female" data-bind="voiceGenderFemale" />
+                        Female
+                    </label>
+                    <label class="onboarding-step__option">
+                        <input type="radio" name="voiceGender" value="male" data-bind="voiceGenderMale" />
+                        Male
+                    </label>
+                </div>
+            </div>
+
+            <div class="onboarding-step__field">
+                <span class="onboarding-step__label">Theme</span>
+                <div class="onboarding-step__option-group" data-group="theme">
+                    <label class="onboarding-step__option">
+                        <input type="radio" name="theme" value="light" data-bind="themeLight" />
+                        Light
+                    </label>
+                    <label class="onboarding-step__option">
+                        <input type="radio" name="theme" value="dark" data-bind="themeDark" />
+                        Dark
+                    </label>
+                </div>
+            </div>
+
+            <div class="onboarding-step__field">
+                <span class="onboarding-step__label">Accent color</span>
+                <div class="onboarding-step__swatch-group" data-group="accentColor">
+                    <!-- swatch buttons injected by app.js from ACCENT_COLOR_OPTIONS -->
+                </div>
+            </div>
+
+            <div class="onboarding-step__actions">
+                <button class="onboarding-step__button" type="button" data-action="back">Back</button>
+                <button class="onboarding-step__button onboarding-step__button--primary" type="button" data-action="next">
+                    Continue
+                </button>
+            </div>
+        </section>
+    </template>
+
+    <!-- ---------- ACCENT COLOR SWATCH (cloned per option) ---------- -->
+    <template id="tpl-onboarding-swatch">
+        <button class="onboarding-step__swatch" type="button" data-bind="swatchValue"></button>
+    </template>
+
+    <!-- ---------- STEP 3: LICENSE ---------- -->
+    <template id="tpl-onboarding-license">
+        <section class="onboarding-step" data-step="license">
+            <p class="onboarding-step__progress">Step 3 of 3</p>
+
+            <h1 class="onboarding-step__heading">Activate Pro?</h1>
+            <p class="onboarding-step__subheading">
+                If you have a Sonar Pro license, activate it now. Otherwise, continue with the free plan —
+                you can activate later from settings.
+            </p>
+
+            <div class="onboarding-step__field">
+                <label class="onboarding-step__label" for="onboarding-license-input">License file</label>
+                <div class="onboarding-step__file-row">
+                    <input
+                        class="onboarding-step__input"
+                        type="text"
+                        id="onboarding-license-input"
+                        placeholder="No file selected"
+                        readonly
+                        data-bind="licensePathDisplay"
+                    />
+                    <button class="onboarding-step__button" type="button" data-action="browse-license">Browse</button>
+                </div>
+                <p class="onboarding-step__field-status" data-bind="licenseStatus"></p>
+            </div>
+
+            <div class="onboarding-step__actions">
+                <button class="onboarding-step__button" type="button" data-action="back">Back</button>
+                <button class="onboarding-step__button" type="button" data-action="skip">Skip, continue free</button>
+                <button class="onboarding-step__button onboarding-step__button--primary" type="button" data-action="activate-and-finish">
+                    Activate &amp; finish
+                </button>
+            </div>
+        </section>
+    </template>
+
+    <!-- ======================================================================
+         MAIN APP TEMPLATES
+         ====================================================================== -->
+
+    <!-- ---------- FILE NAV (shared, identical on every screen) ---------- -->
+    <template id="tpl-file-nav">
+        <aside class="file-nav">
+            <div class="file-nav__brand">
+                <span class="file-nav__logo" aria-hidden="true"></span>
+                <span class="file-nav__name">Sonar</span>
+                <button class="file-nav__pin-toggle" type="button" aria-label="Pin sidebar open" data-action="toggle-pin">
+                    <span class="file-nav__pin-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <div class="file-nav__search">
+                <input
+                    type="search"
+                    class="file-nav__search-input"
+                    placeholder="Search files..."
+                />
+            </div>
+
+            <button class="file-nav__new-file" type="button">
+                <span class="file-nav__new-file-icon" aria-hidden="true"></span>
+                <span class="file-nav__new-file-label">New file</span>
+            </button>
+
+            <nav class="file-nav__section" aria-label="Pinned files">
+                <h2 class="file-nav__section-label">Pinned</h2>
+                <ul class="file-nav__list" data-list="pinned">
+                    <!-- file items injected by app.js from state.pinnedFiles -->
+                </ul>
+            </nav>
+
+            <nav class="file-nav__section" aria-label="Recent files">
+                <h2 class="file-nav__section-label">Recents</h2>
+                <ul class="file-nav__list" data-list="recents">
+                    <!-- file items injected by app.js from state.recentFiles -->
+                </ul>
+            </nav>
+
+            <div class="file-nav__footer">
+                <button class="file-nav__upgrade" type="button" data-tier="pro-upsell">
+                    <span class="file-nav__upgrade-label">Upgrade to Pro</span>
+                </button>
+
+                <div class="file-nav__account">
+                    <span class="file-nav__avatar" aria-hidden="true"></span>
+                    <div class="file-nav__account-info">
+                        <span class="file-nav__account-name" data-bind="accountName">Alexander Chen</span>
+                        <span class="file-nav__account-email" data-bind="accountEmail">alex@sonar.ai</span>
+                    </div>
+                    <button class="file-nav__settings" type="button" aria-label="Settings">
+                        <span class="file-nav__settings-icon" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </template>
+
+    <!-- ---------- FILE NAV LIST ITEM (cloned per file into the lists above) ---------- -->
+    <template id="tpl-file-nav-item">
+        <li class="file-nav__item">
+            <button class="file-nav__item-button" type="button">
+                <span class="file-nav__item-icon" aria-hidden="true"></span>
+                <span class="file-nav__item-name" data-bind="fileName"></span>
+            </button>
+        </li>
+    </template>
+
+    <!-- ---------- EMPTY STATE (center slot — no document loaded) ---------- -->
+    <template id="tpl-empty-state">
+        <main class="empty-state">
+            <div class="empty-state__toolbar">
+                <button class="empty-state__theme-toggle" type="button" aria-label="Toggle theme" data-action="toggle-theme">
+                    <span class="empty-state__theme-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <div class="empty-state__content">
+                <div class="empty-state__orb-wrap">
+                    <div class="empty-state__orb" aria-hidden="true"></div>
+                </div>
+
+                <h1 class="empty-state__heading">
+                    Welcome, <span data-bind="firstName">Alex</span>
+                </h1>
+                <p class="empty-state__subheading">What would you like to do today?</p>
+
+                <div class="empty-state__dropzone" data-action="dropzone">
+                    <div class="empty-state__dropzone-icon" aria-hidden="true"></div>
+                    <p class="empty-state__dropzone-title">Upload a PDF to get started</p>
+                    <p class="empty-state__dropzone-hint">
+                        Drag and drop or
+                        <button class="empty-state__browse-link" type="button" data-action="browse-files">Browse files</button>
+                    </p>
+                    <p class="empty-state__dropzone-constraint">Supports .pdf files up to 25MB.</p>
+                </div>
+            </div>
+        </main>
+    </template>
+
+    <!-- ---------- READER VIEW (center slot — document loaded) ---------- -->
+    <template id="tpl-reader-view">
+        <main class="reading-pane">
+            <div class="reading-pane__toolbar">
+                <button class="reading-pane__theme-toggle" type="button" aria-label="Toggle theme" data-action="toggle-theme">
+                    <span class="reading-pane__theme-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <article class="reading-pane__document">
+                <h1 class="reading-pane__title" data-bind="documentTitle"></h1>
+
+                <div class="reading-pane__body" data-bind="documentBody">
+                    <!-- paragraphs injected by app.js from state.currentDocument -->
+                </div>
+            </article>
+        </main>
+    </template>
+
+    <!-- ---------- PLAYER PANEL (right slot — only when a document is loaded) ---------- -->
+    <template id="tpl-player-panel">
+        <aside class="player-panel">
+            <h2 class="player-panel__heading">Currently Reading</h2>
+
+            <div class="player-panel__orb-wrap">
+                <div class="player-panel__orb" aria-hidden="true"></div>
+            </div>
+
+            <p class="player-panel__narrator">
+                Narrator: <span class="player-panel__narrator-name" data-bind="narratorName"></span>
+            </p>
+
+            <div class="player-panel__generation-controls">
+                <div class="player-panel__control" data-control="voice-model" data-tier="pro">
+                    <label class="player-panel__control-label" for="voice-model-select">Voice model</label>
+                    <select class="player-panel__control-input" id="voice-model-select" data-bind="voiceModelOptions"></select>
+                </div>
+
+                <div class="player-panel__control" data-control="speed">
+                    <label class="player-panel__control-label" for="speed-select">Speed</label>
+                    <select class="player-panel__control-input" id="speed-select" data-bind="speedOptions"></select>
+                </div>
+
+                <div class="player-panel__control" data-control="volume">
+                    <label class="player-panel__control-label" for="volume-slider">Volume</label>
+                    <input
+                        class="player-panel__control-input player-panel__control-input--range"
+                        type="range"
+                        id="volume-slider"
+                        min="0"
+                        max="100"
+                        data-bind="volume"
+                    />
+                </div>
+            </div>
+
+            <div class="player-panel__scrubber">
+                <div class="player-panel__time player-panel__time--elapsed" data-bind="timeElapsed"></div>
+                <div class="player-panel__time player-panel__time--total" data-bind="timeTotal"></div>
+                <input
+                    class="player-panel__progress"
+                    type="range"
+                    min="0"
+                    max="100"
+                    aria-label="Playback position"
+                    data-bind="progress"
+                />
+            </div>
+
+            <div class="player-panel__transport">
+                <button class="player-panel__transport-button" type="button" aria-label="Rewind" data-action="rewind">
+                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                </button>
+                <button class="player-panel__transport-button" type="button" aria-label="Skip forward" data-action="skip-forward">
+                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                </button>
+                <button class="player-panel__transport-button player-panel__transport-button--primary" type="button" aria-label="Play/pause" data-action="play-pause">
+                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                </button>
+                <button class="player-panel__transport-button" type="button" aria-label="Regenerate" data-action="regenerate">
+                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+        </aside>
+    </template>
+
+    <!-- ---------- MINI PLAYER (bottom slot — only when a document is loaded) ---------- -->
+    <template id="tpl-mini-player">
+        <footer class="mini-player">
+            <button class="mini-player__play-button" type="button" aria-label="Play/pause" data-action="play-pause">
+                <span class="mini-player__play-icon" aria-hidden="true"></span>
+            </button>
+
+            <div class="mini-player__info">
+                <span class="mini-player__filename" data-bind="fileName"></span>
+                <span class="mini-player__meta" data-bind="fileMeta"></span>
+            </div>
+
+            <div class="mini-player__scrubber">
+                <span class="mini-player__time mini-player__time--elapsed" data-bind="timeElapsed"></span>
+                <input
+                    class="mini-player__progress"
+                    type="range"
+                    min="0"
+                    max="100"
+                    aria-label="Playback position"
+                    data-bind="progress"
+                />
+                <span class="mini-player__time mini-player__time--total" data-bind="timeTotal"></span>
+            </div>
+
+            <div class="mini-player__meta-controls">
+                <span class="mini-player__narrator" data-bind="narratorName"></span>
+                <button class="mini-player__speed" type="button" data-bind="speedLabel"></button>
+                <button class="mini-player__volume-button" type="button" aria-label="Volume" data-action="volume">
+                    <span class="mini-player__volume-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+        </footer>
+    </template>
+
+    <script src="app.js"></script>
     <script src="./lib/playback.js"></script>
 </body>
 </html>
