@@ -10,7 +10,9 @@
 const { ipcMain, dialog, BrowserWindow } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs/promises");
-const pdfParse = require("pdf-parse");
+const { PDFParse } = require("pdf-parse"); // pdf-parse v2 API — class-based,
+// NOT the v1 pdf(buffer) function call. See:
+// https://github.com/mehmet-kozan/pdf-parse#getting-started-with-v2-coming-from-v1
 
 const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024; // 25MB — matches the UI copy in tpl-empty-state
 
@@ -57,18 +59,29 @@ async function loadAndExtractPdf(filePath) {
     return { ok: false, error: "read-failed", message: "Couldn't read that file." };
   }
 
-  let parsed;
+  let result;
+  let parser;
   try {
-    parsed = await pdfParse(buffer);
+    parser = new PDFParse({ data: buffer });
+    result = await parser.getText();
   } catch (err) {
+    // Log the real cause during dev — the message we return to the
+    // renderer stays generic, but this is what you want to check in
+    // the main-process console (terminal running `npm start`, not
+    // DevTools) if this branch fires again.
+    console.error("[pdf:load] pdf-parse failed:", err);
     return {
       ok: false,
       error: "parse-failed",
       message: "Couldn't extract text from that PDF. It may be scanned or image-only.",
     };
+  } finally {
+    // PDFParse holds the document open until destroy()'d — leaking
+    // these across repeated loads would slowly eat memory.
+    await parser?.destroy();
   }
 
-  const paragraphs = splitIntoParagraphs(parsed.text || "");
+  const paragraphs = splitIntoParagraphs(result.text || "");
 
   return {
     ok: true,
@@ -76,7 +89,7 @@ async function loadAndExtractPdf(filePath) {
     filePath,
     title: path.basename(filePath, ext),
     paragraphs,
-    pageCount: parsed.numpages ?? null,
+    pageCount: result.total ?? null,
   };
 }
 

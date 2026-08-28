@@ -475,9 +475,9 @@ document.addEventListener("click", (event) => {
 function renderFileNavItem(file) {
   const fragment = clone("tpl-recent-file-nav-item");
   bind(fragment, "fileName", file.name);
-  fragment
-    .querySelector(".file-nav__item-button")
-    .addEventListener("click", () => openFile(file.id));
+  const button = fragment.querySelector(".file-nav__item-button");
+  button.dataset.fileId = file.id;
+  button.addEventListener("click", () => openFile(file.id));
   return fragment;
 }
 
@@ -673,13 +673,38 @@ function handlePdfLoadResult(result) {
   state.dropzoneStatus = null;
   state.currentDocument = doc;
 
-  // New file becomes the most recent recent-file too, so it shows up
-  // in the sidebar next time. (Sidebar itself never re-renders, so
-  // this only takes effect on next full boot/renderFileNav call —
-  // fine for now, flagging as a known limitation.)
+  // New file becomes the most recent recent-file too, and jumps to
+  // the top even if it was already listed (real "recently used"
+  // behavior). file-nav mounts once and is never re-rendered (see
+  // renderFileNav's doc comment), so we surgically move the DOM node
+  // instead of re-cloning the whole sidebar — that would wipe pin
+  // state and scroll position for no reason.
+  state.recentFiles = state.recentFiles.filter((f) => f.id !== docId);
   state.recentFiles.unshift({ id: docId, name: doc.fileName });
+  moveRecentFileNavItemToTop({ id: docId, name: doc.fileName });
 
   render();
+}
+
+// Ensures exactly one entry for `file` sits at the top of the live
+// Recents list in the already-mounted file-nav, without touching
+// anything else in that subtree (pin state, scroll position, search
+// input value, etc). Removes any existing DOM node for this file
+// first so re-dropping an already-listed PDF moves it rather than
+// duplicating it.
+function moveRecentFileNavItemToTop(file) {
+  const recentsList = slots.fileNav.querySelector('[data-list="recents"]');
+  if (!recentsList) return; // file-nav not mounted yet — shouldn't happen post-boot, but don't throw
+
+  const existing = Array.from(
+    recentsList.querySelectorAll(".file-nav__item-button"),
+  ).find((btn) => btn.dataset.fileId === file.id);
+  if (existing) {
+    existing.closest(".file-nav__item")?.remove();
+  }
+
+  const fragment = renderFileNavItem(file);
+  recentsList.insertBefore(fragment, recentsList.firstChild);
 }
 // Wired: clicking a sidebar file now genuinely swaps the center pane +
 // mounts the player-panel/mini-player, using the placeholder `documents`
