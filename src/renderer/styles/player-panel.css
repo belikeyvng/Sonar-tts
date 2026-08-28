@@ -101,3 +101,20 @@
 .player-panel__transport-button--primary:hover {
     filter: brightness(1.05);
 }
+
+
+.player-panel__transport-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-panel__transport-icon--forward {
+    transform: scaleX(-1);
+}
+
+.player-panel__volume-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

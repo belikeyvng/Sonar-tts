@@ -72,6 +72,10 @@ const state = {
         "Real PDF text extraction isn't wired up yet — this is stand-in copy.",
       ],
       narratorName: "Helen (NGA)",
+      voiceId: "en_US-amy-medium",
+      audioReady: false,
+      audioFile: null,
+      speed: "1x",
       timeElapsed: "0:00",
       timeTotal: "0:00",
       progress: 0,
@@ -82,6 +86,10 @@ const state = {
       title: "Project Notes",
       paragraphs: ["Placeholder content for Project_Notes.pdf."],
       narratorName: "Helen (NGA)",
+      voiceId: "en_US-amy-medium",
+      audioReady: false,
+      audioFile: null,
+      speed: "1x",
       timeElapsed: "0:00",
       timeTotal: "0:00",
       progress: 0,
@@ -92,6 +100,10 @@ const state = {
       title: "Cook",
       paragraphs: ["Placeholder content for Cook.pdf."],
       narratorName: "Helen (NGA)",
+      voiceId: "en_US-amy-medium",
+      audioReady: false,
+      audioFile: null,
+      speed: "1x",
       timeElapsed: "0:00",
       timeTotal: "0:00",
       progress: 0,
@@ -102,13 +114,16 @@ const state = {
       title: "Story",
       paragraphs: ["Placeholder content for Story.pdf."],
       narratorName: "Helen (NGA)",
+      voiceId: "en_US-amy-medium",
+      audioReady: false,
+      audioFile: null,
+      speed: "1x",
       timeElapsed: "0:00",
       timeTotal: "0:00",
       progress: 0,
       sectionLabel: "Section 1 of 1",
     },
   },
-
   // null = show empty-state; an object (one of `documents` above) =
   // show reader-view + player-panel + mini-player
   currentDocument: null,
@@ -155,6 +170,24 @@ const state = {
     },
   ],
 };
+
+// --- Playback runtime state (separate from `state` — this tracks the
+// live Audio element, not serializable UI state, and must survive
+// across render() calls since templates get re-cloned every time). ---
+const playback = {
+  audio: null, // the one shared <audio> element
+  docId: null, // which document's audioFile is currently loaded
+  isPlaying: false,
+  progressTimer: null, // interval driving the scrubber while playing
+  scrubbing: false,
+};
+
+function formatTime(seconds) {
+  if (!isFinite(seconds) || seconds < 0) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
 
 // --- Root containers -----------------------------------------------------
 const roots = {
@@ -561,19 +594,274 @@ function renderPlayerPanel() {
   }
 
   const doc = state.currentDocument;
-  const fragment = clone("tpl-player-panel");
+
+  if (!doc.audioReady) {
+    renderPlayerPanelGenerate(doc);
+  } else {
+    renderPlayerPanelReady(doc);
+  }
+}
+
+async function renderPlayerPanelGenerate(doc) {
+  const fragment = clone("tpl-player-panel-generate");
+
+  bind(fragment, "narratorName", doc.narratorName);
+
+  const generateButton = fragment.querySelector(
+    '[data-action="generate-audio"]',
+  );
+  if (doc.generating) {
+    generateButton.textContent = "Generating…";
+    generateButton.disabled = true;
+  } else {
+    generateButton.textContent = "Generate audio";
+  }
+
+  const [voices, status] = await Promise.all([
+    window.sonar.tts.getVoices(),
+    window.sonar.license.getStatus(),
+  ]);
+
+  const isPro = status.activated && status.plan === "pro";
+  const select = fragment.querySelector('[data-bind="voiceSelect"]');
+
+  for (const voice of voices) {
+    const locked = voice.tier === "pro" && !isPro;
+    const option = document.createElement("option");
+    option.value = voice.id;
+    option.textContent = locked
+      ? `${voice.name} (Pro)`
+      : `${voice.name} — ${voice.gender}, ${voice.quality}`;
+    option.disabled = locked;
+    if (voice.id === doc.voiceId) option.selected = true;
+    select.appendChild(option);
+  }
+
+  select.addEventListener("change", () => {
+    const chosen = voices.find((v) => v.id === select.value);
+    if (chosen && chosen.tier === "pro" && !isPro) {
+      // Shouldn't be reachable — disabled options aren't selectable
+      // via mouse, but keep as a defensive guard against keyboard/
+      // programmatic selection edge cases.
+      select.value = doc.voiceId;
+      goToUpgradePage();
+      return;
+    }
+    doc.voiceId = select.value;
+    doc.narratorName = chosen.name;
+    render();
+  });
+
+  on(fragment, "generate-audio", () => generateAudioForCurrentDocument());
+
+  slots.playerPanel.replaceChildren(fragment);
+}
+
+function renderPlayerPanelReady(doc) {
+  const fragment = clone("tpl-player-panel-ready");
 
   bind(fragment, "narratorName", doc.narratorName);
   bind(fragment, "timeElapsed", doc.timeElapsed);
   bind(fragment, "timeTotal", doc.timeTotal);
   bind(fragment, "progress", doc.progress);
+  bind(fragment, "speedLabel", doc.speed);
 
   on(fragment, "play-pause", playPause);
   on(fragment, "rewind", rewind);
   on(fragment, "skip-forward", skipForward);
-  on(fragment, "regenerate", regenerate);
+  on(fragment, "regenerate", () => generateAudioForCurrentDocument());
+  on(fragment, "cycle-speed", () => cycleSpeed(doc));
+  const progressInput = fragment.querySelector('[data-bind="progress"]');
+
+progressInput.addEventListener("pointerdown", () => {
+    playback.scrubbing = true;
+});
+
+progressInput.addEventListener("input", () => {
+    if (!playback.audio || !playback.audio.duration) return;
+    const pct = Number(progressInput.value);
+    playback.audio.currentTime = (pct / 100) * playback.audio.duration;
+
+    const doc = state.currentDocument;
+    if (doc) {
+        doc.timeElapsed = formatTime(playback.audio.currentTime);
+        doc.progress = pct;
+    }
+});
+
+progressInput.addEventListener("pointerup", () => {
+    playback.scrubbing = false;
+});
 
   slots.playerPanel.replaceChildren(fragment);
+}
+
+async function generateAudioForCurrentDocument() {
+  const doc = state.currentDocument;
+  if (!doc) return;
+
+  doc.generating = true;
+  renderPlayerPanel();
+
+  const fullText = doc.paragraphs.join(" ");
+  const result = await window.sonar.tts.speak(fullText, doc.voiceId);
+
+  doc.generating = false;
+
+  if (!result.success) {
+    if (result.reason === "VOICE_REQUIRES_PRO") {
+      goToUpgradePage();
+      return;
+    }
+    // UNKNOWN_VOICE or any Piper/process failure — surface inline
+    // rather than silently failing. No dedicated error UI slot for
+    // the player panel yet, so console for now; revisit once we
+    // decide where generation errors should actually show.
+    console.error("Audio generation failed:", result.reason);
+    renderPlayerPanel();
+    return;
+  }
+
+  doc.audioReady = true;
+  doc.audioFile = result.file;
+  render();
+}
+
+// Seeks the currently loaded audio by a relative number of seconds
+// (negative for rewind), clamped to the track's actual bounds. Shared
+// by the rewind/forward buttons and can be reused for keyboard shortcuts
+// later without duplicating the clamping logic.
+function seekBy(seconds) {
+  const audio = playback.audio;
+  if (!audio || !audio.duration) return;
+
+  const next = Math.min(
+    Math.max(audio.currentTime + seconds, 0),
+    audio.duration,
+  );
+  audio.currentTime = next;
+
+  const doc = state.currentDocument;
+  if (doc) {
+    doc.timeElapsed = formatTime(audio.currentTime);
+    doc.progress = Math.round((audio.currentTime / audio.duration) * 100);
+    updatePlaybackUI(doc);
+  }
+}
+
+// Loads doc.audioFile into the shared Audio element if it isn't already
+// the active track, then toggles play/pause. Safe to call repeatedly —
+// re-selects the same file without restarting playback.
+function playPause() {
+  const doc = state.currentDocument;
+  if (!doc || !doc.audioReady || !doc.audioFile) return;
+
+  const docId = doc.audioFile; // file path is a fine unique key here
+
+  if (playback.docId !== docId) {
+    loadAudioForDoc(doc, docId);
+    return; // loadAudioForDoc starts playback once metadata is ready
+  }
+
+  if (playback.audio.paused) {
+    playback.audio.play();
+  } else {
+    playback.audio.pause();
+  }
+}
+
+function loadAudioForDoc(doc, docId) {
+  stopProgressTimer();
+
+  if (playback.audio) {
+    playback.audio.pause();
+    playback.audio.removeEventListener("ended", handleAudioEnded);
+  }
+
+  const audio = new Audio("file://" + doc.audioFile);
+  playback.audio = audio;
+  playback.docId = docId;
+
+  audio.addEventListener("loadedmetadata", () => {
+    doc.timeTotal = formatTime(audio.duration);
+    updatePlaybackUI(doc);
+  });
+
+  audio.addEventListener("ended", handleAudioEnded);
+
+  audio.play();
+  playback.isPlaying = true;
+  startProgressTimer(doc);
+  updatePlaybackUI(doc);
+}
+
+function handleAudioEnded() {
+  playback.isPlaying = false;
+  stopProgressTimer();
+  const doc = state.currentDocument;
+  if (doc) {
+    doc.progress = 0;
+    doc.timeElapsed = "0:00";
+    if (playback.audio) playback.audio.currentTime = 0;
+    updatePlaybackUI(doc);
+  }
+}
+
+function startProgressTimer(doc) {
+  stopProgressTimer();
+  playback.progressTimer = setInterval(() => {
+    const audio = playback.audio;
+    if (!audio || !audio.duration) return;
+
+    doc.timeElapsed = formatTime(audio.currentTime);
+    doc.progress = Math.round((audio.currentTime / audio.duration) * 100);
+    playback.isPlaying = !audio.paused;
+    updatePlaybackUI(doc);
+  }, 250);
+}
+
+function stopProgressTimer() {
+  if (playback.progressTimer) {
+    clearInterval(playback.progressTimer);
+    playback.progressTimer = null;
+  }
+}
+
+// Updates the currently-mounted player-panel and mini-player DOM directly
+// (time/progress/play-icon) without a full render() — re-cloning the
+// whole panel every 250ms would wipe scrubber drag state and feels
+// janky. Full render() is still used for state transitions (e.g.
+// audioReady flipping), just not for routine playback ticks.
+function updatePlaybackUI(doc) {
+    for (const root of [slots.playerPanel, slots.miniPlayer]) {
+        const elapsedEl = root.querySelector('[data-bind="timeElapsed"]');
+        const totalEl = root.querySelector('[data-bind="timeTotal"]');
+        const progressEl = root.querySelector('[data-bind="progress"]');
+        if (elapsedEl) elapsedEl.textContent = doc.timeElapsed;
+        if (totalEl) totalEl.textContent = doc.timeTotal;
+        if (progressEl && !playback.scrubbing) progressEl.value = doc.progress;
+
+        const playIcon = root.querySelector(
+            ".player-panel__transport-button--primary .player-panel__transport-icon, .mini-player__play-icon"
+        );
+        if (playIcon) {
+            playIcon.textContent = playback.isPlaying ? "⏸" : "▶";
+        }
+    }
+
+    const metaEl = slots.miniPlayer.querySelector('[data-bind="fileMeta"]');
+    if (metaEl) {
+        metaEl.textContent = `${doc.sectionLabel} · ${doc.timeElapsed} / ${doc.timeTotal}`;
+    }
+}
+
+const SPEED_OPTIONS = ["0.75x", "1x", "1.25x", "1.5x", "2x"];
+
+function cycleSpeed(doc) {
+  const currentIndex = SPEED_OPTIONS.indexOf(doc.speed);
+  const nextIndex = (currentIndex + 1) % SPEED_OPTIONS.length;
+  doc.speed = SPEED_OPTIONS[nextIndex];
+  renderPlayerPanel();
 }
 
 function renderMiniPlayer() {
@@ -647,7 +935,9 @@ function handlePdfLoadResult(result) {
       renderMain();
       return;
     }
-    state.dropzoneStatus = { error: result.message || "Couldn't load that file." };
+    state.dropzoneStatus = {
+      error: result.message || "Couldn't load that file.",
+    };
     renderMain();
     return;
   }
@@ -727,10 +1017,6 @@ function openFile(fileId) {
 function goToNewFile() {
   state.currentDocument = null;
   render();
-}
-
-function playPause() {
-  console.log("TODO: toggle playback");
 }
 
 function rewind() {

@@ -425,8 +425,43 @@
         </main>
     </template>
 
-    <!-- ---------- PLAYER PANEL (right slot — only when a document is loaded) ---------- -->
-    <template id="tpl-player-panel">
+    <template id="tpl-player-panel-generate">
+        <aside class="player-panel">
+            <h2 class="player-panel__heading">Currently Reading</h2>
+
+            <div class="player-panel__orb-wrap">
+                <div class="player-panel__orb player-panel__orb--idle" aria-hidden="true"></div>
+            </div>
+
+            <p class="player-panel__narrator">
+                Narrator: <span class="player-panel__narrator-name" data-bind="narratorName"></span>
+            </p>
+
+            <div class="player-panel__voice-picker">
+                <label class="player-panel__voice-picker-label" for="voice-select">Choose a voice</label>
+                <select class="player-panel__voice-select" id="voice-select" data-bind="voiceSelect"></select>
+            </div>
+            <button class="player-panel__generate-button" type="button" data-action="generate-audio">
+                Generate audio
+            </button>
+        </aside>
+    </template>
+
+
+    <template id="tpl-voice-list-item">
+        <li class="player-panel__voice-item" data-tier="">
+            <button class="player-panel__voice-button" type="button">
+                <span class="player-panel__voice-name" data-bind="voiceName"></span>
+                <span class="player-panel__voice-meta" data-bind="voiceMeta"></span>
+                <span class="player-panel__voice-lock" aria-hidden="true"></span>
+            </button>
+        </li>
+    </template>
+
+
+
+    <!-- ---------- PLAYER PANEL: READY (audio generated) ---------- -->
+    <template id="tpl-player-panel-ready">
         <aside class="player-panel">
             <h2 class="player-panel__heading">Currently Reading</h2>
 
@@ -438,23 +473,20 @@
                 Narrator: <span class="player-panel__narrator-name" data-bind="narratorName"></span>
             </p>
 
-            <div class="player-panel__generation-controls">
-                <div class="player-panel__control" data-control="voice-model" data-tier="pro">
-                    <label class="player-panel__control-label" for="voice-model-select">Voice model</label>
-                    <select class="player-panel__control-input" id="voice-model-select"
-                        data-bind="voiceModelOptions"></select>
-                </div>
-
-                <div class="player-panel__control" data-control="speed">
-                    <label class="player-panel__control-label" for="speed-select">Speed</label>
-                    <select class="player-panel__control-input" id="speed-select" data-bind="speedOptions"></select>
-                </div>
-
-                <div class="player-panel__control" data-control="volume">
-                    <label class="player-panel__control-label" for="volume-slider">Volume</label>
-                    <input class="player-panel__control-input player-panel__control-input--range" type="range"
-                        id="volume-slider" min="0" max="100" data-bind="volume" />
-                </div>
+            <div class="player-panel__toolbar">
+                <button class="player-panel__speed" type="button" data-action="cycle-speed"
+                    data-bind="speedLabel"></button>
+                <button class="player-panel__volume-button" type="button" aria-label="Volume" data-action="volume">
+                    <span class="player-panel__volume-icon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.3332 5.24977C9.71187 5.75462 9.91657 6.36867 9.91657 6.99973C9.91657 7.6308 9.71187 8.24484 9.3332 8.74969M11.2958 10.7118C11.7834 10.2243 12.1701 9.64559 12.434 9.00864C12.6978 8.37169 12.8336 7.68901 12.8336 6.99958C12.8336 6.31015 12.6978 5.62747 12.434 4.99052C12.1701 4.35357 11.7834 3.77483 11.2958 3.28733M6.41635 2.74268C6.41623 2.66143 6.39205 2.58203 6.34685 2.51452C6.30165 2.447 6.23746 2.39438 6.16238 2.3633C6.0873 2.33223 6.0047 2.32408 5.925 2.3399C5.8453 2.35572 5.77207 2.39479 5.71455 2.45218L3.74043 4.42556C3.66424 4.50219 3.5736 4.56295 3.47377 4.6043C3.37393 4.64565 3.26687 4.66678 3.15881 4.66647H1.74939C1.59467 4.66647 1.44628 4.72792 1.33688 4.83732C1.22748 4.94671 1.16602 5.09508 1.16602 5.24979V8.74971C1.16602 8.90441 1.22748 9.05278 1.33688 9.16218C1.44628 9.27157 1.59467 9.33303 1.74939 9.33303H3.15881C3.26687 9.33271 3.37393 9.35384 3.47377 9.3952C3.5736 9.43655 3.66424 9.4973 3.74043 9.57394L5.71397 11.5479C5.77149 11.6055 5.84482 11.6448 5.92468 11.6607C6.00453 11.6766 6.08732 11.6685 6.16254 11.6373C6.23776 11.6061 6.30203 11.5533 6.34722 11.4856C6.3924 11.4179 6.41646 11.3382 6.41635 11.2568V2.74268Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                </button>
+                <input class="player-panel__volume-slider" type="range" min="0" max="100" aria-label="Volume level"
+                    data-bind="volume" />
             </div>
 
             <div class="player-panel__scrubber">
@@ -466,11 +498,23 @@
 
             <div class="player-panel__transport">
                 <button class="player-panel__transport-button" type="button" aria-label="Rewind" data-action="rewind">
-                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                    <span class="player-panel__transport-icon player-panel__transport-icon--rewind" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M5.24999 2.33398L2.33362 5.25036L5.24999 8.16673M2.33362 5.25036H8.458C9.30882 5.25036 10.1248 5.58835 10.7264 6.18996C11.328 6.79158 11.666 7.60755 11.666 8.45837C11.666 8.87965 11.583 9.29681 11.4218 9.68602C11.2606 10.0752 11.0243 10.4289 10.7264 10.7268C10.1248 11.3284 9.30882 11.6664 8.458 11.6664H6.41654"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </span>
                 </button>
                 <button class="player-panel__transport-button" type="button" aria-label="Skip forward"
                     data-action="skip-forward">
-                    <span class="player-panel__transport-icon" aria-hidden="true"></span>
+                    <span class="player-panel__transport-icon player-panel__transport-icon--forward" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M5.24999 2.33398L2.33362 5.25036L5.24999 8.16673M2.33362 5.25036H8.458C9.30882 5.25036 10.1248 5.58835 10.7264 6.18996C11.328 6.79158 11.666 7.60755 11.666 8.45837C11.666 8.87965 11.583 9.29681 11.4218 9.68602C11.2606 10.0752 11.0243 10.4289 10.7264 10.7268C10.1248 11.3284 9.30882 11.6664 8.458 11.6664H6.41654"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </span>
                 </button>
                 <button class="player-panel__transport-button player-panel__transport-button--primary" type="button"
                     aria-label="Play/pause" data-action="play-pause">
@@ -483,6 +527,9 @@
             </div>
         </aside>
     </template>
+
+
+
 
     <!-- ---------- MINI PLAYER (bottom slot — only when a document is loaded) ---------- -->
     <template id="tpl-mini-player">

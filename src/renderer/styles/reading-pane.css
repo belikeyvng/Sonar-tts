@@ -33,6 +33,7 @@
 }
 
 .reading-pane__paragraph {
+    font-family: var(--font-ui-mono);
     font-size: var(--text-md);
     line-height: 1.7;
     color: var(--color-text-secondary);
@@ -44,4 +45,13 @@
 .reading-pane__paragraph--highlight,
 .reading-pane__highlight {
     color: var(--color-accent);
+}
+
+.reading-pane__document {
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;    /* old Edge/IE, harmless elsewhere */
+}
+
+.reading-pane__document::-webkit-scrollbar {
+    display: none;               /* Chrome/Edge/Electron (Chromium-based) */
 }
