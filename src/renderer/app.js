@@ -495,18 +495,24 @@ async function renderFileNav() {
   await updateFileNavPlanLabel();
 }
 
-// Refreshes the account-plan label (Free/Pro) in the already-mounted
-// file-nav without re-cloning the whole sidebar — same reasoning as
-// updateActiveFileNavItem(): file-nav mounts once, so anything that
-// can change after boot (license status included) needs its own
-// targeted updater rather than a full renderFileNav() re-run.
+// Refreshes the account-plan label (Free/Pro) and the Upgrade button's
+// visibility in the already-mounted file-nav without re-cloning the
+// whole sidebar — same reasoning as updateActiveFileNavItem(): file-nav
+// mounts once, so anything that can change after boot (license status
+// included) needs its own targeted updater rather than a full
+// renderFileNav() re-run.
 async function updateFileNavPlanLabel() {
   const label = slots.fileNav.querySelector('[data-bind="accountPlan"]');
-  if (!label) return;
+  const upgradeButton = slots.fileNav.querySelector(
+    '[data-action="upgrade-to-pro"]',
+  );
+  if (!label && !upgradeButton) return;
 
   const status = await window.sonar.license.getStatus();
   const isPro = status.activated && status.plan === "pro";
-  label.textContent = isPro ? "Pro" : "Free";
+
+  if (label) label.textContent = isPro ? "Pro" : "Free";
+  if (upgradeButton) upgradeButton.style.display = isPro ? "none" : "";
 }
 
 // Click-to-pin toggles a class on the mounted .file-nav element directly
