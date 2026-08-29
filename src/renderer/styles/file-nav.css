@@ -151,6 +151,15 @@
     color: var(--color-text-secondary);
 }
 
+.file-nav__item-button--active {
+    background: var(--color-bg-raised);
+    color: var(--color-text-primary);
+}
+
+.file-nav__item-button--active .file-nav__item-icon {
+    color: var(--color-accent);
+}
+
 /* --- Collapsed rail state (narrow widths) — overlay elevation --- */
 
 @media (max-width: 960px) {

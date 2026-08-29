@@ -285,6 +285,15 @@
                 </ul>
             </nav>
 
+            <!-- ADD inside tpl-file-nav, right after the Recents <nav> block, before .file-nav__footer -->
+            <nav class="file-nav__section" aria-label="Search results" data-section="search-results"
+                style="display: none;">
+                <h2 class="file-nav__section-label">Search Results</h2>
+                <ul class="file-nav__list" data-list="search-results">
+                    <!-- search result items injected by app.js, or "no results" message -->
+                </ul>
+            </nav>
+
             <div class="file-nav__footer">
                 <button class="file-nav__upgrade" type="button" data-tier="pro-upsell" data-action="upgrade-to-pro">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -429,7 +438,7 @@
         <aside class="player-panel">
             <h2 class="player-panel__heading">Currently Reading</h2>
 
-             <div class="player-panel__orb-wrap">
+            <div class="player-panel__orb-wrap">
                 <video src="./assets/orb/orb-2.webm" autoplay width="250" height="250" loop></video>
             </div>
 
@@ -559,6 +568,14 @@
                 </button>
             </div>
         </footer>
+    </template>
+
+
+    <!-- NEW template, next to tpl-recent-file-nav-item -->
+    <template id="tpl-search-no-results">
+        <li class="file-nav__item file-nav__item--empty">
+            <span class="file-nav__empty-message">No files found</span>
+        </li>
     </template>
 
     <script src="app.js"></script>

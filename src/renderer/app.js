@@ -474,6 +474,10 @@ function renderFileNav() {
   on(fragment, "toggle-pin", togglePin);
   on(fragment, "new-file", goToNewFile);
   on(fragment, "upgrade-to-pro", goToUpgradePage);
+  const searchInput = fragment.querySelector(".file-nav__search-input");
+  searchInput.addEventListener("input", (e) => {
+    handleFileNavSearch(e.target.value);
+  });
 
   const pinnedList = fragment.querySelector('[data-list="pinned"]');
   for (const file of state.pinnedFiles) {
@@ -514,6 +518,86 @@ function renderFileNavItem(file) {
   button.dataset.fileId = file.id;
   button.addEventListener("click", () => openFile(file.id));
   return fragment;
+}
+
+// Marks whichever sidebar item (pinned, recents, or search results —
+// wherever it currently lives) corresponds to state.currentDocument
+// as active, and clears the class from everywhere else. Called after
+// every render() since file-nav itself is never re-rendered, so this
+// is the only thing keeping the sidebar's selected state in sync.
+function updateActiveFileNavItem() {
+  const activeId = state.currentDocument
+    ? Object.keys(state.documents).find(
+        (id) => state.documents[id] === state.currentDocument,
+      )
+    : null;
+
+  slots.fileNav
+    .querySelectorAll(".file-nav__item-button")
+    .forEach((button) => {
+      button.classList.toggle(
+        "file-nav__item-button--active",
+        button.dataset.fileId === activeId,
+      );
+    });
+}
+
+// Search is scoped to state.documents (the full set of known
+// documents, not just what's currently listed in Pinned/Recents).
+// While a query is active, Pinned/Recents are hidden and replaced
+// by a single Search Results section — matching file-nav's "mount
+// once, mutate in place" pattern rather than re-rendering the
+// whole sidebar.
+function handleFileNavSearch(query) {
+  const trimmed = query.trim();
+
+  const pinnedSection = slots.fileNav.querySelector(
+    '.file-nav__section[aria-label="Pinned files"]',
+  );
+  const recentsSection = slots.fileNav.querySelector(
+    '.file-nav__section[aria-label="Recent files"]',
+  );
+  const resultsSection = slots.fileNav.querySelector(
+    '[data-section="search-results"]',
+  );
+
+  if (!trimmed) {
+    if (pinnedSection) pinnedSection.style.display = "";
+    if (recentsSection) recentsSection.style.display = "";
+    if (resultsSection) resultsSection.style.display = "none";
+    return;
+  }
+
+  if (pinnedSection) pinnedSection.style.display = "none";
+  if (recentsSection) recentsSection.style.display = "none";
+  if (resultsSection) resultsSection.style.display = "";
+
+  renderSearchResults(trimmed);
+}
+
+function renderSearchResults(query) {
+  const resultsList = slots.fileNav.querySelector(
+    '[data-list="search-results"]',
+  );
+  if (!resultsList) return;
+
+  resultsList.replaceChildren();
+
+  const lowerQuery = query.toLowerCase();
+  const matches = Object.entries(state.documents).filter(([, doc]) =>
+    doc.fileName.toLowerCase().includes(lowerQuery),
+  );
+
+  if (matches.length === 0) {
+    resultsList.appendChild(clone("tpl-search-no-results"));
+    return;
+  }
+
+  for (const [docId, doc] of matches) {
+    resultsList.appendChild(
+      renderFileNavItem({ id: docId, name: doc.fileName }),
+    );
+  }
 }
 
 // --- Render: main slot (empty-state OR reader-view) --------------------
@@ -626,6 +710,7 @@ async function renderPlayerPanelGenerate(doc) {
 
   const isPro = status.activated && status.plan === "pro";
   const select = fragment.querySelector('[data-bind="voiceSelect"]');
+  select.disabled = doc.generating;
 
   if (!doc.voiceId || !voices.some((v) => v.id === doc.voiceId)) {
     const firstFree = voices.find((v) => v.tier !== "pro");
@@ -660,9 +745,6 @@ async function renderPlayerPanelGenerate(doc) {
 
   slots.playerPanel.replaceChildren(fragment);
 
-  // Video autoplay can silently fail when inserted after an async gap
-  // (the await calls above) — force it explicitly rather than relying
-  // solely on the autoplay attribute.
   const video = slots.playerPanel.querySelector(
     ".player-panel__orb-wrap video",
   );
@@ -688,7 +770,7 @@ function renderPlayerPanelReady(doc) {
     stopPlayback();
     doc.audioReady = false;
     doc.audioFile = null;
-    generateAudioForCurrentDocument();
+    render();
   });
   on(fragment, "cycle-speed", () => cycleSpeed(doc));
   const progressInput = fragment.querySelector('[data-bind="progress"]');
@@ -1159,6 +1241,7 @@ function render() {
   renderMain();
   renderPlayerPanel();
   renderMiniPlayer();
+  updateActiveFileNavItem();
 }
 
 // --- Boot ----------------------------------------------------------------
