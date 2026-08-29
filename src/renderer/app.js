@@ -1072,6 +1072,18 @@ async function generateAudioForCurrentDocument() {
       }
       return;
     }
+
+    if (result.reason === "TEXT_TOO_LONG") {
+      await renderPlayerPanel();
+      const errorEl = slots.playerPanel.querySelector(
+        '[data-bind="generationError"]',
+      );
+      if (errorEl) {
+        errorEl.textContent = `This document is too long for the free plan (${result.actual.toLocaleString()} / ${result.limit.toLocaleString()} characters). Upgrade to Pro for longer documents, or trim the text.`;
+        errorEl.hidden = false;
+      }
+      return;
+    }
     console.error("Audio generation failed:", result.reason);
     renderPlayerPanel();
     return;
@@ -1359,7 +1371,7 @@ async function handleFileDrop(event) {
 // Shared by both browse and drop paths — turns a pdf:load/pdf:browse
 // IPC result into a documents entry (or a dropzoneStatus error) and
 // re-renders.
-function handlePdfLoadResult(result) {
+async function handlePdfLoadResult(result) {
   if (!result.ok) {
     // User just closed the dialog — not an error, quietly reset.
     if (result.error === "canceled") {
@@ -1369,6 +1381,22 @@ function handlePdfLoadResult(result) {
     }
     state.dropzoneStatus = {
       error: result.message || "Couldn't load that file.",
+    };
+    renderMain();
+    return;
+  }
+
+  // Free-tier length gate — checked here (once, at upload) as well as
+  // defensively in tts:speak, so a free user finds out their doc is
+  // too long immediately instead of only after clicking Generate.
+  const fullText = result.paragraphs.join(" ");
+  const status = await window.sonar.license.getStatus();
+  const isPro = status.activated && status.plan === "pro";
+  const lengthCheck = await window.sonar.tts.checkTextLength(fullText, isPro);
+
+  if (!lengthCheck.allowed) {
+    state.dropzoneStatus = {
+      error: `This document is too long for the free plan (${lengthCheck.actual.toLocaleString()} / ${lengthCheck.limit.toLocaleString()} characters). Upgrade to Pro, or try a shorter document.`,
     };
     renderMain();
     return;
@@ -1413,7 +1441,6 @@ function handlePdfLoadResult(result) {
 
   render();
 }
-
 // Ensures exactly one entry for `file` sits at the top of the live
 // Recents list in the already-mounted file-nav, without touching
 // anything else in that subtree (pin state, scroll position, search

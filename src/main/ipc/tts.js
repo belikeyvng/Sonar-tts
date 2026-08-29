@@ -46,6 +46,10 @@ function registerTtsIpc(licenseEngine) {
     return { ok: true };
   });
 
+    ipcMain.handle("tts:checkTextLength", async (event, { text, isPro }) => {
+    return checkTextLength(text, isPro);
+  });
+
   ipcMain.handle("tts:speak", async (event, { text, voiceId }) => {
     const voices = getAllVoices();
     const voice = voices.find((v) => v.id === voiceId);

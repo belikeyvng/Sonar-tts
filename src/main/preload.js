@@ -17,6 +17,8 @@ contextBridge.exposeInMainWorld("sonar", {
     resetUsage: () => ipcRenderer.invoke("tts:resetUsage"),
     speak: (text, voiceId) =>
       ipcRenderer.invoke("tts:speak", { text, voiceId }),
+    checkTextLength: (text, isPro) =>
+      ipcRenderer.invoke("tts:checkTextLength", { text, isPro }),
   },
   pdf: {
     // Renderer hands us the real dropped File object; webUtils resolves
