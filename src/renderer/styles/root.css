@@ -46,6 +46,13 @@
     font-display: swap;
 }
 
+/* Theme crossfade — applies to any element using themed colors.
+   Kept broad but property-scoped (not `transition: all`) so it doesn't
+   accidentally animate layout, size, or transform changes elsewhere. */
+* {
+  transition: background-color 500ms ease, color 500ms ease, border-color 500ms ease, fill 500ms ease, stroke 500ms ease;
+}
+
 :root {
     --font-ui-mono: "Geist Mono", var(--font-mono);
     --font-ui: "Geist", var(--font-body);
