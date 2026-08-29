@@ -625,6 +625,11 @@ async function renderPlayerPanelGenerate(doc) {
   const isPro = status.activated && status.plan === "pro";
   const select = fragment.querySelector('[data-bind="voiceSelect"]');
 
+  if (!doc.voiceId || !voices.some((v) => v.id === doc.voiceId)) {
+    const firstFree = voices.find((v) => v.tier !== "pro");
+    doc.voiceId = firstFree ? firstFree.id : voices[0]?.id;
+  }
+
   for (const voice of voices) {
     const locked = voice.tier === "pro" && !isPro;
     const option = document.createElement("option");
@@ -640,9 +645,6 @@ async function renderPlayerPanelGenerate(doc) {
   select.addEventListener("change", () => {
     const chosen = voices.find((v) => v.id === select.value);
     if (chosen && chosen.tier === "pro" && !isPro) {
-      // Shouldn't be reachable — disabled options aren't selectable
-      // via mouse, but keep as a defensive guard against keyboard/
-      // programmatic selection edge cases.
       select.value = doc.voiceId;
       goToUpgradePage();
       return;
@@ -655,6 +657,17 @@ async function renderPlayerPanelGenerate(doc) {
   on(fragment, "generate-audio", () => generateAudioForCurrentDocument());
 
   slots.playerPanel.replaceChildren(fragment);
+
+  // Video autoplay can silently fail when inserted after an async gap
+  // (the await calls above) — force it explicitly rather than relying
+  // solely on the autoplay attribute.
+  const video = slots.playerPanel.querySelector(
+    ".player-panel__orb-wrap video",
+  );
+  if (video) {
+    video.load();
+    video.play().catch((err) => console.error("Orb video play failed:", err));
+  }
 }
 
 function renderPlayerPanelReady(doc) {
@@ -673,25 +686,25 @@ function renderPlayerPanelReady(doc) {
   on(fragment, "cycle-speed", () => cycleSpeed(doc));
   const progressInput = fragment.querySelector('[data-bind="progress"]');
 
-progressInput.addEventListener("pointerdown", () => {
+  progressInput.addEventListener("pointerdown", () => {
     playback.scrubbing = true;
-});
+  });
 
-progressInput.addEventListener("input", () => {
+  progressInput.addEventListener("input", () => {
     if (!playback.audio || !playback.audio.duration) return;
     const pct = Number(progressInput.value);
     playback.audio.currentTime = (pct / 100) * playback.audio.duration;
 
     const doc = state.currentDocument;
     if (doc) {
-        doc.timeElapsed = formatTime(playback.audio.currentTime);
-        doc.progress = pct;
+      doc.timeElapsed = formatTime(playback.audio.currentTime);
+      doc.progress = pct;
     }
-});
+  });
 
-progressInput.addEventListener("pointerup", () => {
+  progressInput.addEventListener("pointerup", () => {
     playback.scrubbing = false;
-});
+  });
 
   slots.playerPanel.replaceChildren(fragment);
 }
@@ -807,6 +820,22 @@ function handleAudioEnded() {
   }
 }
 
+// Fully stops and tears down the current audio element — called whenever
+// the user switches to a different document, so audio from the previous
+// one never keeps playing invisibly in the background (option A: switching
+// documents always stops playback, no cross-document background audio).
+function stopPlayback() {
+  stopProgressTimer();
+  if (playback.audio) {
+    playback.audio.pause();
+    playback.audio.removeEventListener("ended", handleAudioEnded);
+    playback.audio = null;
+  }
+  playback.docId = null;
+  playback.isPlaying = false;
+  playback.scrubbing = false;
+}
+
 function startProgressTimer(doc) {
   stopProgressTimer();
   playback.progressTimer = setInterval(() => {
@@ -833,26 +862,26 @@ function stopProgressTimer() {
 // janky. Full render() is still used for state transitions (e.g.
 // audioReady flipping), just not for routine playback ticks.
 function updatePlaybackUI(doc) {
-    for (const root of [slots.playerPanel, slots.miniPlayer]) {
-        const elapsedEl = root.querySelector('[data-bind="timeElapsed"]');
-        const totalEl = root.querySelector('[data-bind="timeTotal"]');
-        const progressEl = root.querySelector('[data-bind="progress"]');
-        if (elapsedEl) elapsedEl.textContent = doc.timeElapsed;
-        if (totalEl) totalEl.textContent = doc.timeTotal;
-        if (progressEl && !playback.scrubbing) progressEl.value = doc.progress;
+  for (const root of [slots.playerPanel, slots.miniPlayer]) {
+    const elapsedEl = root.querySelector('[data-bind="timeElapsed"]');
+    const totalEl = root.querySelector('[data-bind="timeTotal"]');
+    const progressEl = root.querySelector('[data-bind="progress"]');
+    if (elapsedEl) elapsedEl.textContent = doc.timeElapsed;
+    if (totalEl) totalEl.textContent = doc.timeTotal;
+    if (progressEl && !playback.scrubbing) progressEl.value = doc.progress;
 
-        const playIcon = root.querySelector(
-            ".player-panel__transport-button--primary .player-panel__transport-icon, .mini-player__play-icon"
-        );
-        if (playIcon) {
-            playIcon.textContent = playback.isPlaying ? "⏸" : "▶";
-        }
+    const playIcon = root.querySelector(
+      ".player-panel__transport-button--primary .player-panel__transport-icon, .mini-player__play-icon",
+    );
+    if (playIcon) {
+      playIcon.textContent = playback.isPlaying ? "⏸" : "▶";
     }
+  }
 
-    const metaEl = slots.miniPlayer.querySelector('[data-bind="fileMeta"]');
-    if (metaEl) {
-        metaEl.textContent = `${doc.sectionLabel} · ${doc.timeElapsed} / ${doc.timeTotal}`;
-    }
+  const metaEl = slots.miniPlayer.querySelector('[data-bind="fileMeta"]');
+  if (metaEl) {
+    metaEl.textContent = `${doc.sectionLabel} · ${doc.timeElapsed} / ${doc.timeTotal}`;
+  }
 }
 
 const SPEED_OPTIONS = ["0.75x", "1x", "1.25x", "1.5x", "2x"];
@@ -950,7 +979,12 @@ function handlePdfLoadResult(result) {
     paragraphs: result.paragraphs.length
       ? result.paragraphs
       : ["This PDF doesn't contain any extractable text."],
-    narratorName: "Helen (NGA)",
+    narratorName: "Amy",
+    voiceId: "en_US-amy-medium",
+    audioReady: false,
+    audioFile: null,
+    generating: false,
+    speed: "1x",
     timeElapsed: "0:00",
     timeTotal: "0:00",
     progress: 0,
@@ -961,6 +995,7 @@ function handlePdfLoadResult(result) {
 
   state.documents[docId] = doc;
   state.dropzoneStatus = null;
+  stopPlayback();
   state.currentDocument = doc;
 
   // New file becomes the most recent recent-file too, and jumps to
@@ -1007,6 +1042,7 @@ function openFile(fileId) {
     console.warn(`No document found for file id "${fileId}"`);
     return;
   }
+  stopPlayback();
   state.currentDocument = doc;
   render();
 }
@@ -1015,16 +1051,18 @@ function openFile(fileId) {
 // fresh launch with no document loaded. Sidebar itself is untouched
 // since it never re-renders.
 function goToNewFile() {
+  stopPlayback();
+
   state.currentDocument = null;
   render();
 }
 
 function rewind() {
-  console.log("TODO: rewind");
+  seekBy(-10);
 }
 
 function skipForward() {
-  console.log("TODO: skip forward");
+  seekBy(10);
 }
 
 function regenerate() {

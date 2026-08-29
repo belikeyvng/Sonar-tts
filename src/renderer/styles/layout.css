@@ -699,6 +699,12 @@ html, body {
 /* ==========================================================================
    PLAYER PANEL (right sidebar — audio/generation controls)
    ========================================================================== */
+/* ==========================================================================
+   PLAYER PANEL (right sidebar — audio/generation controls)
+   Shared structure for both states (tpl-player-panel-generate and
+   tpl-player-panel-ready) lives on .player-panel itself; state-specific
+   pieces below.
+   ========================================================================== */
 
 .player-panel {
     display: flex;
@@ -719,43 +725,71 @@ html, body {
     justify-content: center;
     width: var(--orb-size);
     height: var(--orb-size);
+    flex-shrink: 0;
     margin-bottom: var(--space-4);
 }
 
+.player-panel__orb-wrap video,
 .player-panel__orb {
     width: 100%;
     height: 100%;
 }
 
 .player-panel__narrator {
-    margin: 0 0 var(--space-8) 0;
+    margin: 0 0 var(--space-6) 0;
     text-align: center;
 }
 
-.player-panel__generation-controls {
+/* --- Generate state: voice picker + button --- */
+
+.player-panel__voice-picker {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-2);
     width: 100%;
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-6);
 }
 
-.player-panel__control {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-}
-
-.player-panel__control-input {
+.player-panel__voice-select {
     height: var(--control-input-height);
     padding: 0 var(--space-3);
-    border: none;
     width: 100%;
 }
 
-.player-panel__control-input--range {
-    height: auto;
+.player-panel__generate-button {
+    height: var(--control-input-height);
+    width: 100%;
+    cursor: pointer;
+}
+
+/* --- Ready state: speed/volume toolbar --- */
+
+.player-panel__toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    margin-bottom: var(--space-6);
+}
+
+.player-panel__speed {
+    padding: var(--space-1) var(--space-3);
+    height: var(--space-8);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.player-panel__volume-button {
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
     padding: 0;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.player-panel__volume-slider {
+    flex: 1;
+    min-width: 0;
 }
 
 .player-panel__scrubber {
@@ -798,6 +832,7 @@ html, body {
     padding: 0;
     border: none;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .player-panel__transport-button--primary {
@@ -810,7 +845,6 @@ html, body {
     width: var(--icon-size-md);
     height: var(--icon-size-md);
 }
-
 /* ==========================================================================
    MINI PLAYER (bottom bar, full width)
    ========================================================================== */
