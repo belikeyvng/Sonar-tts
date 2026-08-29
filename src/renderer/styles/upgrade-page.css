@@ -2,6 +2,178 @@
    UPGRADE-PAGE.CSS
    Visual styling for .upgrade-page and .plan-card (dark background,
    the Pro card's purple glow/border, gradient CTA button, checkmark
-   icon styling). Empty pending design approval — layout.css already
-   defines this component's structure independently of this file.
+   icon styling). Structure lives in layout.css.
    ========================================================================== */
+
+.upgrade-page {
+    background: var(--color-bg);
+}
+
+/* --- Header --- */
+
+.upgrade-page__brand-name {
+    font-family: var(--font-ui);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-primary);
+}
+
+.upgrade-page__logo {
+    background: var(--gradient-brand);
+    border-radius: var(--radius-full);
+}
+
+.upgrade-page__back {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
+}
+
+.upgrade-page__back:hover {
+    color: var(--color-text-secondary);
+}
+
+/* --- Hero --- */
+
+.upgrade-page__heading {
+    font-family: var(--font-heading-display);
+    font-size: var(--text-display);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.upgrade-page__subheading {
+    font-family: var(--font-ui);
+    font-size: var(--text-md);
+    color: var(--color-text-secondary);
+}
+
+.upgrade-page__payment-note {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+    line-height: 1.6;
+}
+
+.upgrade-page__cancel-link {
+    font-family: var(--font-ui);
+    color: var(--color-text-tertiary);
+    font-size: var(--text-xs);
+    text-decoration-color: var(--color-border-strong);
+}
+
+.upgrade-page__cancel-link:hover {
+    color: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   PLAN CARD
+   ========================================================================== */
+
+.plan-card {
+    background: var(--color-bg-raised);
+    border-color: var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.plan-card__name {
+    font-family: var(--font-ui);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.plan-card__badge {
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--badge-neutral-fg);
+    background: var(--badge-neutral-bg);
+    border-radius: var(--radius-sm);
+}
+
+.plan-card__price-amount {
+    font-family: var(--font-ui);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-primary);
+}
+
+.plan-card__price-period {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
+}
+
+.plan-card__description {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+}
+
+.plan-card__divider {
+    border-top-color: var(--color-border);
+}
+
+.plan-card__feature {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+}
+
+/* Checkmark (Free tier) */
+.plan-card__feature-icon {
+    background-color: var(--color-text-tertiary);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='18' height='19' viewBox='0 0 18 19' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M17 1L6 17L1 9.72727' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg width='18' height='19' viewBox='0 0 18 19' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M17 1L6 17L1 9.72727' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.plan-card__cta {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    border-radius: var(--radius-md);
+}
+
+/* --- Free card specifics --- */
+
+.plan-card[data-plan="free"] .plan-card__cta {
+    background: var(--color-bg-subtle);
+    color: var(--color-text-tertiary);
+    cursor: default;
+}
+
+/* --- Pro card specifics (glow border + gradient CTA + sparkle icon) --- */
+
+.plan-card[data-plan="pro"] {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-accent-glow-subtle);
+}
+
+.plan-card[data-plan="pro"] .plan-card__badge {
+    background: var(--badge-accent-bg);
+    color: var(--badge-accent-fg);
+}
+
+/* Sparkle (Pro tier) — swaps the icon shape AND color for this card */
+.plan-card[data-plan="pro"] .plan-card__feature-icon {
+    background-color: #c084fc;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.60156 13.7988C1.93272 13.7988 2.20117 14.0673 2.20117 14.3984C2.201 14.7294 1.93262 14.998 1.60156 14.998C1.27051 14.998 1.00213 14.7294 1.00195 14.3984C1.00195 14.0673 1.27041 13.7988 1.60156 13.7988ZM8.64453 5.28418C8.7416 5.79767 8.99082 6.27012 9.36035 6.63965C9.72988 7.00918 10.2023 7.2584 10.7158 7.35547L14.123 8L10.7158 8.64453C10.2023 8.7416 9.72988 8.99082 9.36035 9.36035C8.99082 9.72988 8.7416 10.2023 8.64453 10.7158L8 14.123L7.35547 10.7158C7.2584 10.2023 7.00918 9.72988 6.63965 9.36035C6.27012 8.99082 5.79767 8.7416 5.28418 8.64453L1.87598 8L5.28418 7.35547C5.79767 7.2584 6.27012 7.00918 6.63965 6.63965C7.00918 6.27012 7.2584 5.79767 7.35547 5.28418L8 1.87598L8.64453 5.28418ZM15.1611 7.80371H15.1592C15.1605 7.80344 15.1618 7.80298 15.1631 7.80273L15.1611 7.80371Z' stroke='%23C084FC' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.60156 13.7988C1.93272 13.7988 2.20117 14.0673 2.20117 14.3984C2.201 14.7294 1.93262 14.998 1.60156 14.998C1.27051 14.998 1.00213 14.7294 1.00195 14.3984C1.00195 14.0673 1.27041 13.7988 1.60156 13.7988ZM8.64453 5.28418C8.7416 5.79767 8.99082 6.27012 9.36035 6.63965C9.72988 7.00918 10.2023 7.2584 10.7158 7.35547L14.123 8L10.7158 8.64453C10.2023 8.7416 9.72988 8.99082 9.36035 9.36035C8.99082 9.72988 8.7416 10.2023 8.64453 10.7158L8 14.123L7.35547 10.7158C7.2584 10.2023 7.00918 9.72988 6.63965 9.36035C6.27012 8.99082 5.79767 8.7416 5.28418 8.64453L1.87598 8L5.28418 7.35547C5.79767 7.2584 6.27012 7.00918 6.63965 6.63965C7.00918 6.27012 7.2584 5.79767 7.35547 5.28418L8 1.87598L8.64453 5.28418ZM15.1611 7.80371H15.1592C15.1605 7.80344 15.1618 7.80298 15.1631 7.80273L15.1611 7.80371Z' stroke='%23C084FC' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.plan-card[data-plan="pro"] .plan-card__cta {
+    background: var(--gradient-brand);
+    color: var(--color-text-on-accent);
+    border: none;
+}
+
+.plan-card[data-plan="pro"] .plan-card__cta:hover {
+    filter: brightness(1.05);
+}

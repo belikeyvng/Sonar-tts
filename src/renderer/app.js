@@ -162,10 +162,9 @@ const state = {
         "Unlock high fidelity voices with ultra-customizable controls.",
       features: [
         "Premium natural human-like voice options",
-        "Up to 10 PDF document uploads per day",
+        "Unlimited PDF document uploads per day",
         "Generate and download offline audio MP3s",
-        "Wider playback speeds (0.5x to 2x granular)",
-        "24/7 priority support and custom voice models",
+        "No limit on word count or document length",
       ],
       ctaLabel: "Upgrade to Pro",
       ctaDisabled: false,

@@ -19,8 +19,37 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "Geist Mono";
+    src: url("../assets/fonts/GeistMono-VariableFont_wght.ttf") format("truetype-variations"),
+         url("../assets/fonts/GeistMono-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 900; /* variable font — full weight axis */
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Geist";
+    src: url("../assets/fonts/Geist-VariableFont_wght.ttf") format("truetype-variations"),
+         url("../assets/fonts/Geist-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Libre Baskerville";
+    src: url("../assets/fonts/LibreBaskerville-VariableFont_wght.ttf") format("truetype-variations"),
+         url("../assets/fonts/LibreBaskerville-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --font-ui-mono: "Geist Mono", var(--font-mono);
+    --font-ui: "Geist", var(--font-body);
+    --font-heading-display: "Libre Baskerville", var(--font-display);
 
     /* --- Brand gradient (orb glow, primary CTAs — same family in both
        themes: blue → purple, seen on "Upgrade to Pro" buttons and the
