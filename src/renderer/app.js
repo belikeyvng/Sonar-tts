@@ -145,8 +145,8 @@ const state = {
       description: "Standard document scanning and basic narration settings.",
       features: [
         "Basic voice options & standard narrators",
-        "3 PDF document uploads per day limit",
-        "Standard speeds (0.75x to 1.5x only)",
+        "Unlimited document uploads",
+        "Limit on upload word count and document length",
         "Automatic line-by-line word highlighting",
       ],
       ctaLabel: "Current Tier Active",
@@ -163,7 +163,7 @@ const state = {
       features: [
         "Premium natural human-like voice options",
         "Unlimited PDF document uploads per day",
-        "Generate and download offline audio MP3s",
+        "Generate and download offline audio",
         "No limit on word count or document length",
       ],
       ctaLabel: "Upgrade to Pro",
