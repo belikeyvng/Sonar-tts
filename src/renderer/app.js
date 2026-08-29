@@ -717,13 +717,17 @@ async function renderPlayerPanelGenerate(doc) {
     doc.voiceId = firstFree ? firstFree.id : voices[0]?.id;
   }
 
-  for (const voice of voices) {
+    for (const voice of voices) {
     const locked = voice.tier === "pro" && !isPro;
     const option = document.createElement("option");
     option.value = voice.id;
-    option.textContent = locked
-      ? `${voice.name} (Pro)`
-      : `${voice.name} — ${voice.gender}, ${voice.quality}`;
+
+    const details = [voice.gender, voice.accent]
+      .filter(Boolean)
+      .join(", ");
+    const label = details ? `${voice.name} — ${details}` : voice.name;
+    option.textContent = locked ? `${label} (Pro)` : label;
+
     option.disabled = locked;
     if (voice.id === doc.voiceId) option.selected = true;
     select.appendChild(option);
