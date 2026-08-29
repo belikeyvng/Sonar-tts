@@ -792,6 +792,7 @@ function loadAudioForDoc(doc, docId) {
   }
 
   const audio = new Audio("file://" + doc.audioFile);
+  audio.playbackRate = SPEED_VALUES[doc.speed] || 1;
   playback.audio = audio;
   playback.docId = docId;
 
@@ -884,12 +885,21 @@ function updatePlaybackUI(doc) {
   }
 }
 
-const SPEED_OPTIONS = ["0.75x", "1x", "1.25x", "1.5x", "2x"];
+const SPEED_VALUES = {
+  "0.75x": 0.75,
+  "1x": 1,
+  "1.25x": 1.25,
+  "1.5x": 1.5,
+  "2x": 2,
+};
 
 function cycleSpeed(doc) {
   const currentIndex = SPEED_OPTIONS.indexOf(doc.speed);
   const nextIndex = (currentIndex + 1) % SPEED_OPTIONS.length;
   doc.speed = SPEED_OPTIONS[nextIndex];
+  if (playback.audio && playback.docId === doc.audioFile) {
+    playback.audio.playbackRate = SPEED_VALUES[doc.speed];
+  }
   renderPlayerPanel();
 }
 
@@ -912,9 +922,24 @@ function renderMiniPlayer() {
   bind(fragment, "timeTotal", doc.timeTotal);
   bind(fragment, "progress", doc.progress);
   bind(fragment, "narratorName", doc.narratorName);
-  bind(fragment, "speedLabel", "1x");
+  bind(fragment, "speedLabel", doc.speed);
 
   on(fragment, "play-pause", playPause);
+
+  const progressInput = fragment.querySelector('[data-bind="progress"]');
+  progressInput.addEventListener("pointerdown", () => {
+    playback.scrubbing = true;
+  });
+  progressInput.addEventListener("input", () => {
+    if (!playback.audio || !playback.audio.duration) return;
+    const pct = Number(progressInput.value);
+    playback.audio.currentTime = (pct / 100) * playback.audio.duration;
+    doc.timeElapsed = formatTime(playback.audio.currentTime);
+    doc.progress = pct;
+  });
+  progressInput.addEventListener("pointerup", () => {
+    playback.scrubbing = false;
+  });
 
   slots.miniPlayer.replaceChildren(fragment);
 }
