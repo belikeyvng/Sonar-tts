@@ -6,6 +6,7 @@ release/
 
 # App-specific ignores
 src/engines/tts/
+src/engines/tts/kokoro/onnx/model
 tools/license/keys/
 
 # Sonar DRM private signing key

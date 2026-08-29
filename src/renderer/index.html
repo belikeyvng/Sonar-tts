@@ -4,11 +4,34 @@
 <head>
     <meta charset="UTF-8" />
     <title>Sonar</title>
+    <link rel="stylesheet" href="./styles/splash.css">
     <link rel="stylesheet" href="styles/layout.css" />
     <link rel="stylesheet" href="styles/visual.css" />
 </head>
 
 <body>
+
+    <div class="splash-screen" id="splash-screen">
+    <span class="splash-screen__logo" aria-hidden="true">
+        <svg width="84" height="84" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="12" fill="url(#splash-gradient)" />
+            <g clip-path="url(#splash-clip)">
+                <path
+                    d="M6 10.6667V12.6667M8.4 8V15.3333M10.8 6V18M13.2 9.33333V14M15.6 7.33333V16M18 10.6667V12.6667"
+                    stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
+            </g>
+            <defs>
+                <linearGradient id="splash-gradient" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#3B82F6" />
+                    <stop offset="1" stop-color="#9333EA" />
+                </linearGradient>
+                <clipPath id="splash-clip">
+                    <rect width="12" height="12" fill="white" transform="translate(6 6)" />
+                </clipPath>
+            </defs>
+        </svg>
+    </span>
+</div>
 
     <!-- ======================================================================
          UPGRADE PAGE — shown when "Upgrade to Pro" is triggered from
@@ -442,19 +465,42 @@
                 <video src="./assets/orb/orb-2.webm" autoplay width="250" height="250" loop></video>
             </div>
 
-
             <p class="player-panel__narrator">
                 Narrator: <span class="player-panel__narrator-name" data-bind="narratorName"></span>
             </p>
 
             <div class="player-panel__voice-picker">
-                <label class="player-panel__voice-picker-label" for="voice-select">Choose a voice</label>
-                <select class="player-panel__voice-select" id="voice-select" data-bind="voiceSelect"></select>
+                <label class="player-panel__voice-picker-label" id="voice-select-label">Choose a voice</label>
+                <div class="player-panel__voice-dropdown" data-bind="voiceDropdown">
+                    <button type="button" class="player-panel__voice-trigger" aria-haspopup="listbox"
+                        aria-expanded="false" aria-labelledby="voice-select-label" data-action="voice-trigger">
+                        <span class="player-panel__voice-trigger-label" data-bind="voiceTriggerLabel"></span>
+                        <span class="player-panel__voice-trigger-caret" aria-hidden="true">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </button>
+                    <ul class="player-panel__voice-listbox" role="listbox" tabindex="-1" data-bind="voiceListbox"
+                        hidden></ul>
+                </div>
             </div>
+
+            <p class="player-panel__generation-error" data-bind="generationError" hidden></p>
+
             <button class="player-panel__generate-button" type="button" data-action="generate-audio">
                 Generate audio
             </button>
         </aside>
+    </template>
+    <template id="tpl-voice-group-header">
+        <li class="player-panel__voice-group-header" role="presentation" data-bind="groupLabel"></li>
+    </template>
+
+    <template id="tpl-voice-option">
+        <li class="player-panel__voice-option" role="option" data-value="" data-bind="optionLabel"></li>
     </template>
 
 

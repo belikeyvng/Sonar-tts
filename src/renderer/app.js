@@ -554,14 +554,12 @@ function updateActiveFileNavItem() {
       )
     : null;
 
-  slots.fileNav
-    .querySelectorAll(".file-nav__item-button")
-    .forEach((button) => {
-      button.classList.toggle(
-        "file-nav__item-button--active",
-        button.dataset.fileId === activeId,
-      );
-    });
+  slots.fileNav.querySelectorAll(".file-nav__item-button").forEach((button) => {
+    button.classList.toggle(
+      "file-nav__item-button--active",
+      button.dataset.fileId === activeId,
+    );
+  });
 }
 
 // Search is scoped to state.documents (the full set of known
@@ -704,7 +702,7 @@ function renderPlayerPanel() {
   const doc = state.currentDocument;
 
   if (!doc.audioReady) {
-    renderPlayerPanelGenerate(doc);
+    return renderPlayerPanelGenerate(doc);
   } else {
     renderPlayerPanelReady(doc);
   }
@@ -731,41 +729,13 @@ async function renderPlayerPanelGenerate(doc) {
   ]);
 
   const isPro = status.activated && status.plan === "pro";
-  const select = fragment.querySelector('[data-bind="voiceSelect"]');
-  select.disabled = doc.generating;
 
   if (!doc.voiceId || !voices.some((v) => v.id === doc.voiceId)) {
     const firstFree = voices.find((v) => v.tier !== "pro");
     doc.voiceId = firstFree ? firstFree.id : voices[0]?.id;
   }
 
-    for (const voice of voices) {
-    const locked = voice.tier === "pro" && !isPro;
-    const option = document.createElement("option");
-    option.value = voice.id;
-
-    const details = [voice.gender, voice.accent]
-      .filter(Boolean)
-      .join(", ");
-    const label = details ? `${voice.name} — ${details}` : voice.name;
-    option.textContent = locked ? `${label} (Pro)` : label;
-
-    option.disabled = locked;
-    if (voice.id === doc.voiceId) option.selected = true;
-    select.appendChild(option);
-  }
-
-  select.addEventListener("change", () => {
-    const chosen = voices.find((v) => v.id === select.value);
-    if (chosen && chosen.tier === "pro" && !isPro) {
-      select.value = doc.voiceId;
-      goToUpgradePage();
-      return;
-    }
-    doc.voiceId = select.value;
-    doc.narratorName = chosen.name;
-    render();
-  });
+  await setupVoiceDropdown(fragment, doc, voices, isPro);
 
   on(fragment, "generate-audio", () => generateAudioForCurrentDocument());
 
@@ -778,6 +748,240 @@ async function renderPlayerPanelGenerate(doc) {
     video.load();
     video.play().catch((err) => console.error("Orb video play failed:", err));
   }
+}
+
+// Formats a voice into its display label (name + gender/accent, plus
+// a "(Pro)" suffix for gated voices) — shared by the trigger button
+// and every option row so they never drift out of sync.
+function formatVoiceLabel(voice, locked, usage) {
+  const details = [voice.gender, voice.accent].filter(Boolean).join(", ");
+  let label = details ? `${voice.name} — ${details}` : voice.name;
+  if (locked) label += " (Pro)";
+  if (usage) label += ` · ${usage.remaining}/${usage.limit} left today`;
+  return label;
+}
+
+// Custom dropdown replacing the native <select> — same data (grouped
+// Free/Pro voices) but fully styleable and always opens downward,
+// which native <select>/<optgroup> couldn't guarantee. Supports
+// click-to-open, click-outside-to-close, and full keyboard nav
+// (arrows, Home/End, type-to-jump, Enter/Space/Escape).
+async function setupVoiceDropdown(fragment, doc, voices, isPro) {
+  const dropdown = fragment.querySelector('[data-bind="voiceDropdown"]');
+  const trigger = fragment.querySelector('[data-action="voice-trigger"]');
+  const triggerLabel = fragment.querySelector(
+    '[data-bind="voiceTriggerLabel"]',
+  );
+  const listbox = fragment.querySelector('[data-bind="voiceListbox"]');
+
+  const groups = [
+    { label: "Free", list: voices.filter((v) => v.tier !== "pro") },
+    { label: "Pro", list: voices.filter((v) => v.tier === "pro") },
+  ];
+
+  const usageByVoiceId = {};
+  await Promise.all(
+    voices.map(async (v) => {
+      const usage = await window.sonar.tts.getUsage(v.id);
+      if (usage.limited) usageByVoiceId[v.id] = usage;
+    }),
+  );
+
+  const optionEls = [];
+
+  function buildOptions() {
+    listbox.replaceChildren();
+    optionEls.length = 0;
+
+    for (const group of groups) {
+      if (group.list.length === 0) continue;
+
+      const headerFrag = clone("tpl-voice-group-header");
+      bind(headerFrag, "groupLabel", group.label);
+      listbox.appendChild(headerFrag);
+
+      for (const voice of group.list) {
+        const locked = voice.tier === "pro" && !isPro;
+        const usage = usageByVoiceId[voice.id];
+        const optFrag = clone("tpl-voice-option");
+        const optEl = optFrag.querySelector(".player-panel__voice-option");
+        optEl.dataset.value = voice.id;
+        optEl.textContent = formatVoiceLabel(voice, locked, usage);
+        optEl.setAttribute("aria-selected", String(voice.id === doc.voiceId));
+        optEl.setAttribute("aria-disabled", String(locked));
+        if (locked) optEl.classList.add("player-panel__voice-option--locked");
+        if (usage && usage.remaining === 0) {
+          optEl.classList.add("player-panel__voice-option--exhausted");
+        }
+        if (voice.id === doc.voiceId) {
+          optEl.classList.add("player-panel__voice-option--selected");
+        }
+        listbox.appendChild(optFrag);
+        optionEls.push(optEl);
+      }
+    }
+  }
+
+  function setTriggerLabel() {
+    const current = voices.find((v) => v.id === doc.voiceId);
+    if (current) {
+      const locked = current.tier === "pro" && !isPro;
+      const usage = usageByVoiceId[current.id];
+      triggerLabel.textContent = formatVoiceLabel(current, locked, usage);
+    }
+  }
+
+  function openDropdown() {
+    listbox.hidden = false;
+    trigger.setAttribute("aria-expanded", "true");
+    dropdown.classList.add("player-panel__voice-dropdown--open");
+    const activeEl =
+      optionEls.find((el) => el.dataset.value === doc.voiceId) || optionEls[0];
+    focusOption(activeEl);
+    document.addEventListener("click", handleOutsideClick);
+  }
+
+  function closeDropdown() {
+    listbox.hidden = true;
+    trigger.setAttribute("aria-expanded", "false");
+    dropdown.classList.remove("player-panel__voice-dropdown--open");
+    document.removeEventListener("click", handleOutsideClick);
+  }
+
+  function isOpen() {
+    return !listbox.hidden;
+  }
+
+  function focusOption(el) {
+    if (!el) return;
+    optionEls.forEach((o) =>
+      o.classList.remove("player-panel__voice-option--focused"),
+    );
+    el.classList.add("player-panel__voice-option--focused");
+    el.scrollIntoView({ block: "nearest" });
+  }
+
+  function getFocusedOption() {
+    return (
+      optionEls.find((el) =>
+        el.classList.contains("player-panel__voice-option--focused"),
+      ) || null
+    );
+  }
+
+  function selectVoice(voiceId) {
+    const chosen = voices.find((v) => v.id === voiceId);
+    if (!chosen) return;
+
+    if (chosen.tier === "pro" && !isPro) {
+      closeDropdown();
+      goToUpgradePage();
+      return;
+    }
+
+    doc.voiceId = chosen.id;
+    doc.narratorName = chosen.name;
+    closeDropdown();
+    render();
+  }
+
+  function handleOutsideClick(e) {
+    if (!dropdown.contains(e.target)) closeDropdown();
+  }
+
+  trigger.addEventListener("click", () => {
+    if (isOpen()) {
+      closeDropdown();
+    } else {
+      openDropdown();
+    }
+  });
+
+  listbox.addEventListener("click", (e) => {
+    const optEl = e.target.closest(".player-panel__voice-option");
+    if (!optEl || optEl.getAttribute("aria-disabled") === "true") return;
+    selectVoice(optEl.dataset.value);
+  });
+
+  let typeBuffer = "";
+  let typeTimer = null;
+
+  trigger.addEventListener("keydown", (e) => {
+    if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) {
+      e.preventDefault();
+      openDropdown();
+    }
+  });
+
+  listbox.addEventListener("keydown", (e) => {
+    const focused = getFocusedOption();
+    const currentIndex = focused ? optionEls.indexOf(focused) : -1;
+
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeDropdown();
+      trigger.focus();
+      return;
+    }
+
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (focused && focused.getAttribute("aria-disabled") !== "true") {
+        selectVoice(focused.dataset.value);
+        trigger.focus();
+      }
+      return;
+    }
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const next = optionEls[Math.min(currentIndex + 1, optionEls.length - 1)];
+      focusOption(next);
+      return;
+    }
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const prev = optionEls[Math.max(currentIndex - 1, 0)];
+      focusOption(prev);
+      return;
+    }
+
+    if (e.key === "Home") {
+      e.preventDefault();
+      focusOption(optionEls[0]);
+      return;
+    }
+
+    if (e.key === "End") {
+      e.preventDefault();
+      focusOption(optionEls[optionEls.length - 1]);
+      return;
+    }
+
+    if (e.key.length === 1 && /\S/.test(e.key)) {
+      clearTimeout(typeTimer);
+      typeBuffer += e.key.toLowerCase();
+      typeTimer = setTimeout(() => {
+        typeBuffer = "";
+      }, 600);
+
+      const startAt = currentIndex + 1;
+      const ordered = [
+        ...optionEls.slice(startAt),
+        ...optionEls.slice(0, startAt),
+      ];
+      const match = ordered.find(
+        (el) =>
+          el.getAttribute("aria-disabled") !== "true" &&
+          el.textContent.toLowerCase().startsWith(typeBuffer),
+      );
+      if (match) focusOption(match);
+    }
+  });
+
+  buildOptions();
+  setTriggerLabel();
 }
 
 function renderPlayerPanelReady(doc) {
@@ -857,10 +1061,17 @@ async function generateAudioForCurrentDocument() {
       goToUpgradePage();
       return;
     }
-    // UNKNOWN_VOICE or any Piper/process failure — surface inline
-    // rather than silently failing. No dedicated error UI slot for
-    // the player panel yet, so console for now; revisit once we
-    // decide where generation errors should actually show.
+    if (result.reason === "FREE_GENERATION_LIMIT_REACHED") {
+      await renderPlayerPanel();
+      const errorEl = slots.playerPanel.querySelector(
+        '[data-bind="generationError"]',
+      );
+      if (errorEl) {
+        errorEl.textContent = `Daily limit reached for this voice (${result.limit}/${result.limit} used). Resets tomorrow, or choose another voice.`;
+        errorEl.hidden = false;
+      }
+      return;
+    }
     console.error("Audio generation failed:", result.reason);
     renderPlayerPanel();
     return;
@@ -1280,3 +1491,25 @@ if (state.currentView === "app") {
 } else if (state.currentView === "onboarding") {
   renderOnboardingStep();
 }
+
+// --- Splash screen -------------------------------------------------------
+// Fixed ~1s show, then fades regardless of boot state (explicit choice —
+// not tied to render() completion). Chime plays alongside it — browsers
+// block audio autoplay without a user gesture in some contexts, so this
+// is wrapped in a catch; a silent splash is an acceptable fallback, a
+// thrown error is not.
+window.addEventListener("DOMContentLoaded", () => {
+  const splash = document.getElementById("splash-screen");
+  if (!splash) return;
+
+  const chime = new Audio("./assets/sound/splash.wav");
+  chime.volume = 0.6;
+  chime.play().catch((err) => {
+    console.warn("Splash chime blocked or failed to play:", err);
+  });
+
+  setTimeout(() => {
+    splash.classList.add("splash-screen--hidden");
+    setTimeout(() => splash.remove(), 300);
+  }, 1000);
+});

@@ -1,0 +1,27 @@
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base, #0B0F1A);
+  opacity: 1;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.splash-screen--hidden {
+  opacity: 0;
+}
+
+.splash-screen__logo {
+  display: inline-flex;
+  animation: splash-pulse 1000ms ease-in-out;
+}
+
+@keyframes splash-pulse {
+  0% { opacity: 0; transform: scale(0.92); }
+  30% { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
+}

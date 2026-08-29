@@ -750,17 +750,89 @@ html, body {
     margin-bottom: var(--space-6);
 }
 
+/* --- Generate state: voice picker + button --- */
+
+.player-panel__voice-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    width: 100%;
+    margin-bottom: var(--space-6);
+}
+
 .player-panel__voice-select {
     height: var(--control-input-height);
     padding: 0 var(--space-3);
     width: 100%;
 }
 
+/* ===== PASTE THE NEW BLOCK RIGHT HERE ===== */
+
+.player-panel__voice-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.player-panel__voice-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: var(--control-input-height);
+    padding: 0 var(--space-3);
+    border: none;
+    cursor: pointer;
+}
+
+.player-panel__voice-trigger-label {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+
+.player-panel__voice-trigger-caret {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+    flex-shrink: 0;
+    margin-left: var(--space-2);
+}
+
+.player-panel__voice-listbox {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    left: 0;
+    right: 0;
+    z-index: 20;
+    max-height: 260px;
+    overflow-y: auto;
+    margin: 0;
+    padding: var(--space-1) 0;
+    list-style: none;
+}
+
+.player-panel__voice-group-header {
+    padding: var(--space-2) var(--space-3) var(--space-1);
+}
+
+.player-panel__voice-option {
+    padding: var(--space-2) var(--space-3);
+    cursor: pointer;
+}
+
+/* ===== END NEW BLOCK ===== */
+
+
+
 .player-panel__generate-button {
     height: var(--control-input-height);
     width: 100%;
     cursor: pointer;
 }
+
+
 
 /* --- Ready state: speed/volume toolbar --- */
 
@@ -844,6 +916,11 @@ html, body {
     display: block;
     width: var(--icon-size-md);
     height: var(--icon-size-md);
+}
+
+.player-panel__generation-error {
+    width: 100%;
+    margin: 0 0 var(--space-3) 0;
 }
 /* ==========================================================================
    MINI PLAYER (bottom bar, full width)

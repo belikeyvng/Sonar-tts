@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld("sonar", {
   tts: {
     getVoices: () => ipcRenderer.invoke("tts:getVoices"),
 
+    getUsage: (voiceId) => ipcRenderer.invoke("tts:getUsage", voiceId),
+    resetUsage: () => ipcRenderer.invoke("tts:resetUsage"),
     speak: (text, voiceId) =>
       ipcRenderer.invoke("tts:speak", { text, voiceId }),
   },
