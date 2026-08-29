@@ -720,12 +720,13 @@ function renderPlayerPanelReady(doc) {
     if (playback.audio) playback.audio.volume = vol;
   });
 
-    slots.playerPanel.replaceChildren(fragment);
+  slots.playerPanel.replaceChildren(fragment);
   const playIcon = slots.playerPanel.querySelector(
     ".player-panel__transport-button--primary .player-panel__transport-icon",
   );
   if (playIcon) {
-    const isPlayingThis = playback.isPlaying && playback.docId === doc.audioFile;
+    const isPlayingThis =
+      playback.isPlaying && playback.docId === doc.audioFile;
     playIcon.innerHTML = isPlayingThis ? PAUSE_ICON : PLAY_ICON;
     playIcon.dataset.iconState = isPlayingThis ? "pause" : "play";
   }
@@ -787,23 +788,34 @@ function seekBy(seconds) {
 // Loads doc.audioFile into the shared Audio element if it isn't already
 // the active track, then toggles play/pause. Safe to call repeatedly —
 // re-selects the same file without restarting playback.
+
 function playPause() {
-    console.log("playPause() called", { docId: state.currentDocument?.audioFile, playbackDocId: playback.docId, audioExists: !!playback.audio, paused: playback.audio?.paused });
+  console.log("playPause() called", {
+    docId: state.currentDocument?.audioFile,
+    playbackDocId: playback.docId,
+    audioExists: !!playback.audio,
+    paused: playback.audio?.paused,
+  });
   const doc = state.currentDocument;
-  
   if (!doc || !doc.audioReady || !doc.audioFile) return;
 
-  const docId = doc.audioFile; // file path is a fine unique key here
+  const docId = doc.audioFile;
 
   if (playback.docId !== docId) {
     loadAudioForDoc(doc, docId);
-    return; // loadAudioForDoc starts playback once metadata is ready
+    return;
   }
 
   if (playback.audio.paused) {
     playback.audio.play();
+    playback.isPlaying = true;
+    startProgressTimer();
+    updatePlaybackUI(doc);
   } else {
     playback.audio.pause();
+    playback.isPlaying = false;
+    stopProgressTimer();
+    updatePlaybackUI(doc);
   }
 }
 
@@ -869,9 +881,12 @@ function startProgressTimer() {
 
     const doc = state.currentDocument;
     // if (!doc || doc.audioFile !== playback.docId) return; // stale — bail
-     if (!doc || doc.audioFile !== playback.docId) {
-        console.log("Progress timer bailing — stale doc", { docAudioFile: doc?.audioFile, playbackDocId: playback.docId });
-        return;
+    if (!doc || doc.audioFile !== playback.docId) {
+      console.log("Progress timer bailing — stale doc", {
+        docAudioFile: doc?.audioFile,
+        playbackDocId: playback.docId,
+      });
+      return;
     }
     doc.timeElapsed = formatTime(audio.currentTime);
     doc.progress = Math.round((audio.currentTime / audio.duration) * 100);
@@ -976,12 +991,13 @@ function renderMiniPlayer() {
     playback.scrubbing = false;
   });
 
-    slots.miniPlayer.replaceChildren(fragment);
+  slots.miniPlayer.replaceChildren(fragment);
   const miniPlayIcon = slots.miniPlayer.querySelector(
     ".mini-player__play-icon",
   );
   if (miniPlayIcon) {
-    const isPlayingThis = playback.isPlaying && playback.docId === doc.audioFile;
+    const isPlayingThis =
+      playback.isPlaying && playback.docId === doc.audioFile;
     miniPlayIcon.innerHTML = isPlayingThis ? PAUSE_ICON : PLAY_ICON;
     miniPlayIcon.dataset.iconState = isPlayingThis ? "pause" : "play";
   }
