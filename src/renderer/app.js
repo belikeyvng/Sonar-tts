@@ -706,6 +706,13 @@ function renderPlayerPanelReady(doc) {
     playback.scrubbing = false;
   });
 
+  const volumeSlider = fragment.querySelector('[data-bind="volume"]');
+  volumeSlider.value = (playback.audio ? playback.audio.volume : 1) * 100;
+  volumeSlider.addEventListener("input", () => {
+    const vol = Number(volumeSlider.value) / 100;
+    if (playback.audio) playback.audio.volume = vol;
+  });
+
   slots.playerPanel.replaceChildren(fragment);
 }
 

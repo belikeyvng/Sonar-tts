@@ -151,3 +151,8 @@
     align-items: center;
     justify-content: center;
 }
+
+.player-panel__volume-slider {
+    accent-color: var(--color-accent);
+    height: 4px;
+}
