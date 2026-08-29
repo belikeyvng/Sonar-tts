@@ -465,7 +465,7 @@ function backToApp() {
 // MAIN APP — file nav (mounted once, never re-rendered)
 // ==========================================================================
 
-function renderFileNav() {
+async function renderFileNav() {
   const fragment = clone("tpl-file-nav");
 
   bind(fragment, "accountName", state.accountName);
@@ -474,6 +474,7 @@ function renderFileNav() {
   on(fragment, "toggle-pin", togglePin);
   on(fragment, "new-file", goToNewFile);
   on(fragment, "upgrade-to-pro", goToUpgradePage);
+
   const searchInput = fragment.querySelector(".file-nav__search-input");
   searchInput.addEventListener("input", (e) => {
     handleFileNavSearch(e.target.value);
@@ -490,6 +491,22 @@ function renderFileNav() {
   }
 
   slots.fileNav.replaceChildren(fragment);
+
+  await updateFileNavPlanLabel();
+}
+
+// Refreshes the account-plan label (Free/Pro) in the already-mounted
+// file-nav without re-cloning the whole sidebar — same reasoning as
+// updateActiveFileNavItem(): file-nav mounts once, so anything that
+// can change after boot (license status included) needs its own
+// targeted updater rather than a full renderFileNav() re-run.
+async function updateFileNavPlanLabel() {
+  const label = slots.fileNav.querySelector('[data-bind="accountPlan"]');
+  if (!label) return;
+
+  const status = await window.sonar.license.getStatus();
+  const isPro = status.activated && status.plan === "pro";
+  label.textContent = isPro ? "Pro" : "Free";
 }
 
 // Click-to-pin toggles a class on the mounted .file-nav element directly
