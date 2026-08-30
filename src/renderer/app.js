@@ -1629,13 +1629,14 @@ function renderMiniPlayer() {
   bind(fragment, "timeElapsed", doc.timeElapsed);
   bind(fragment, "timeTotal", doc.timeTotal);
   bind(fragment, "progress", doc.progress);
-  updateRangeFill(progressInput);
   bind(fragment, "narratorName", doc.narratorName);
   bind(fragment, "speedLabel", doc.speed);
 
   on(fragment, "play-pause", playPause);
 
   const progressInput = fragment.querySelector('[data-bind="progress"]');
+  updateRangeFill(progressInput);
+
   progressInput.addEventListener("pointerdown", () => {
     playback.scrubbing = true;
   });

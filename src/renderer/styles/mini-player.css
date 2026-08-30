@@ -68,3 +68,50 @@
 .mini-player__volume-button:hover {
     color: var(--color-text-secondary);
 }
+
+
+.player-panel__progress,
+.player-panel__volume-slider,
+.mini-player__progress {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    var(--color-accent) var(--fill-percent, 0%),
+    var(--color-border, #3a3a3a) var(--fill-percent, 0%)
+  );
+}
+
+.player-panel__progress::-webkit-slider-thumb,
+.player-panel__volume-slider::-webkit-slider-thumb,
+.mini-player__progress::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  cursor: pointer;
+  border: none;
+}
+
+.player-panel__progress::-moz-range-thumb,
+.player-panel__volume-slider::-moz-range-thumb,
+.mini-player__progress::-moz-range-thumb {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  cursor: pointer;
+  border: none;
+}
+
+/* Firefox draws its own track fill natively via -moz-range-progress,
+   so the gradient background above would double up there. Not a
+   real concern for you since Electron is Chromium-only, but harmless
+   to leave for portability. */
