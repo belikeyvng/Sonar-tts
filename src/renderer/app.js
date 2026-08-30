@@ -1523,8 +1523,14 @@ async function handlePdfLoadResult(result) {
 // enough for highlight granularity, where an occasional over-split
 // sentence just means two chunks highlight in sequence instead of one.
 function splitIntoSentences(paragraph) {
-  const matches = paragraph.match(/[^.!?]+[.!?]+(\s+|$)/g);
-  return matches ? matches.map((s) => s.trim()).filter(Boolean) : [paragraph];
+  const matches = paragraph.match(/[^.!?]+[.!?]+(\s+|$)/g) || [];
+  const consumedLength = matches.join("").length;
+  const remainder = paragraph.slice(consumedLength).trim();
+
+  const sentences = matches.map((s) => s.trim()).filter(Boolean);
+  if (remainder) sentences.push(remainder); // catch trailing text with no terminal punctuation
+
+  return sentences.length ? sentences : [paragraph];
 }
 
 // Builds a flat list of { paragraphIndex, sentenceIndex, text, charStart,

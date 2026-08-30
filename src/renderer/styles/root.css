@@ -171,3 +171,8 @@ body {
     font-family: var(--font-body);
     font-size: var(--text-base);
 }
+
+button:active {
+    opacity: 0.6;
+    cursor: pointer;
+}
