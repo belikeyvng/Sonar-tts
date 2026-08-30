@@ -330,6 +330,7 @@ body {
         "mini-player mini-player mini-player";
     height: 100vh;
     width: 100vw;
+    column-gap: 25px;
     /* Deliberately no overflow: hidden here — the collapsed sidebar rail
        expands via position: fixed at narrow widths, and an ancestor's
        overflow: hidden would clip that fixed overlay in most browsers
@@ -353,12 +354,14 @@ body {
     min-height: 0;
     min-width: 0;
     overflow: hidden;
+    margin: 25px 0;
 }
 
 #player-panel-slot {
     grid-area: player-panel;
     min-height: 0;
     min-width: 0;
+    margin: 25px 25px  25px 0;
 }
 
 #mini-player-slot {

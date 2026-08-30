@@ -13,17 +13,13 @@ const ACCENT_COLOR_OPTIONS = [
   "#00D2FF",
 ];
 
-// Add near the other module-level constants, e.g. right after ACCENT_COLOR_OPTIONS
 const ORB_BASE_HUE = 268; // orb-2.webm's dominant hue (violet/blue-violet band)
 
-// Update applyAccentColor() to also compute and set the orb rotation:
 function applyAccentColor(hex) {
   const { h, s, l } = hexToHsl(hex);
 
   const hover = hslToHex(h, s, Math.max(l - 8, 0));
-  const subtle = hslToHex(h, Math.min(s, 65), 88);
   const subtleRgb = hslToHex(h, Math.min(s, 80), 55); // fuller-strength color as the RGB base
-  // ...
   const thin = hslToHex(h, Math.min(s, 70), 82);
   const gradientEnd = hslToHex(
     (h + 45) % 360,
@@ -41,7 +37,6 @@ function applyAccentColor(hex) {
   const root = document.documentElement.style;
   root.setProperty("--color-accent", hex);
   root.setProperty("--color-accent-hover", hover);
-  // root.setProperty("--color-accent-subtle", subtle);
   root.setProperty("--color-accent-subtle", hexToRgba(subtleRgb, 0.12));
   root.setProperty("--color-accent-thin", thin);
   root.setProperty("--gradient-brand-start", hex);
@@ -56,6 +51,7 @@ function applyAccentColor(hex) {
   );
   root.setProperty("--orb-hue-rotation", `${orbRotation}deg`);
 }
+
 function hexToRgba(hex, alpha) {
   const { r, g, b } = hexToRgb(hex);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
@@ -131,9 +127,13 @@ const MOON_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" x
 const PAUSE_ICON = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.0006 2.5H12.5003C12.04 2.5 11.6669 2.8731 11.6669 3.33333V16.6667C11.6669 17.1269 12.04 17.5 12.5003 17.5H15.0006C15.4609 17.5 15.834 17.1269 15.834 16.6667V3.33333C15.834 2.8731 15.4609 2.5 15.0006 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.49973 2.5H4.99944C4.53915 2.5 4.16602 2.8731 4.16602 3.33333V16.6667C4.16602 17.1269 4.53915 17.5 4.99944 17.5H7.49973C7.96002 17.5 8.33316 17.1269 8.33316 16.6667V3.33333C8.33316 2.8731 7.96002 2.5 7.49973 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
 
 const PLAY_ICON = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 3.5L16 10L5 16.5V3.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`;
+
 // Renders the correct icon (sun when currently dark → click to go light;
 // moon when currently light → click to go dark) into every mounted
-// theme-toggle button. Both empty-state and reading-pane have one.
+// theme-toggle button. Both empty-state and reading-pane have one, plus
+// the settings modal's thumb toggle (position/emphasis only, not an icon
+// swap — it stays mounted across renders since modalSlot isn't recreated
+// per-render the way other slots are).
 function updateThemeToggleIcons() {
   const isDark = document.documentElement.dataset.theme === "dark";
   const icon = isDark ? SUN_ICON : MOON_ICON;
@@ -143,6 +143,16 @@ function updateThemeToggleIcons() {
     .forEach((el) => {
       el.innerHTML = icon;
     });
+
+  const settingsToggle = modalSlot.querySelector(
+    ".settings-modal__theme-toggle",
+  );
+  if (settingsToggle) {
+    settingsToggle.classList.toggle(
+      "settings-modal__theme-toggle--dark",
+      isDark,
+    );
+  }
 }
 
 const state = {
@@ -245,7 +255,7 @@ const state = {
   // Set while pdf:load/pdf:browse is in flight, or to an error message
   // string if the last attempt failed. Empty-state reads this to show
   // a spinner/error instead of the default dropzone copy.
-  dropzoneStatus: null, // null | "loading" | { error: string }e) ---
+  dropzoneStatus: null, // null | "loading" | { error: string }
 
   plans: [
     {
@@ -341,6 +351,8 @@ const slots = {
   miniPlayer: document.getElementById("mini-player-slot"),
   upgradePagePlans: document.getElementById("upgrade-page-plans-slot"),
 };
+
+const modalSlot = document.getElementById("modal-slot");
 
 // --- Helpers -----------------------------------------------------------
 
@@ -1246,7 +1258,7 @@ async function renderPlayerPanelReady(doc) {
   volumeSlider.addEventListener("input", () => {
     const vol = Number(volumeSlider.value) / 100;
     if (playback.audio) playback.audio.volume = vol;
-      updateRangeFill(volumeSlider);
+    updateRangeFill(volumeSlider);
   });
 
   // --- Export ---
@@ -1546,7 +1558,7 @@ function startProgressTimer() {
     doc.progress = Math.round((audio.currentTime / audio.duration) * 100);
     playback.isPlaying = !audio.paused;
     updatePlaybackUI(doc);
-    updateReadAlongHighlight(doc); // <-- new line
+    updateReadAlongHighlight(doc);
   }, 250);
 }
 
@@ -1571,7 +1583,7 @@ function updatePlaybackUI(doc) {
     if (totalEl) totalEl.textContent = doc.timeTotal;
     if (progressEl && !playback.scrubbing) {
       progressEl.value = doc.progress;
-      updateRangeFill(progressEl); // 
+      updateRangeFill(progressEl);
     }
 
     const playIcon = root.querySelector(
@@ -1779,15 +1791,6 @@ async function handlePdfLoadResult(result) {
 // enough for highlight granularity, where an occasional over-split
 // sentence just means two chunks highlight in sequence instead of one.
 function splitIntoSentences(paragraph) {
-  // Split on sentence-ending punctuation followed by whitespace. This
-  // deliberately ignores quote-nesting (a period inside a quote like
-  // `mankind."` still triggers a split) — for highlight granularity
-  // that's an acceptable trade-off. What matters is that this approach
-  // can never drop text: every character of `paragraph` ends up in
-  // exactly one returned sentence, since we build sentences by slicing
-  // the original string at match boundaries rather than reconstructing
-  // matched substrings (the previous regex.exec() approach could skip
-  // gaps between matches — this can't, because there are no gaps).
   const boundaryRegex = /[.!?]+["')\]]?\s+/g;
   const sentences = [];
   let start = 0;
@@ -1837,7 +1840,7 @@ function buildSentenceMap(paragraphs) {
 // duplicating it.
 function moveRecentFileNavItemToTop(file) {
   const recentsList = slots.fileNav.querySelector('[data-list="recents"]');
-  if (!recentsList) return; // file-nav not mounted yet — shouldn't happen post-boot, but don't throw
+  if (!recentsList) return;
 
   const existing = Array.from(
     recentsList.querySelectorAll(".file-nav__item-button"),
@@ -1896,8 +1899,6 @@ function unpinDocument(fileId) {
   renderFileNav();
 }
 
-const modalSlot = document.getElementById("modal-slot");
-
 function showDeleteConfirmModal(fileName, onConfirm) {
   const fragment = clone("tpl-delete-confirm-modal");
   bind(
@@ -1935,13 +1936,50 @@ async function openSettingsModal() {
   const fragment = clone("tpl-settings-modal");
   const data = state.onboardingData;
 
+  // Fetch license status once, up front — reused for the activation
+  // status label and the Go Pro button visibility below.
+  const status = await window.sonar.license.getStatus();
+  const isPro = status.activated && status.plan === "pro";
+
   bind(fragment, "settingsAccountName", state.accountName);
-  bind(fragment, "settingsAccountEmail", state.accountEmail);
+
+  const settingsAvatarEl = fragment.querySelector(".settings-modal__avatar");
+  if (settingsAvatarEl) {
+    settingsAvatarEl.textContent = getInitials(state.accountName);
+    settingsAvatarEl.dataset.accentColor = state.onboardingData.accentColor;
+  }
+
+  // Email span is repurposed as an activation status indicator, not
+  // an actual email address — Pro users see a green "ACTIVATED"
+  // label, free users see a red "NOT ACTIVATED" link to upgrade.
+  const emailEl = fragment.querySelector('[data-bind="settingsAccountEmail"]');
+  if (emailEl) {
+    if (isPro) {
+      emailEl.textContent = "ACTIVATED — Premium";
+      emailEl.className =
+        "settings-modal__account-status settings-modal__account-status--active";
+    } else {
+      const link = document.createElement("button");
+      link.type = "button";
+      link.className =
+        "settings-modal__account-status settings-modal__account-status--inactive";
+      link.textContent = "NOT ACTIVATED";
+      link.addEventListener("click", () => {
+        close();
+        goToUpgradePage();
+      });
+      emailEl.replaceWith(link);
+    }
+  }
 
   const themeToggle = fragment.querySelector(
     '[data-action="settings-toggle-theme"]',
   );
   themeToggle.addEventListener("click", toggleTheme);
+  themeToggle.classList.toggle(
+    "settings-modal__theme-toggle--dark",
+    document.documentElement.dataset.theme === "dark",
+  );
 
   const pillGroup = fragment.querySelector(
     '[data-group="settingsVoiceGender"]',
@@ -2010,6 +2048,51 @@ async function openSettingsModal() {
     settingsSwatchGroup.appendChild(swatch);
   }
 
+  // Edit (pencil) button — swaps the name span for an inline input,
+  // commits on blur/Enter, discards on Escape.
+  const editButton = fragment.querySelector(".settings-modal__edit");
+  const nameEl = fragment.querySelector('[data-bind="settingsAccountName"]');
+
+  if (editButton && nameEl) {
+    editButton.addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "settings-modal__account-name-input";
+      input.value = state.accountName;
+
+      nameEl.replaceWith(input);
+      input.focus();
+      input.select();
+
+      function commit() {
+        const trimmed = input.value.trim();
+        if (trimmed) {
+          state.accountName = trimmed;
+          state.firstName = trimmed.split(/\s+/)[0];
+        }
+        renderFileNav();
+
+        const freshNameEl = document.createElement("span");
+        freshNameEl.className = "settings-modal__account-name";
+        freshNameEl.setAttribute("data-bind", "settingsAccountName");
+        freshNameEl.textContent = state.accountName;
+        input.replaceWith(freshNameEl);
+
+        const avatarEl = modalSlot.querySelector(".settings-modal__avatar");
+        if (avatarEl) avatarEl.textContent = getInitials(state.accountName);
+      }
+
+      input.addEventListener("blur", commit);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") input.blur();
+        if (e.key === "Escape") {
+          input.value = state.accountName;
+          input.blur();
+        }
+      });
+    });
+  }
+
   on(fragment, "settings-logout", () => {
     // TODO: real logout — clear session/license state, return to
     // onboarding or a login screen once auth exists.
@@ -2040,13 +2123,8 @@ async function openSettingsModal() {
 
   modalSlot.replaceChildren(fragment);
 
-  // Hide "Go Pro" for users who already have Pro — mounted after the
-  // modal is in the DOM so we don't flash it before the async check
-  // resolves is unavoidable with this pattern; mirrors the same
-  // brief-flash tradeoff already accepted for the file-nav upgrade
-  // button (see updateFileNavPlanLabel).
-  const status = await window.sonar.license.getStatus();
-  const isPro = status.activated && status.plan === "pro";
+  // Hide "Go Pro" for users who already have Pro — status was already
+  // fetched above, no second license check needed here.
   const goProButton = modalSlot.querySelector(
     '[data-action="settings-go-pro"]',
   );

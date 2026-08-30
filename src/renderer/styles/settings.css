@@ -262,3 +262,41 @@
 [data-theme="dark"] .settings-modal__theme-toggle-thumb {
   transform: translateX(16px);
 }
+
+
+.settings-modal__account-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: default;
+}
+
+.settings-modal__account-status--active {
+  color: var(--color-success, #22c55e); /* flag: no --color-success token exists yet per your notes — same gap as --color-danger */
+}
+
+.settings-modal__account-status--inactive {
+  color: var(--color-danger, #ef4444);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.settings-modal__theme-toggle-thumb {
+  transition: transform 0.2s ease;
+}
+
+.settings-modal__theme-toggle--dark .settings-modal__theme-toggle-thumb {
+  transform: translateX(100%); /* adjust to match actual track width */
+}
+
+.settings-modal__theme-icon--sun { opacity: 0.4; }
+.settings-modal__theme-icon--moon { opacity: 0.4; }
+
+/* Light mode: sun active */
+html:not([data-theme="dark"]) .settings-modal__theme-icon--sun { opacity: 1; }
+/* Dark mode: moon active */
+html[data-theme="dark"] .settings-modal__theme-icon--moon { opacity: 1; }
