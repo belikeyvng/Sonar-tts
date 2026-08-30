@@ -13,30 +13,36 @@ const ACCENT_COLOR_OPTIONS = [
   "#00D2FF",
 ];
 
-// Derives the accent color family (hover/subtle/thin variants + brand
-// gradient endpoints + glow shadows) from a single base hex, and pushes
-// them all as inline custom properties on <html> — these override
-// root.css's static :root values by cascade order, no !important needed.
-// Called on boot (with the default) and whenever a swatch is picked.
+// Add near the other module-level constants, e.g. right after ACCENT_COLOR_OPTIONS
+const ORB_BASE_HUE = 268; // orb-2.webm's dominant hue (violet/blue-violet band)
+
+// Update applyAccentColor() to also compute and set the orb rotation:
 function applyAccentColor(hex) {
   const { h, s, l } = hexToHsl(hex);
 
   const hover = hslToHex(h, s, Math.max(l - 8, 0));
-  const subtle = hslToHex(h, Math.min(s, 60), 94);
+  const subtle = hslToHex(h, Math.min(s, 65), 88);
+  const subtleRgb = hslToHex(h, Math.min(s, 80), 55); // fuller-strength color as the RGB base
+// ...
   const thin = hslToHex(h, Math.min(s, 70), 82);
-  // Gradient end is a fixed hue-shift toward violet/magenta from the
-  // base, so single-hue picks (blue, green, etc.) still read as a
-  // gradient rather than a flat fill.
   const gradientEnd = hslToHex(
     (h + 45) % 360,
     Math.min(s + 10, 90),
     Math.max(l - 5, 30),
   );
 
+  // Orb hue-rotation: shift orb-2.webm's own palette by the difference
+  // between its base hue and the newly selected accent's hue. Normalized
+  // into -180..180 so rotation always takes the shorter path around the
+  // wheel (avoids e.g. rotating 300deg when -60deg gets the same result).
+  let orbRotation = h - ORB_BASE_HUE;
+  orbRotation = ((((orbRotation + 180) % 360) + 360) % 360) - 180;
+
   const root = document.documentElement.style;
   root.setProperty("--color-accent", hex);
   root.setProperty("--color-accent-hover", hover);
-  root.setProperty("--color-accent-subtle", subtle);
+  // root.setProperty("--color-accent-subtle", subtle);
+  root.setProperty("--color-accent-subtle", hexToRgba(subtleRgb, 0.12));
   root.setProperty("--color-accent-thin", thin);
   root.setProperty("--gradient-brand-start", hex);
   root.setProperty("--gradient-brand-end", gradientEnd);
@@ -48,8 +54,8 @@ function applyAccentColor(hex) {
     "--shadow-accent-glow-subtle",
     `0 0 0 .5px ${hex}, 0 0 24px ${hexToRgba(hex, 0.171)}`,
   );
+  root.setProperty("--orb-hue-rotation", `${orbRotation}deg`);
 }
-
 function hexToRgba(hex, alpha) {
   const { r, g, b } = hexToRgb(hex);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;

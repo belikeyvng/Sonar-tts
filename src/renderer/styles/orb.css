@@ -1,0 +1,7 @@
+/* Applies to every orb-2.webm/orb.webm mount across onboarding,
+   empty-state, and player-panel — single rule, cascades everywhere. */
+.onboarding-visual__orb-wrap video,
+.empty-state__orb-wrap video,
+.player-panel__orb-wrap video {
+  filter: hue-rotate(var(--orb-hue-rotation, 0deg));
+}
