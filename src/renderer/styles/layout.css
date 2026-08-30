@@ -362,7 +362,10 @@ body {
     min-height: 0;
     min-width: 0;
     margin: 25px 25px  25px 0;
+
 }
+
+
 
 #mini-player-slot {
     grid-area: mini-player;

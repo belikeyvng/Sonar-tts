@@ -75,6 +75,10 @@
   border-radius: 50%;
   background: var(--color-bg-subtle);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .settings-modal__account-info {
@@ -272,6 +276,9 @@
   background: none;
   padding: 0;
   cursor: default;
+  display:flex;
+  justify-content: start;
+  margin-top: 4px;
 }
 
 .settings-modal__account-status--active {
@@ -300,3 +307,38 @@
 html:not([data-theme="dark"]) .settings-modal__theme-icon--sun { opacity: 1; }
 /* Dark mode: moon active */
 html[data-theme="dark"] .settings-modal__theme-icon--moon { opacity: 1; }
+
+
+.settings-modal__account-name-input {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-accent);
+  outline: none;
+  padding: 0 0 2px 0;
+  min-width: 140px;
+}
+
+
+.settings-modal__logout--activate {
+  color: var(--color-success, #22c55e);
+  border-color: var(--color-success, #22c55e);
+  background: transparent;
+}
+
+.settings-modal__logout--activate:hover {
+  background: color-mix(in srgb, var(--color-success, #22c55e) 10%, transparent);
+}
+
+.settings-modal__logout--deactivate {
+  color: var(--color-danger, #ef4444);
+  border-color: var(--color-danger, #ef4444);
+  background: transparent;
+}
+
+.settings-modal__logout--deactivate:hover {
+  background: color-mix(in srgb, var(--color-danger, #ef4444) 10%, transparent);
+}

@@ -2053,19 +2053,31 @@ async function openSettingsModal() {
   const editButton = fragment.querySelector(".settings-modal__edit");
   const nameEl = fragment.querySelector('[data-bind="settingsAccountName"]');
 
-  if (editButton && nameEl) {
+  if (editButton) {
     editButton.addEventListener("click", () => {
+      // Re-query live each click — after a prior edit, the original
+      // nameEl closed over here would be a stale, detached node.
+      const liveNameEl = modalSlot.querySelector(
+        '[data-bind="settingsAccountName"]',
+      );
+      if (!liveNameEl || liveNameEl.tagName === "INPUT") return; // already editing
+
       const input = document.createElement("input");
       input.type = "text";
       input.className = "settings-modal__account-name-input";
       input.value = state.accountName;
 
-      nameEl.replaceWith(input);
+      liveNameEl.replaceWith(input);
       input.focus();
       input.select();
 
-      function commit() {
-        const trimmed = input.value.trim();
+      let settled = false; // guards against double-commit (Enter's blur() + the blur event itself)
+
+      function finish(nextValue) {
+        if (settled) return;
+        settled = true;
+
+        const trimmed = nextValue.trim();
         if (trimmed) {
           state.accountName = trimmed;
           state.firstName = trimmed.split(/\s+/)[0];
@@ -2082,21 +2094,45 @@ async function openSettingsModal() {
         if (avatarEl) avatarEl.textContent = getInitials(state.accountName);
       }
 
-      input.addEventListener("blur", commit);
+      input.addEventListener("blur", () => finish(input.value));
       input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") input.blur();
+        if (e.key === "Enter") {
+          e.preventDefault();
+          finish(input.value);
+        }
         if (e.key === "Escape") {
-          input.value = state.accountName;
-          input.blur();
+          e.preventDefault();
+          finish(state.accountName); // discard: commit the unchanged name
         }
       });
     });
   }
 
+  const logoutButton = fragment.querySelector(
+    '[data-action="settings-logout"]',
+  );
+  const logoutLabel = logoutButton?.querySelector("span");
+  if (logoutButton && logoutLabel) {
+    if (isPro) {
+      logoutLabel.textContent = "Deactivate Sonar";
+      logoutButton.classList.add("settings-modal__logout--deactivate");
+      logoutButton.classList.remove("settings-modal__logout--activate");
+    } else {
+      logoutLabel.textContent = "Activate Sonar";
+      logoutButton.classList.add("settings-modal__logout--activate");
+      logoutButton.classList.remove("settings-modal__logout--deactivate");
+    }
+  }
+
   on(fragment, "settings-logout", () => {
-    // TODO: real logout — clear session/license state, return to
-    // onboarding or a login screen once auth exists.
-    console.log("TODO: implement real logout flow");
+    if (isPro) {
+      // TODO: real deactivation — clear license state via IPC (e.g.
+      // window.sonar.license.deactivate()) once that handler exists.
+      console.log("TODO: implement real license deactivation");
+    } else {
+      close();
+      goToUpgradePage();
+    }
   });
 
   function close() {
