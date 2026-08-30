@@ -12,6 +12,103 @@ const ACCENT_COLOR_OPTIONS = [
   "#EC137F",
   "#00D2FF",
 ];
+
+// Derives the accent color family (hover/subtle/thin variants + brand
+// gradient endpoints + glow shadows) from a single base hex, and pushes
+// them all as inline custom properties on <html> — these override
+// root.css's static :root values by cascade order, no !important needed.
+// Called on boot (with the default) and whenever a swatch is picked.
+function applyAccentColor(hex) {
+  const { h, s, l } = hexToHsl(hex);
+
+  const hover = hslToHex(h, s, Math.max(l - 8, 0));
+  const subtle = hslToHex(h, Math.min(s, 60), 94);
+  const thin = hslToHex(h, Math.min(s, 70), 82);
+  // Gradient end is a fixed hue-shift toward violet/magenta from the
+  // base, so single-hue picks (blue, green, etc.) still read as a
+  // gradient rather than a flat fill.
+  const gradientEnd = hslToHex(
+    (h + 45) % 360,
+    Math.min(s + 10, 90),
+    Math.max(l - 5, 30),
+  );
+
+  const root = document.documentElement.style;
+  root.setProperty("--color-accent", hex);
+  root.setProperty("--color-accent-hover", hover);
+  root.setProperty("--color-accent-subtle", subtle);
+  root.setProperty("--color-accent-thin", thin);
+  root.setProperty("--gradient-brand-start", hex);
+  root.setProperty("--gradient-brand-end", gradientEnd);
+  root.setProperty(
+    "--shadow-accent-glow",
+    `0 0 0 1px ${hex}, 0 0 24px ${hexToRgba(hex, 0.35)}`,
+  );
+  root.setProperty(
+    "--shadow-accent-glow-subtle",
+    `0 0 0 .5px ${hex}, 0 0 24px ${hexToRgba(hex, 0.171)}`,
+  );
+}
+
+function hexToRgba(hex, alpha) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function hexToRgb(hex) {
+  const clean = hex.replace("#", "");
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return { r, g, b };
+}
+
+function hexToHsl(hex) {
+  let { r, g, b } = hexToRgb(hex);
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h, s;
+  const l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0;
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+    }
+    h /= 6;
+  }
+
+  return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
+function hslToHex(h, s, l) {
+  s /= 100;
+  l /= 100;
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) =>
+    l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const toHex = (x) =>
+    Math.round(255 * x)
+      .toString(16)
+      .padStart(2, "0");
+  return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
+}
+
 const ACCENT_OPTIONS = [
   { id: "british", name: "British English", flag: "🇬🇧" },
   { id: "american", name: "American English", flag: "🇺🇸" },
@@ -54,7 +151,7 @@ const state = {
     name: "",
     voiceGender: "female",
     accent: "american",
-    accentColor: "violet",
+    accentColor: ACCENT_COLOR_OPTIONS[0],
     licensePath: null,
     licenseStatus: "", // "", "checking", "valid", "invalid"
   },
@@ -399,6 +496,7 @@ function renderOnboardingPreferences() {
     button.setAttribute("aria-pressed", String(color === data.accentColor));
     button.addEventListener("click", () => {
       data.accentColor = color;
+      applyAccentColor(color);
       swatchGroup.querySelectorAll(".onboarding-step__swatch").forEach((el) => {
         el.setAttribute(
           "aria-pressed",
@@ -451,12 +549,10 @@ function renderOnboardingLicense() {
 
 function finishOnboarding({ activateLicense }) {
   const data = state.onboardingData;
+  const trimmedName = data.name.trim();
 
-  // Carry onboarding choices into the main app state.
-  state.firstName = data.name.trim() || state.firstName;
-  // TODO: persist name/voiceGender/theme/accentColor/license choice to
-  // a real settings file (IPC-backed) so this survives app restarts —
-  // currently in-memory only, resets every launch.
+  state.firstName = trimmedName || state.firstName;
+  state.accountName = trimmedName || state.accountName;
 
   if (activateLicense) {
     console.log("TODO: call window.sonar.license.activate(licensePath)");
@@ -539,26 +635,6 @@ async function renderFileNav() {
   slots.fileNav.replaceChildren(fragment);
 
   await updateFileNavPlanLabel();
-}
-
-// Refreshes the account-plan label (Free/Pro) and the Upgrade button's
-// visibility in the already-mounted file-nav without re-cloning the
-// whole sidebar — same reasoning as updateActiveFileNavItem(): file-nav
-// mounts once, so anything that can change after boot (license status
-// included) needs its own targeted updater rather than a full
-// renderFileNav() re-run.
-async function updateFileNavPlanLabel() {
-  const label = slots.fileNav.querySelector('[data-bind="accountPlan"]');
-  const upgradeButton = slots.fileNav.querySelector(
-    '[data-action="upgrade-to-pro"]',
-  );
-  if (!label && !upgradeButton) return;
-
-  const status = await window.sonar.license.getStatus();
-  const isPro = status.activated && status.plan === "pro";
-
-  if (label) label.textContent = isPro ? "Pro" : "Free";
-  if (upgradeButton) upgradeButton.style.display = isPro ? "none" : "";
 }
 
 // Click-to-pin toggles a class on the mounted .file-nav element directly
@@ -1308,7 +1384,9 @@ async function saveCurrentDocumentAudio(doc) {
       await updateExportUI(doc);
       return;
     }
-    showToast("Export failed. Check the console for details.", { variant: "error" });
+    showToast("Export failed. Check the console for details.", {
+      variant: "error",
+    });
     console.error("Export failed:", result.reason, result.message);
     return;
   }
@@ -1890,6 +1968,7 @@ async function openSettingsModal() {
     button.setAttribute("aria-pressed", String(color === data.accentColor));
     button.addEventListener("click", () => {
       data.accentColor = color;
+      applyAccentColor(color);
       settingsSwatchGroup
         .querySelectorAll(".onboarding-step__swatch")
         .forEach((el) => {
@@ -1939,7 +2018,9 @@ async function openSettingsModal() {
   // button (see updateFileNavPlanLabel).
   const status = await window.sonar.license.getStatus();
   const isPro = status.activated && status.plan === "pro";
-  const goProButton = modalSlot.querySelector('[data-action="settings-go-pro"]');
+  const goProButton = modalSlot.querySelector(
+    '[data-action="settings-go-pro"]',
+  );
   if (goProButton) {
     goProButton.style.display = isPro ? "none" : "";
   }
@@ -2016,6 +2097,7 @@ function render() {
 
 // --- Boot ----------------------------------------------------------------
 
+applyAccentColor(state.onboardingData.accentColor);
 showActiveRoot();
 
 if (state.currentView === "app") {
