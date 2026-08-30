@@ -34,14 +34,22 @@ function splitIntoParagraphs(rawText) {
 async function loadAndExtractPdf(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   if (ext !== ".pdf") {
-    return { ok: false, error: "not-a-pdf", message: "Only .pdf files are supported." };
+    return {
+      ok: false,
+      error: "not-a-pdf",
+      message: "Only .pdf files are supported.",
+    };
   }
 
   let stat;
   try {
     stat = await fs.stat(filePath);
   } catch (err) {
-    return { ok: false, error: "not-found", message: "That file couldn't be found." };
+    return {
+      ok: false,
+      error: "not-found",
+      message: "That file couldn't be found.",
+    };
   }
 
   if (stat.size > MAX_FILE_SIZE_BYTES) {
@@ -56,7 +64,11 @@ async function loadAndExtractPdf(filePath) {
   try {
     buffer = await fs.readFile(filePath);
   } catch (err) {
-    return { ok: false, error: "read-failed", message: "Couldn't read that file." };
+    return {
+      ok: false,
+      error: "read-failed",
+      message: "Couldn't read that file.",
+    };
   }
 
   let result;
@@ -73,7 +85,8 @@ async function loadAndExtractPdf(filePath) {
     return {
       ok: false,
       error: "parse-failed",
-      message: "Couldn't extract text from that PDF. It may be scanned or image-only.",
+      message:
+        "Couldn't extract text from that PDF. It may be scanned or image-only.",
     };
   } finally {
     // PDFParse holds the document open until destroy()'d — leaking
@@ -82,6 +95,10 @@ async function loadAndExtractPdf(filePath) {
   }
 
   const paragraphs = splitIntoParagraphs(result.text || "");
+  // TEMP DEBUG — remove after diagnosing text/audio mismatch
+  console.log("=== RAW EXTRACTED TEXT (first 2000 chars) ===");
+  console.log((result.text || "").slice(0, 2000));
+  console.log("=== PARAGRAPH COUNT ===", paragraphs.length);
 
   return {
     ok: true,
@@ -96,7 +113,11 @@ async function loadAndExtractPdf(filePath) {
 function registerPdfIpc() {
   ipcMain.handle("pdf:load", async (_event, filePath) => {
     if (typeof filePath !== "string" || !filePath) {
-      return { ok: false, error: "invalid-path", message: "No file path given." };
+      return {
+        ok: false,
+        error: "invalid-path",
+        message: "No file path given.",
+      };
     }
     return loadAndExtractPdf(filePath);
   });

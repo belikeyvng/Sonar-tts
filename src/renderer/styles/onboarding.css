@@ -19,7 +19,7 @@
    background-image: url(../assets/img/onboarding.png);
    background-repeat: no-repeat;
    background-size: cover;
-  
+
    width: 100%;
    height: 100vh;
 }
@@ -52,13 +52,21 @@ body {
    max-width: none;
    /* was 480px — was creating the centered dead-space look */
    margin: 0;
-   
-   /* was 0 auto — no longer needed without max-width */
+
+   /* For Firefox */
+   scrollbar-width: none;
+
+   /* For Internet Explorer and Legacy Edge */
+   -ms-overflow-style: none;
 }
 
+/* was 0 auto — no longer needed without max-width */
+
 .onboarding-step::-webkit-scrollbar {
-   
+   display: none;
 }
+
+
 
 .onboarding-step__brand {
    display: flex;
