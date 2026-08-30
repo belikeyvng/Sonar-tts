@@ -254,6 +254,22 @@ function renderUpgradePage() {
   }
 }
 
+async function updateFileNavPlanLabel() {
+  const label = slots.fileNav.querySelector('[data-bind="accountPlan"]');
+  const upgradeButton = slots.fileNav.querySelector(
+    '[data-action="upgrade-to-pro"]',
+  );
+  if (!label && !upgradeButton) return;
+
+  const status = await window.sonar.license.getStatus();
+  const isPro = status.activated && status.plan === "pro";
+
+  if (label) label.textContent = isPro ? "Pro" : "Free";
+  if (upgradeButton) {
+    upgradeButton.classList.toggle("file-nav__upgrade--visible", !isPro);
+  }
+}
+
 function renderPlanCard(plan) {
   const fragment = clone("tpl-plan-card");
 
@@ -711,6 +727,7 @@ function renderReaderView() {
 
   if (!doc.sentenceMap) {
     doc.sentenceMap = buildSentenceMap(doc.paragraphs);
+    console.log("SENTENCES:", JSON.stringify(doc.sentenceMap.sentences.slice(0, 8).map(s => s.text), null, 2));
   }
 
   let currentParagraphIndex = -1;
@@ -1523,14 +1540,30 @@ async function handlePdfLoadResult(result) {
 // enough for highlight granularity, where an occasional over-split
 // sentence just means two chunks highlight in sequence instead of one.
 function splitIntoSentences(paragraph) {
-  const matches = paragraph.match(/[^.!?]+[.!?]+(\s+|$)/g) || [];
-  const consumedLength = matches.join("").length;
-  const remainder = paragraph.slice(consumedLength).trim();
+  // Split on sentence-ending punctuation followed by whitespace. This
+  // deliberately ignores quote-nesting (a period inside a quote like
+  // `mankind."` still triggers a split) — for highlight granularity
+  // that's an acceptable trade-off. What matters is that this approach
+  // can never drop text: every character of `paragraph` ends up in
+  // exactly one returned sentence, since we build sentences by slicing
+  // the original string at match boundaries rather than reconstructing
+  // matched substrings (the previous regex.exec() approach could skip
+  // gaps between matches — this can't, because there are no gaps).
+  const boundaryRegex = /[.!?]+["')\]]?\s+/g;
+  const sentences = [];
+  let start = 0;
+  let match;
 
-  const sentences = matches.map((s) => s.trim()).filter(Boolean);
-  if (remainder) sentences.push(remainder); // catch trailing text with no terminal punctuation
+  while ((match = boundaryRegex.exec(paragraph)) !== null) {
+    const end = match.index + match[0].length;
+    sentences.push(paragraph.slice(start, end).trim());
+    start = end;
+  }
 
-  return sentences.length ? sentences : [paragraph];
+  const remainder = paragraph.slice(start).trim();
+  if (remainder) sentences.push(remainder);
+
+  return sentences.length ? sentences.filter(Boolean) : [paragraph];
 }
 
 // Builds a flat list of { paragraphIndex, sentenceIndex, text, charStart,

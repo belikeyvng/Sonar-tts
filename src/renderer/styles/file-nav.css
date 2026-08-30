@@ -117,10 +117,23 @@
     font-weight: var(--weight-semibold);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
+    
 }
 
 .file-nav__upgrade:hover {
     filter: brightness(1.05);
+}
+
+
+.file-nav__upgrade {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+.file-nav__upgrade--visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .file-nav__avatar {
