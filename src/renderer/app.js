@@ -23,7 +23,7 @@ function applyAccentColor(hex) {
   const hover = hslToHex(h, s, Math.max(l - 8, 0));
   const subtle = hslToHex(h, Math.min(s, 65), 88);
   const subtleRgb = hslToHex(h, Math.min(s, 80), 55); // fuller-strength color as the RGB base
-// ...
+  // ...
   const thin = hslToHex(h, Math.min(s, 70), 82);
   const gradientEnd = hslToHex(
     (h + 45) % 360,
@@ -294,6 +294,19 @@ const playback = {
   progressTimer: null, // interval driving the scrubber while playing
   scrubbing: false,
 };
+
+// Updates the --fill-percent custom property on a range input so its
+// CSS gradient track (see player-panel.css) shows the correct amount
+// filled. Native range inputs have no cross-browser "filled track"
+// pseudo-element in Chromium (which is what Electron uses), so the
+// fill has to be faked via a JS-driven gradient stop instead.
+function updateRangeFill(input) {
+  if (!input) return;
+  const min = Number(input.min) || 0;
+  const max = Number(input.max) || 100;
+  const pct = ((Number(input.value) - min) / (max - min)) * 100;
+  input.style.setProperty("--fill-percent", `${pct}%`);
+}
 
 function formatTime(seconds) {
   if (!isFinite(seconds) || seconds < 0) return "0:00";
@@ -1213,6 +1226,7 @@ async function renderPlayerPanelReady(doc) {
     if (!playback.audio || !playback.audio.duration) return;
     const pct = Number(progressInput.value);
     playback.audio.currentTime = (pct / 100) * playback.audio.duration;
+    updateRangeFill(progressInput);
 
     const doc = state.currentDocument;
     if (doc) {
@@ -1228,9 +1242,11 @@ async function renderPlayerPanelReady(doc) {
 
   const volumeSlider = fragment.querySelector('[data-bind="volume"]');
   volumeSlider.value = (playback.audio ? playback.audio.volume : 1) * 100;
+  updateRangeFill(volumeSlider);
   volumeSlider.addEventListener("input", () => {
     const vol = Number(volumeSlider.value) / 100;
     if (playback.audio) playback.audio.volume = vol;
+      updateRangeFill(volumeSlider);
   });
 
   // --- Export ---
@@ -1244,6 +1260,7 @@ async function renderPlayerPanelReady(doc) {
   on(fragment, "save-audio", () => saveCurrentDocumentAudio(doc));
 
   slots.playerPanel.replaceChildren(fragment);
+  updateRangeFill(progressInput);
 
   await updateExportUI(doc);
 
@@ -1552,7 +1569,10 @@ function updatePlaybackUI(doc) {
     const progressEl = root.querySelector('[data-bind="progress"]');
     if (elapsedEl) elapsedEl.textContent = doc.timeElapsed;
     if (totalEl) totalEl.textContent = doc.timeTotal;
-    if (progressEl && !playback.scrubbing) progressEl.value = doc.progress;
+    if (progressEl && !playback.scrubbing) {
+      progressEl.value = doc.progress;
+      updateRangeFill(progressEl); // 
+    }
 
     const playIcon = root.querySelector(
       ".player-panel__transport-button--primary .player-panel__transport-icon, .mini-player__play-icon",
@@ -1609,6 +1629,7 @@ function renderMiniPlayer() {
   bind(fragment, "timeElapsed", doc.timeElapsed);
   bind(fragment, "timeTotal", doc.timeTotal);
   bind(fragment, "progress", doc.progress);
+  updateRangeFill(progressInput);
   bind(fragment, "narratorName", doc.narratorName);
   bind(fragment, "speedLabel", doc.speed);
 
@@ -1622,6 +1643,7 @@ function renderMiniPlayer() {
     if (!playback.audio || !playback.audio.duration) return;
     const pct = Number(progressInput.value);
     playback.audio.currentTime = (pct / 100) * playback.audio.duration;
+    updateRangeFill(progressInput);
     doc.timeElapsed = formatTime(playback.audio.currentTime);
     doc.progress = pct;
     updateReadAlongHighlight(doc);
