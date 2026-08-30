@@ -284,37 +284,10 @@ body {
    padding: 3px;
    background-clip: content-box;
    position: relative;
+   background-color: attr(data-color-value color); /* not supported in most browsers, don't use this */
 }
 
-.onboarding-step__swatch[aria-pressed="true"] {
-   border-color: currentColor;
-   box-shadow: 0 0 0 2px #fff, 0 0 0 4px currentColor;
-}
 
-.onboarding-step__swatch[data-color-value="violet"] {
-   background-color: #9333EA;
-   color: #9333EA;
-}
-
-.onboarding-step__swatch[data-color-value="blue"] {
-   background-color: #3B82F6;
-   color: #3B82F6;
-}
-
-.onboarding-step__swatch[data-color-value="green"] {
-   background-color: #22C55E;
-   color: #22C55E;
-}
-
-.onboarding-step__swatch[data-color-value="rose"] {
-   background-color: #EC0C8C;
-   color: #EC0C8C;
-}
-
-.onboarding-step__swatch[data-color-value="amber"] {
-   background-color: #F59E0B;
-   color: #F59E0B;
-}
 
 /* --- Continue button --- */
 

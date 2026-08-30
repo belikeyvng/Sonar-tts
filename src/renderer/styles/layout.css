@@ -314,7 +314,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -341,15 +342,35 @@ html, body {
    width/height rather than becoming grid items themselves. This keeps
    the grid-area assignment in one place regardless of which template
    is currently mounted in a slot. */
-#file-nav-slot { grid-area: file-nav; min-height: 0; min-width: 0; }
-#main-slot { grid-area: main; min-height: 0; min-width: 0; overflow: hidden; }
-#player-panel-slot { grid-area: player-panel; min-height: 0; min-width: 0; }
-#mini-player-slot { grid-area: mini-player; min-height: 0; min-width: 0; }
+#file-nav-slot {
+    grid-area: file-nav;
+    min-height: 0;
+    min-width: 0;
+}
 
-#file-nav-slot > *,
-#main-slot > *,
-#player-panel-slot > *,
-#mini-player-slot > * {
+#main-slot {
+    grid-area: main;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+#player-panel-slot {
+    grid-area: player-panel;
+    min-height: 0;
+    min-width: 0;
+}
+
+#mini-player-slot {
+    grid-area: mini-player;
+    min-height: 0;
+    min-width: 0;
+}
+
+#file-nav-slot>*,
+#main-slot>*,
+#player-panel-slot>*,
+#mini-player-slot>* {
     height: 100%;
     width: 100%;
 }
@@ -364,6 +385,7 @@ html, body {
     .app-shell:has(#player-panel-slot:empty) {
         grid-template-columns: var(--file-nav-width) 1fr 0;
     }
+
     .app-shell:has(#mini-player-slot:empty) {
         grid-template-rows: 1fr 0;
     }
@@ -490,15 +512,43 @@ html, body {
 .file-nav__account {
     display: flex;
     align-items: center;
-    
+
     gap: var(--space-2);
 }
 
 .file-nav__avatar {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: var(--avatar-size);
     height: var(--avatar-size);
+    border-radius: 50%;
     flex-shrink: 0;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-primary);
+    background-color: var(--color-accent);
+}
+
+.file-nav__avatar[data-accent-color="blue"] {
+    background: var(--accent-color-blue);
+}
+
+.file-nav__avatar[data-accent-color="green"] {
+    background: var(--accent-color-green);
+}
+
+.file-nav__avatar[data-accent-color="rose"] {
+    background: var(--accent-color-rose);
+}
+
+.file-nav__avatar[data-accent-color="amber"] {
+    background: var(--accent-color-amber);
+}
+
+.file-nav__avatar[data-accent-color="violet"] {
+    background: var(--accent-color-violet);
 }
 
 .file-nav__account-info {
@@ -922,6 +972,7 @@ html, body {
     width: 100%;
     margin: 0 0 var(--space-3) 0;
 }
+
 /* ==========================================================================
    MINI PLAYER (bottom bar, full width)
    ========================================================================== */
@@ -1077,69 +1128,69 @@ html, body {
 }
 
 .modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: var(--color-overlay-scrim);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+    position: fixed;
+    inset: 0;
+    background: var(--color-overlay-scrim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
 
 .modal {
-  background: var(--color-bg-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  width: 100%;
-  max-width: 360px;
-  box-shadow: var(--shadow-overlay);
-  font-family: var(--font-ui);
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: var(--shadow-overlay);
+    font-family: var(--font-ui);
 }
 
 .modal__heading {
-  font-size: var(--text-md);
-  font-weight: var(--weight-bold);
-  color: var(--color-text-primary);
-  margin: 0 0 8px;
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 8px;
 }
 
 .modal__body {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  margin: 0 0 20px;
-  line-height: 1.5;
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin: 0 0 20px;
+    line-height: 1.5;
 }
 
 .modal__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  font-family: var(--font-ui-mono);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    font-family: var(--font-ui-mono);
 }
 
 .modal__button {
-  padding: 9px 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-raised);
-  font-family: var(--font-ui-mono);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  color: var(--color-text-primary);
-  cursor: pointer;
+    padding: 9px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-raised);
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-primary);
+    cursor: pointer;
 }
 
 .modal__button:hover {
-  background: var(--color-bg-subtle);
+    background: var(--color-bg-subtle);
 }
 
 .modal__button--danger {
-  border-color: transparent;
-  background: #EF4444;
-  color: var(--color-text-on-accent);
+    border-color: transparent;
+    background: #EF4444;
+    color: var(--color-text-on-accent);
 }
 
 .modal__button--danger:hover {
-  background: #DC2626;
+    background: #DC2626;
 }

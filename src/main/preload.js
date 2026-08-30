@@ -1,3 +1,4 @@
+//preload.js
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 contextBridge.exposeInMainWorld("sonar", {
@@ -33,5 +34,10 @@ contextBridge.exposeInMainWorld("sonar", {
     // Opens the native "Browse files" dialog and extracts the chosen
     // PDF in one round-trip.
     browse: () => ipcRenderer.invoke("pdf:browse"),
+  },
+  export: {
+    getSettings: () => ipcRenderer.invoke("export:getSettings"),
+    chooseFolder: () => ipcRenderer.invoke("export:chooseFolder"),
+    saveAudio: (payload) => ipcRenderer.invoke("export:saveAudio", payload),
   },
 });

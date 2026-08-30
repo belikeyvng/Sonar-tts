@@ -353,7 +353,7 @@
                 <div class="file-nav__account">
                     <span class="file-nav__avatar" aria-hidden="true"></span>
                     <div class="file-nav__account-info">
-                        <span class="file-nav__account-name">Alexander Chen</span>
+                        <span class="file-nav__account-name" data-bind="accountName">Alexander Chen</span>
                         <span class="file-nav__account-email" data-bind="accountPlan">Free</span>
                     </div>
                     <button class="file-nav__settings" type="button" aria-label="Settings">
@@ -648,6 +648,28 @@
                         </svg>
 
                     </span>
+                </button>
+            </div>
+
+            <div class="player-panel__export">
+                <div class="player-panel__export-path-row">
+                    <button class="player-panel__export-folder-button" type="button" aria-label="Change export folder"
+                        data-action="choose-export-folder">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                        </svg>
+                    </button>
+                    <span class="player-panel__export-path" data-bind="exportPath" title=""></span>
+                </div>
+                <button class="player-panel__export-save" type="button" data-action="save-audio">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                        <polyline points="17 21 17 13 7 13 7 21" />
+                        <polyline points="7 3 7 8 15 8" />
+                    </svg>
+                    <span data-bind="exportSaveLabel">Save audio</span>
                 </button>
             </div>
         </aside>

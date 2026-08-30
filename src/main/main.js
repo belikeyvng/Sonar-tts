@@ -1,3 +1,4 @@
+//main.js
 const { app, BrowserWindow, Menu } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
@@ -5,6 +6,7 @@ const registerTtsIpc = require("./ipc/tts");
 
 const registerLicenseIpc = require("./ipc/license");
 const registerPdfIpc = require("./ipc/pdf");
+const { registerExportHandlers } = require("./ipc/export");
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -39,6 +41,7 @@ app.whenReady().then(() => {
   const licenseEngine = registerLicenseIpc(publicKeyPem);
   registerTtsIpc(licenseEngine);
   registerPdfIpc();
+  registerExportHandlers();
 
   createWindow();
 

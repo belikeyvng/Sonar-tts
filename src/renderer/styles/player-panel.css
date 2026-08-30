@@ -249,3 +249,112 @@
     font-size: var(--text-xs);
     color: var(--color-danger, #ef4444);
 }
+
+
+/* --- Export (below transport controls) --- */
+
+.player-panel__export {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.player-panel__export-path-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 6px 8px;
+}
+
+.player-panel__export-folder-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+}
+
+.player-panel__export-folder-button:hover {
+    color: var(--color-text-secondary);
+}
+
+.player-panel__export-path {
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.player-panel__export-save {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    background: var(--gradient-brand);
+    color: var(--color-text-on-accent);
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.player-panel__export-save:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.player-panel__export-save:disabled {
+    opacity: 0.6;
+    cursor: default;
+    filter: none;
+}
+
+
+
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--color-bg-raised);
+    color: var(--color-text-accent-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-overlay);
+    padding: 10px 16px;
+    font-size: var(--text-sm);
+    font-family: var(--font-ui);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast--success {
+    border-color: var(--color-accent-thin);
+}
+
+.toast--error {
+    border-color: #ef4444;
+    color: #ef4444;
+}

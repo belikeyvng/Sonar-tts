@@ -5,7 +5,13 @@
 // data-bind fields, wire data-action listeners. Rapid-dev friendly:
 // extend `state` and the render*() functions as real features land.
 
-const ACCENT_COLOR_OPTIONS = ["violet", "blue", "green", "rose", "amber"];
+const ACCENT_COLOR_OPTIONS = [
+  "#8b5cf6",
+  "#409CF2",
+  "#FF6B6B",
+  "#EC137F",
+  "#00D2FF",
+];
 const ACCENT_OPTIONS = [
   { id: "british", name: "British English", flag: "🇬🇧" },
   { id: "american", name: "American English", flag: "🇺🇸" },
@@ -193,6 +199,16 @@ function formatTime(seconds) {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
+// Returns up to 2 uppercase initials from a display name — "Alexander
+// Chen" -> "AC", a single-word name -> its first letter. Falls back to
+// "?" for an empty/missing name so the avatar never renders blank.
+function getInitials(name) {
+  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 // --- Root containers -----------------------------------------------------
 const roots = {
   onboarding: document.getElementById("onboarding-root"),
@@ -377,6 +393,8 @@ function renderOnboardingPreferences() {
     const swatch = clone("tpl-onboarding-swatch");
     const button = swatch.querySelector(".onboarding-step__swatch");
     button.dataset.colorValue = color;
+    button.style.backgroundColor = color;
+    button.style.color = color;
     button.setAttribute("aria-label", color);
     button.setAttribute("aria-pressed", String(color === data.accentColor));
     button.addEventListener("click", () => {
@@ -485,6 +503,12 @@ async function renderFileNav() {
 
   bind(fragment, "accountName", state.accountName);
   bind(fragment, "accountEmail", state.accountEmail);
+
+  const avatarEl = fragment.querySelector(".file-nav__avatar");
+  if (avatarEl) {
+    avatarEl.textContent = getInitials(state.accountName);
+    avatarEl.dataset.accentColor = state.onboardingData.accentColor;
+  }
 
   on(fragment, "toggle-pin", togglePin);
   on(fragment, "new-file", goToNewFile);
@@ -732,14 +756,6 @@ function renderReaderView() {
 
   if (!doc.sentenceMap) {
     doc.sentenceMap = buildSentenceMap(doc.paragraphs);
-    console.log(
-      "SENTENCES:",
-      JSON.stringify(
-        doc.sentenceMap.sentences.slice(0, 8).map((s) => s.text),
-        null,
-        2,
-      ),
-    );
   }
 
   let currentParagraphIndex = -1;
@@ -806,7 +822,7 @@ function renderPlayerPanel() {
   if (!doc.audioReady) {
     return renderPlayerPanelGenerate(doc);
   } else {
-    renderPlayerPanelReady(doc);
+    return renderPlayerPanelReady(doc);
   }
 }
 
@@ -1086,7 +1102,7 @@ async function setupVoiceDropdown(fragment, doc, voices, isPro) {
   setTriggerLabel();
 }
 
-function renderPlayerPanelReady(doc) {
+async function renderPlayerPanelReady(doc) {
   const fragment = clone("tpl-player-panel-ready");
 
   bind(fragment, "narratorName", doc.narratorName);
@@ -1135,7 +1151,20 @@ function renderPlayerPanelReady(doc) {
     if (playback.audio) playback.audio.volume = vol;
   });
 
+  // --- Export ---
+  on(fragment, "choose-export-folder", async () => {
+    const result = await window.sonar.export.chooseFolder();
+    if (result.ok) {
+      renderPlayerPanel(); // re-render to reflect new path
+    }
+  });
+
+  on(fragment, "save-audio", () => saveCurrentDocumentAudio(doc));
+
   slots.playerPanel.replaceChildren(fragment);
+
+  await updateExportUI(doc);
+
   const playIcon = slots.playerPanel.querySelector(
     ".player-panel__transport-button--primary .player-panel__transport-icon",
   );
@@ -1195,6 +1224,97 @@ async function generateAudioForCurrentDocument() {
   doc.audioReady = true;
   doc.audioFile = result.file;
   render();
+}
+
+// Truncates a folder path for display the same way filenames are
+// middle-truncated elsewhere (ByteLock precedent) — shows start and
+// end, elides the middle, so a deeply nested path doesn't blow out
+// the panel width.
+function truncatePath(fullPath, maxLength = 34) {
+  if (fullPath.length <= maxLength) return fullPath;
+  const keep = Math.floor((maxLength - 3) / 2);
+  return fullPath.slice(0, keep) + "..." + fullPath.slice(-keep);
+}
+
+async function updateExportUI(doc) {
+  const [exportSettings, status] = await Promise.all([
+    window.sonar.export.getSettings(),
+    window.sonar.license.getStatus(),
+  ]);
+
+  const isPro = status.activated && status.plan === "pro";
+
+  const pathEl = slots.playerPanel.querySelector('[data-bind="exportPath"]');
+  if (pathEl) {
+    pathEl.textContent = truncatePath(exportSettings.exportPath);
+    pathEl.title = exportSettings.exportPath;
+  }
+
+  const saveButton = slots.playerPanel.querySelector(
+    '[data-action="save-audio"]',
+  );
+  const saveLabel = slots.playerPanel.querySelector(
+    '[data-bind="exportSaveLabel"]',
+  );
+  if (!saveButton || !saveLabel) return;
+
+  if (isPro) {
+    saveLabel.textContent = "Save audio";
+    saveButton.disabled = false;
+    saveButton.title = "";
+    return;
+  }
+
+  const remaining = exportSettings.limit - exportSettings.used;
+  if (remaining <= 0) {
+    saveLabel.textContent = `Save audio (0/${exportSettings.limit} today)`;
+    saveButton.disabled = true;
+    saveButton.title =
+      "Daily export limit reached. Resets tomorrow, or upgrade to Pro for unlimited exports.";
+  } else {
+    saveLabel.textContent = `Save audio (${exportSettings.used}/${exportSettings.limit} today)`;
+    saveButton.disabled = false;
+    saveButton.title = "";
+  }
+}
+
+// Builds "PDF name + voice + date" filename, e.g.
+// "Meeting_Notes_Amy_2026-08-30.mp3" — strips the source .pdf extension,
+// sanitizes the voice name (spaces/parens aren't great in filenames),
+// and appends today's date for uniqueness across repeated exports.
+function buildExportFileName(doc) {
+  const baseName = doc.fileName.replace(/\.pdf$/i, "");
+  const safeVoice = (doc.narratorName || "voice").replace(/[^\w-]+/g, "_");
+  const dateStr = new Date().toISOString().slice(0, 10);
+  return `${baseName}_${safeVoice}_${dateStr}.mp3`;
+}
+
+async function saveCurrentDocumentAudio(doc) {
+  if (!doc.audioFile) return;
+
+  const status = await window.sonar.license.getStatus();
+  const isPro = status.activated && status.plan === "pro";
+
+  const fileName = buildExportFileName(doc);
+
+  const result = await window.sonar.export.saveAudio({
+    sourceFilePath: doc.audioFile,
+    fileName,
+    isPro,
+  });
+
+  if (!result.ok) {
+    if (result.reason === "EXPORT_LIMIT_REACHED") {
+      await updateExportUI(doc);
+      return;
+    }
+    showToast("Export failed. Check the console for details.", { variant: "error" });
+    console.error("Export failed:", result.reason, result.message);
+    return;
+  }
+
+  showToast(`Saved "${fileName}"`, { variant: "success" });
+  await updateExportUI(doc);
 }
 
 // Seeks the currently loaded audio by a relative number of seconds
@@ -1704,7 +1824,7 @@ function showDeleteConfirmModal(fileName, onConfirm) {
   modalSlot.replaceChildren(fragment);
 }
 
-function openSettingsModal() {
+async function openSettingsModal() {
   const fragment = clone("tpl-settings-modal");
   const data = state.onboardingData;
 
@@ -1764,6 +1884,8 @@ function openSettingsModal() {
     const swatch = clone("tpl-onboarding-swatch");
     const button = swatch.querySelector(".onboarding-step__swatch");
     button.dataset.colorValue = color;
+    button.style.backgroundColor = color;
+    button.style.color = color;
     button.setAttribute("aria-label", color);
     button.setAttribute("aria-pressed", String(color === data.accentColor));
     button.addEventListener("click", () => {
@@ -1809,6 +1931,18 @@ function openSettingsModal() {
   document.addEventListener("keydown", onKeydown);
 
   modalSlot.replaceChildren(fragment);
+
+  // Hide "Go Pro" for users who already have Pro — mounted after the
+  // modal is in the DOM so we don't flash it before the async check
+  // resolves is unavoidable with this pattern; mirrors the same
+  // brief-flash tradeoff already accepted for the file-nav upgrade
+  // button (see updateFileNavPlanLabel).
+  const status = await window.sonar.license.getStatus();
+  const isPro = status.activated && status.plan === "pro";
+  const goProButton = modalSlot.querySelector('[data-action="settings-go-pro"]');
+  if (goProButton) {
+    goProButton.style.display = isPro ? "none" : "";
+  }
 }
 
 function deleteDocument(fileId, fileName) {
@@ -1827,6 +1961,36 @@ function deleteDocument(fileId, fileName) {
     renderFileNav();
     render();
   });
+}
+
+// Lightweight toast, mounted into its own fixed-position container so it
+// doesn't interfere with modal-slot or any render() cycle. Auto-dismisses;
+// stacking multiple toasts just replaces the current one for now — fine
+// for single-action confirmations like export, revisit if we ever need
+// simultaneous independent toasts.
+let toastContainer = document.getElementById("toast-container");
+if (!toastContainer) {
+  toastContainer = document.createElement("div");
+  toastContainer.id = "toast-container";
+  document.body.appendChild(toastContainer);
+}
+
+let toastTimer = null;
+
+function showToast(message, { variant = "success", duration = 3000 } = {}) {
+  clearTimeout(toastTimer);
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast--${variant}`;
+  toast.textContent = message;
+  toastContainer.replaceChildren(toast);
+
+  requestAnimationFrame(() => toast.classList.add("toast--visible"));
+
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("toast--visible");
+    setTimeout(() => toast.remove(), 200);
+  }, duration);
 }
 
 function rewind() {
