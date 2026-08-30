@@ -507,6 +507,11 @@ async function renderFileNav() {
     );
   }
 
+  const settingsButton = fragment.querySelector(".file-nav__settings");
+  if (settingsButton) {
+    settingsButton.addEventListener("click", openSettingsModal);
+  }
+
   slots.fileNav.replaceChildren(fragment);
 
   await updateFileNavPlanLabel();
@@ -727,7 +732,14 @@ function renderReaderView() {
 
   if (!doc.sentenceMap) {
     doc.sentenceMap = buildSentenceMap(doc.paragraphs);
-    console.log("SENTENCES:", JSON.stringify(doc.sentenceMap.sentences.slice(0, 8).map(s => s.text), null, 2));
+    console.log(
+      "SENTENCES:",
+      JSON.stringify(
+        doc.sentenceMap.sentences.slice(0, 8).map((s) => s.text),
+        null,
+        2,
+      ),
+    );
   }
 
   let currentParagraphIndex = -1;
@@ -1277,9 +1289,9 @@ function handleAudioEnded() {
     doc._lastHighlightKey = null;
     if (playback.audio) playback.audio.currentTime = 0;
     updatePlaybackUI(doc);
-    slots.main.querySelectorAll(".reading-pane__sentence--active").forEach((s) =>
-      s.classList.remove("reading-pane__sentence--active"),
-    );
+    slots.main
+      .querySelectorAll(".reading-pane__sentence--active")
+      .forEach((s) => s.classList.remove("reading-pane__sentence--active"));
   }
 }
 
@@ -1680,6 +1692,113 @@ function showDeleteConfirmModal(fileName, onConfirm) {
   on(fragment, "modal-confirm", () => {
     close();
     onConfirm();
+  });
+
+  const backdrop = fragment.querySelector('[data-action="modal-backdrop"]');
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) close();
+  });
+
+  document.addEventListener("keydown", onKeydown);
+
+  modalSlot.replaceChildren(fragment);
+}
+
+function openSettingsModal() {
+  const fragment = clone("tpl-settings-modal");
+  const data = state.onboardingData;
+
+  bind(fragment, "settingsAccountName", state.accountName);
+  bind(fragment, "settingsAccountEmail", state.accountEmail);
+
+  const themeToggle = fragment.querySelector(
+    '[data-action="settings-toggle-theme"]',
+  );
+  themeToggle.addEventListener("click", toggleTheme);
+
+  const pillGroup = fragment.querySelector(
+    '[data-group="settingsVoiceGender"]',
+  );
+  pillGroup.querySelectorAll(".onboarding-step__pill").forEach((pill) => {
+    pill.setAttribute(
+      "aria-pressed",
+      String(pill.dataset.value === data.voiceGender),
+    );
+    pill.addEventListener("click", () => {
+      data.voiceGender = pill.dataset.value;
+      pillGroup.querySelectorAll(".onboarding-step__pill").forEach((p) => {
+        p.setAttribute(
+          "aria-pressed",
+          String(p.dataset.value === data.voiceGender),
+        );
+      });
+    });
+  });
+
+  const accentGroup = fragment.querySelector('[data-group="settingsAccent"]');
+  for (const accent of ACCENT_OPTIONS) {
+    const cardFrag = clone("tpl-onboarding-accent-card");
+    const card = cardFrag.querySelector(".onboarding-step__accent-card");
+    card.dataset.accentId = accent.id;
+    card.setAttribute("aria-pressed", String(accent.id === data.accent));
+    bind(cardFrag, "accentFlag", accent.flag);
+    bind(cardFrag, "accentName", accent.name);
+    card.addEventListener("click", () => {
+      data.accent = accent.id;
+      accentGroup
+        .querySelectorAll(".onboarding-step__accent-card")
+        .forEach((c) => {
+          c.setAttribute(
+            "aria-pressed",
+            String(c.dataset.accentId === accent.id),
+          );
+        });
+    });
+    accentGroup.appendChild(cardFrag);
+  }
+
+  const settingsSwatchGroup = fragment.querySelector(
+    '[data-group="settingsAccentColor"]',
+  );
+  for (const color of ACCENT_COLOR_OPTIONS) {
+    const swatch = clone("tpl-onboarding-swatch");
+    const button = swatch.querySelector(".onboarding-step__swatch");
+    button.dataset.colorValue = color;
+    button.setAttribute("aria-label", color);
+    button.setAttribute("aria-pressed", String(color === data.accentColor));
+    button.addEventListener("click", () => {
+      data.accentColor = color;
+      settingsSwatchGroup
+        .querySelectorAll(".onboarding-step__swatch")
+        .forEach((el) => {
+          el.setAttribute(
+            "aria-pressed",
+            String(el.dataset.colorValue === color),
+          );
+        });
+    });
+    settingsSwatchGroup.appendChild(swatch);
+  }
+
+  on(fragment, "settings-logout", () => {
+    // TODO: real logout — clear session/license state, return to
+    // onboarding or a login screen once auth exists.
+    console.log("TODO: implement real logout flow");
+  });
+
+  function close() {
+    modalSlot.replaceChildren();
+    document.removeEventListener("keydown", onKeydown);
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") close();
+  }
+
+  on(fragment, "modal-cancel", close);
+  on(fragment, "settings-go-pro", () => {
+    close();
+    goToUpgradePage();
   });
 
   const backdrop = fragment.querySelector('[data-action="modal-backdrop"]');

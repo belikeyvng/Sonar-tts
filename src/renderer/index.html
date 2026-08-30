@@ -708,6 +708,128 @@
         </div>
     </template>
 
+    <!-- ---------- ACCOUNT SETTINGS MODAL ---------- -->
+    <template id="tpl-settings-modal">
+        <div class="modal-backdrop" data-action="modal-backdrop">
+            <div class="modal modal--settings" role="dialog" aria-modal="true" aria-labelledby="settings-modal-heading">
+                <div class="settings-modal__header">
+                    <div>
+                        <h2 class="modal__heading" id="settings-modal-heading">Account Settings</h2>
+                        <p class="settings-modal__subheading">Take control of your experience</p>
+                    </div>
+                    <div class="settings-modal__header-actions">
+                        <div class="settings-modal__theme-control">
+                            <span class="settings-modal__theme-icon settings-modal__theme-icon--sun" aria-hidden="true">
+                                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M5.5 2.29167C5.94401 2.29167 6.35938 2.37522 6.74609 2.54232C7.13281 2.70942 7.47418 2.93859 7.77018 3.22982C8.06619 3.52105 8.29536 3.86003 8.45768 4.24675C8.62001 4.63346 8.70356 5.05122 8.70833 5.5C8.70833 5.94401 8.62478 6.35938 8.45768 6.74609C8.29058 7.13281 8.06142 7.47418 7.77018 7.77018C7.47895 8.06619 7.13997 8.29536 6.75326 8.45768C6.36654 8.62001 5.94878 8.70356 5.5 8.70833C5.05599 8.70833 4.64062 8.62478 4.25391 8.45768C3.86719 8.29058 3.52583 8.06142 3.22982 7.77018C2.93381 7.47895 2.70464 7.13997 2.54232 6.75326C2.37999 6.36654 2.29644 5.94878 2.29167 5.5C2.29167 5.05599 2.37522 4.64062 2.54232 4.25391C2.70942 3.86719 2.93859 3.52583 3.22982 3.22982C3.52105 2.93381 3.86003 2.70464 4.24675 2.54232C4.63346 2.37999 5.05122 2.29644 5.5 2.29167ZM5.5 7.79167C5.8151 7.79167 6.11111 7.73199 6.38802 7.61263C6.66493 7.49327 6.90603 7.33095 7.11133 7.12565C7.31662 6.92036 7.48134 6.67687 7.60547 6.39518C7.7296 6.1135 7.79167 5.8151 7.79167 5.5C7.79167 5.1849 7.73199 4.88889 7.61263 4.61198C7.49327 4.33507 7.32856 4.09397 7.11849 3.88867C6.90842 3.68338 6.66493 3.51866 6.38802 3.39453C6.11111 3.2704 5.8151 3.20833 5.5 3.20833C5.1849 3.20833 4.88889 3.26801 4.61198 3.38737C4.33507 3.50673 4.09158 3.67144 3.88151 3.88151C3.67144 4.09158 3.50673 4.33507 3.38737 4.61198C3.26801 4.88889 3.20833 5.1849 3.20833 5.5C3.20833 5.8151 3.26801 6.11111 3.38737 6.38802C3.50673 6.66493 3.66905 6.90842 3.87435 7.11849C4.07964 7.32856 4.32313 7.49327 4.60482 7.61263C4.8865 7.73199 5.1849 7.79167 5.5 7.79167ZM5.95833 1.375H5.04167V0H5.95833V1.375ZM2.25586 2.90755L1.28906 1.93359L1.93359 1.28906L2.90755 2.25586L2.25586 2.90755ZM1.375 5.95833H0V5.04167H1.375V5.95833ZM2.25586 8.09245L2.90755 8.74414L1.93359 9.71094L1.28906 9.06641L2.25586 8.09245ZM5.04167 9.625H5.95833V11H5.04167V9.625ZM8.74414 8.09245L9.71094 9.06641L9.06641 9.71094L8.09245 8.74414L8.74414 8.09245ZM11 5.04167V5.95833H9.625V5.04167H11ZM8.74414 2.90755L8.09245 2.25586L9.06641 1.28906L9.71094 1.93359L8.74414 2.90755Z"
+                                        fill="currentColor" />
+                                </svg>
+                            </span>
+                            <button class="settings-modal__theme-toggle" type="button"
+                                data-action="settings-toggle-theme" aria-label="Toggle theme">
+                                <span class="settings-modal__theme-toggle-thumb" aria-hidden="true"></span>
+                            </button>
+                            <span class="settings-modal__theme-icon settings-modal__theme-icon--moon"
+                                aria-hidden="true">
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M4.71612 0.868329C3.96593 0.921808 3.24439 1.17776 2.62856 1.60884C2.01273 2.03993 1.52576 2.62995 1.21966 3.31587C0.913555 4.0018 0.799828 4.75787 0.890622 5.50332C0.981417 6.24876 1.27332 6.95558 1.73516 7.54827C2.19699 8.14095 2.81141 8.59723 3.51276 8.86838C4.21412 9.13953 4.97608 9.21534 5.71724 9.08774C6.4584 8.96013 7.15092 8.63389 7.72082 8.14387C8.29073 7.65385 8.7166 7.01846 8.95296 6.30557C8.22914 6.60398 7.42728 6.65713 6.67031 6.45685C5.91334 6.25657 5.24305 5.81392 4.76222 5.19678C4.2814 4.57963 4.01657 3.82206 4.00834 3.04022C4.00012 2.25838 4.24838 1.49542 4.71612 0.868329ZM1.84129e-08 5.00315C-6.18853e-05 4.28214 0.155966 3.56965 0.457396 2.91446C0.758826 2.25928 1.19853 1.67689 1.7464 1.20719C2.29427 0.737496 2.93734 0.391589 3.63158 0.19317C4.32581 -0.00525028 5.0548 -0.0514951 5.7686 0.0576031C5.85227 0.0703587 5.9303 0.107514 5.99288 0.164401C6.05547 0.221289 6.09983 0.295372 6.12039 0.377348C6.14094 0.459324 6.13678 0.545537 6.10842 0.625159C6.08007 0.704781 6.02878 0.774263 5.961 0.824877C5.67221 1.04129 5.42946 1.31294 5.24691 1.624C5.06437 1.93506 4.94568 2.2793 4.89777 2.63664C4.84986 2.99397 4.87369 3.35726 4.96788 3.70531C5.06206 4.05335 5.2247 4.37919 5.44632 4.66382C5.66795 4.94845 5.94411 5.18617 6.25871 5.36312C6.57331 5.54006 6.92005 5.6527 7.2787 5.69445C7.63736 5.7362 8.00075 5.70623 8.34768 5.60629C8.69461 5.50635 9.01814 5.33844 9.2994 5.11235C9.36511 5.05893 9.44519 5.02612 9.52954 5.01805C9.61389 5.00997 9.69876 5.02699 9.77344 5.06697C9.84813 5.10694 9.9093 5.16808 9.94926 5.24269C9.98921 5.31731 10.0062 5.40205 9.998 5.48627C9.87217 6.76408 9.25915 7.94468 8.28579 8.78377C7.31243 9.62286 6.05324 10.0562 4.76879 9.99415C3.48434 9.93208 2.27294 9.37935 1.38529 8.45033C0.497629 7.52131 0.00165574 6.28712 1.84129e-08 5.00315Z"
+                                        fill="currentColor" />
+                                </svg>
+                            </span>
+                        </div>
+                        <button class="settings-modal__close" type="button" data-action="modal-cancel"
+                            aria-label="Close">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="settings-modal__account-row">
+                    <span class="settings-modal__avatar" aria-hidden="true"></span>
+                    <div class="settings-modal__account-info">
+                        <span class="settings-modal__account-name" data-bind="settingsAccountName"></span>
+                        <span class="settings-modal__account-email" data-bind="settingsAccountEmail"></span>
+                    </div>
+                    <button class="settings-modal__edit" type="button" aria-label="Edit account">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M13.2599 3.59924L5.04985 12.2892C4.73985 12.6192 4.43985 13.2692 4.37985 13.7192L4.00985 16.9592C3.87985 18.1292 4.71985 18.9292 5.87985 18.7292L9.09985 18.1792C9.54985 18.0992 10.1799 17.7692 10.4899 17.4292L18.6999 8.73924C20.1199 7.23924 20.7599 5.52924 18.5499 3.43924C16.3499 1.36924 14.6799 2.09924 13.2599 3.59924Z"
+                                stroke="#A7ACB0" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M11.8901 5.05078C12.3201 7.81078 14.5601 9.92078 17.3401 10.2008" stroke="#A7ACB0"
+                                stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <button class="settings-modal__go-pro" type="button" data-action="settings-go-pro">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path opacity="0.28"
+                                d="M3.33333 11.7667V12.6667M3.33333 12.6667V13.5667M3.33333 12.6667H4.23333M3.33333 12.6667H2.43333M3.8 2C3.96539 3.00408 4.56767 3.62996 5.6 3.8C4.56767 3.97004 3.96539 4.59592 3.8 5.6C3.63461 4.59592 3.03233 3.97004 2 3.8C3.00408 3.63461 3.62996 3.03233 3.8 2Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M8.59995 2C9.0267 5.35769 10.3536 7.42786 14 8C10.5401 8.54289 9.04668 10.4851 8.59995 14C8.15322 10.4851 6.65985 8.54289 3.19995 8C6.65985 7.45711 8.15322 5.51487 8.59995 2Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>Go Pro</span>
+                    </button>
+                </div>
+
+                <hr class="settings-modal__divider" />
+
+                <div class="settings-modal__scroll">
+                    <div class="settings-modal__field">
+                        <span class="onboarding-step__label">Choose your voice model</span>
+                        <p class="onboarding-step__field-hint">Choose a voice and accent to personalize your experience.
+                        </p>
+                        <div class="onboarding-step__pill-group" data-group="settingsVoiceGender">
+                            <button type="button" class="onboarding-step__pill" data-value="male"
+                                data-bind="settingsVoiceGenderMale">
+                                <span class="onboarding-step__pill-label">Male</span>
+                                <span class="onboarding-step__pill-check" aria-hidden="true"></span>
+                            </button>
+                            <button type="button" class="onboarding-step__pill" data-value="female"
+                                data-bind="settingsVoiceGenderFemale">
+                                <span class="onboarding-step__pill-label">Female</span>
+                                <span class="onboarding-step__pill-check" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-modal__field">
+                        <span class="onboarding-step__label">Select Accent</span>
+                        <div class="onboarding-step__accent-group" data-group="settingsAccent"></div>
+                    </div>
+
+                    <hr class="settings-modal__divider settings-modal__divider--dashed" />
+
+                    <div class="settings-modal__field">
+                        <span class="onboarding-step__label">Brand color</span>
+                        <p class="onboarding-step__field-hint">Select your brand color</p>
+                        <div class="onboarding-step__swatch-group" data-group="settingsAccentColor"></div>
+                    </div>
+
+                    <button class="settings-modal__logout" type="button" data-action="settings-logout">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>Log out</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
     <script src="app.js"></script>
     <script src="./lib/playback.js"></script>
 </body>

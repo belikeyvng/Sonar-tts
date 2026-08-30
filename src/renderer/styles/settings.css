@@ -1,0 +1,264 @@
+.modal--settings {
+  max-width: 640px;
+  padding: 24px 28px;
+}
+
+.settings-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.settings-modal__subheading {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin: 2px 0 0;
+}
+
+.settings-modal__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-modal__theme-toggle {
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  border: none;
+  background: var(--color-border);
+  position: relative;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.settings-modal__theme-toggle-thumb {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 150ms ease;
+}
+
+[data-theme="dark"] .settings-modal__theme-toggle {
+  background: var(--color-accent);
+}
+
+[data-theme="dark"] .settings-modal__theme-toggle-thumb {
+  transform: translateX(18px);
+}
+
+.settings-modal__close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-modal__account-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.settings-modal__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-bg-subtle);
+  flex-shrink: 0;
+}
+
+.settings-modal__account-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-modal__account-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.settings-modal__account-email {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.settings-modal__edit {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.settings-modal__go-pro {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--gradient-brand);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.settings-modal__divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0 0 20px;
+}
+
+.settings-modal__field {
+  margin-bottom: 20px;
+}
+
+.settings-modal__field:last-child {
+  margin-bottom: 0;
+}
+
+.settings-modal__theme-toggle {
+  width: 44px;
+  height: 22px;
+  border-radius: 999px;
+  border: none;
+  background: var(--color-border);
+  position: relative;
+  cursor: pointer;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-modal__theme-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.settings-modal__theme-toggle-thumb {
+  position: absolute;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 150ms ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+[data-theme="dark"] .settings-modal__theme-toggle {
+  background: var(--color-accent);
+}
+
+[data-theme="dark"] .settings-modal__theme-toggle-thumb {
+  transform: translateX(20px);
+}
+
+.settings-modal__go-pro {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-modal__divider--dashed {
+  border-top-style: dashed;
+}
+
+.settings-modal__scroll {
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.settings-modal__logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  font-family: var(--font-ui-mono);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-modal__logout:hover {
+  background: var(--color-border);
+}
+
+.modal, .modal__heading, .modal__body, .modal__button,
+.settings-modal__account-name, .settings-modal__account-email,
+.settings-modal__go-pro, .onboarding-step__label,
+.onboarding-step__field-hint, .onboarding-step__pill,
+.onboarding-step__accent-name, .onboarding-step__accent-meta {
+  font-family: var(--font-ui);
+}
+
+.settings-modal__theme-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-modal__theme-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.settings-modal__theme-toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  border: none;
+  background: var(--color-border);
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.settings-modal__theme-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 150ms ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+[data-theme="dark"] .settings-modal__theme-toggle {
+  background: var(--color-accent);
+}
+
+[data-theme="dark"] .settings-modal__theme-toggle-thumb {
+  transform: translateX(16px);
+}
