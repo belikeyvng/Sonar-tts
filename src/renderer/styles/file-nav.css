@@ -160,6 +160,53 @@
     color: var(--color-accent);
 }
 
+
+.file-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.file-nav__item-button {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-nav__item-actions {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-right: 4px;
+}
+
+.file-nav__item:hover .file-nav__item-actions {
+  display: flex;
+}
+
+.file-nav__item-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #94A3B8;
+  padding: 0;
+}
+
+.file-nav__item-action:hover {
+  background: rgba(148, 163, 184, 0.15);
+  color: #334155;
+}
+
+.file-nav__item-action--danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #EF4444;
+}
 /* --- Collapsed rail state (narrow widths) — overlay elevation --- */
 
 @media (max-width: 960px) {

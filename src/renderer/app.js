@@ -307,8 +307,6 @@ function renderOnboardingStep() {
   }
 }
 
-
-
 function renderOnboardingPreferences() {
   const fragment = clone("tpl-onboarding-preferences");
   const data = state.onboardingData;
@@ -328,7 +326,10 @@ function renderOnboardingPreferences() {
     pill.addEventListener("click", () => {
       data.voiceGender = pill.dataset.value;
       pillGroup.querySelectorAll(".onboarding-step__pill").forEach((p) => {
-        p.setAttribute("aria-pressed", String(p.dataset.value === data.voiceGender));
+        p.setAttribute(
+          "aria-pressed",
+          String(p.dataset.value === data.voiceGender),
+        );
       });
     });
   });
@@ -343,9 +344,14 @@ function renderOnboardingPreferences() {
     bind(cardFrag, "accentName", accent.name);
     card.addEventListener("click", () => {
       data.accent = accent.id;
-      accentGroup.querySelectorAll(".onboarding-step__accent-card").forEach((c) => {
-        c.setAttribute("aria-pressed", String(c.dataset.accentId === accent.id));
-      });
+      accentGroup
+        .querySelectorAll(".onboarding-step__accent-card")
+        .forEach((c) => {
+          c.setAttribute(
+            "aria-pressed",
+            String(c.dataset.accentId === accent.id),
+          );
+        });
     });
     accentGroup.appendChild(cardFrag);
   }
@@ -360,7 +366,10 @@ function renderOnboardingPreferences() {
     button.addEventListener("click", () => {
       data.accentColor = color;
       swatchGroup.querySelectorAll(".onboarding-step__swatch").forEach((el) => {
-        el.setAttribute("aria-pressed", String(el.dataset.colorValue === color));
+        el.setAttribute(
+          "aria-pressed",
+          String(el.dataset.colorValue === color),
+        );
       });
     });
     swatchGroup.appendChild(swatch);
@@ -472,12 +481,14 @@ async function renderFileNav() {
 
   const pinnedList = fragment.querySelector('[data-list="pinned"]');
   for (const file of state.pinnedFiles) {
-    pinnedList.appendChild(renderFileNavItem(file));
+    pinnedList.appendChild(renderFileNavItem(file, "tpl-file-nav-item"));
   }
 
   const recentsList = fragment.querySelector('[data-list="recents"]');
   for (const file of state.recentFiles) {
-    recentsList.appendChild(renderFileNavItem(file));
+    recentsList.appendChild(
+      renderFileNavItem(file, "tpl-recent-file-nav-item"),
+    );
   }
 
   slots.fileNav.replaceChildren(fragment);
@@ -524,15 +535,41 @@ document.addEventListener("click", (event) => {
   }
 });
 
-function renderFileNavItem(file) {
-  const fragment = clone("tpl-recent-file-nav-item");
+function renderFileNavItem(file, templateId = "tpl-recent-file-nav-item") {
+  const fragment = clone(templateId);
   bind(fragment, "fileName", file.name);
+
+  const li = fragment.querySelector(".file-nav__item");
   const button = fragment.querySelector(".file-nav__item-button");
   button.dataset.fileId = file.id;
   button.addEventListener("click", () => openFile(file.id));
+
+  const pinBtn = fragment.querySelector('[data-action="pin"]');
+  if (pinBtn) {
+    pinBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      pinDocument(file.id);
+    });
+  }
+
+  const unpinBtn = fragment.querySelector('[data-action="unpin"]');
+  if (unpinBtn) {
+    unpinBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      unpinDocument(file.id);
+    });
+  }
+
+  const deleteBtn = fragment.querySelector('[data-action="delete"]');
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteDocument(file.id, file.name);
+    });
+  }
+
   return fragment;
 }
-
 // Marks whichever sidebar item (pinned, recents, or search results —
 // wherever it currently lives) corresponds to state.currentDocument
 // as active, and clears the class from everywhere else. Called after
@@ -671,15 +708,60 @@ function renderReaderView() {
   on(fragment, "toggle-theme", toggleTheme);
 
   const body = fragment.querySelector('[data-bind="documentBody"]');
-  for (const paragraph of doc.paragraphs) {
-    const p = document.createElement("p");
-    p.className = "reading-pane__paragraph";
-    p.textContent = paragraph;
-    body.appendChild(p);
+
+  if (!doc.sentenceMap) {
+    doc.sentenceMap = buildSentenceMap(doc.paragraphs);
+  }
+
+  let currentParagraphIndex = -1;
+  let currentP = null;
+
+  for (const sentence of doc.sentenceMap.sentences) {
+    if (sentence.paragraphIndex !== currentParagraphIndex) {
+      currentP = document.createElement("p");
+      currentP.className = "reading-pane__paragraph";
+      body.appendChild(currentP);
+      currentParagraphIndex = sentence.paragraphIndex;
+    }
+    const span = document.createElement("span");
+    span.className = "reading-pane__sentence";
+    span.dataset.charStart = sentence.charStart;
+    span.dataset.charEnd = sentence.charEnd;
+    span.textContent = sentence.text + " ";
+    currentP.appendChild(span);
   }
 
   slots.main.replaceChildren(fragment);
   updateThemeToggleIcons();
+}
+
+function updateReadAlongHighlight(doc) {
+  if (!doc.sentenceMap || !playback.audio || !playback.audio.duration) return;
+
+  const progress = playback.audio.currentTime / playback.audio.duration;
+  const targetChar = progress * doc.sentenceMap.totalChars;
+
+  const active = doc.sentenceMap.sentences.find(
+    (s) => targetChar >= s.charStart && targetChar < s.charEnd,
+  );
+  if (!active) return;
+
+  const activeKey = `${active.charStart}-${active.charEnd}`;
+  if (doc._lastHighlightKey === activeKey) return; // no change, skip DOM work
+  doc._lastHighlightKey = activeKey;
+
+  const allSpans = slots.main.querySelectorAll(".reading-pane__sentence");
+  allSpans.forEach((span) =>
+    span.classList.remove("reading-pane__sentence--active"),
+  );
+
+  const activeSpan = slots.main.querySelector(
+    `[data-char-start="${active.charStart}"][data-char-end="${active.charEnd}"]`,
+  );
+  if (activeSpan) {
+    activeSpan.classList.add("reading-pane__sentence--active");
+    activeSpan.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 }
 
 // --- Render: player-panel + mini-player (only when a document is loaded) --
@@ -1009,6 +1091,7 @@ function renderPlayerPanelReady(doc) {
     if (doc) {
       doc.timeElapsed = formatTime(playback.audio.currentTime);
       doc.progress = pct;
+      updateReadAlongHighlight(doc);
     }
   });
 
@@ -1174,8 +1257,12 @@ function handleAudioEnded() {
   if (doc) {
     doc.progress = 0;
     doc.timeElapsed = "0:00";
+    doc._lastHighlightKey = null;
     if (playback.audio) playback.audio.currentTime = 0;
     updatePlaybackUI(doc);
+    slots.main.querySelectorAll(".reading-pane__sentence--active").forEach((s) =>
+      s.classList.remove("reading-pane__sentence--active"),
+    );
   }
 }
 
@@ -1202,18 +1289,14 @@ function startProgressTimer() {
     if (!audio || !audio.duration) return;
 
     const doc = state.currentDocument;
-    // if (!doc || doc.audioFile !== playback.docId) return; // stale — bail
     if (!doc || doc.audioFile !== playback.docId) {
-      console.log("Progress timer bailing — stale doc", {
-        docAudioFile: doc?.audioFile,
-        playbackDocId: playback.docId,
-      });
       return;
     }
     doc.timeElapsed = formatTime(audio.currentTime);
     doc.progress = Math.round((audio.currentTime / audio.duration) * 100);
     playback.isPlaying = !audio.paused;
     updatePlaybackUI(doc);
+    updateReadAlongHighlight(doc); // <-- new line
   }, 250);
 }
 
@@ -1308,6 +1391,7 @@ function renderMiniPlayer() {
     playback.audio.currentTime = (pct / 100) * playback.audio.duration;
     doc.timeElapsed = formatTime(playback.audio.currentTime);
     doc.progress = pct;
+    updateReadAlongHighlight(doc);
   });
   progressInput.addEventListener("pointerup", () => {
     playback.scrubbing = false;
@@ -1432,6 +1516,41 @@ async function handlePdfLoadResult(result) {
 
   render();
 }
+
+// Splits a paragraph into sentences for read-along highlighting. Naive
+// regex split on sentence-ending punctuation followed by whitespace —
+// won't handle abbreviations perfectly (e.g. "Dr. Smith") but is good
+// enough for highlight granularity, where an occasional over-split
+// sentence just means two chunks highlight in sequence instead of one.
+function splitIntoSentences(paragraph) {
+  const matches = paragraph.match(/[^.!?]+[.!?]+(\s+|$)/g);
+  return matches ? matches.map((s) => s.trim()).filter(Boolean) : [paragraph];
+}
+
+// Builds a flat list of { paragraphIndex, sentenceIndex, text, charStart,
+// charEnd } across all paragraphs, plus the total character count — used
+// both for rendering (wrap each sentence in its own span) and for
+// estimating timing later.
+function buildSentenceMap(paragraphs) {
+  const sentences = [];
+  let charOffset = 0;
+
+  paragraphs.forEach((paragraph, paragraphIndex) => {
+    const parts = splitIntoSentences(paragraph);
+    parts.forEach((text, sentenceIndex) => {
+      sentences.push({
+        paragraphIndex,
+        sentenceIndex,
+        text,
+        charStart: charOffset,
+        charEnd: charOffset + text.length,
+      });
+      charOffset += text.length;
+    });
+  });
+
+  return { sentences, totalChars: charOffset };
+}
 // Ensures exactly one entry for `file` sits at the top of the live
 // Recents list in the already-mounted file-nav, without touching
 // anything else in that subtree (pin state, scroll position, search
@@ -1476,6 +1595,80 @@ function goToNewFile() {
 
   state.currentDocument = null;
   render();
+}
+
+function pinDocument(fileId) {
+  const doc = state.documents[fileId];
+  if (!doc) return;
+
+  if (!state.pinnedFiles.some((f) => f.id === fileId)) {
+    state.pinnedFiles.push({ id: fileId, name: doc.fileName });
+  }
+  state.recentFiles = state.recentFiles.filter((f) => f.id !== fileId);
+  renderFileNav();
+}
+
+function unpinDocument(fileId) {
+  const doc = state.documents[fileId];
+  state.pinnedFiles = state.pinnedFiles.filter((f) => f.id !== fileId);
+  if (doc) {
+    state.recentFiles = state.recentFiles.filter((f) => f.id !== fileId);
+    state.recentFiles.unshift({ id: fileId, name: doc.fileName });
+  }
+  renderFileNav();
+}
+
+const modalSlot = document.getElementById("modal-slot");
+
+function showDeleteConfirmModal(fileName, onConfirm) {
+  const fragment = clone("tpl-delete-confirm-modal");
+  bind(
+    fragment,
+    "modalBody",
+    `"${fileName}" will be permanently deleted. This can't be undone.`,
+  );
+
+  function close() {
+    modalSlot.replaceChildren();
+    document.removeEventListener("keydown", onKeydown);
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") close();
+  }
+
+  on(fragment, "modal-cancel", close);
+  on(fragment, "modal-confirm", () => {
+    close();
+    onConfirm();
+  });
+
+  const backdrop = fragment.querySelector('[data-action="modal-backdrop"]');
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) close();
+  });
+
+  document.addEventListener("keydown", onKeydown);
+
+  modalSlot.replaceChildren(fragment);
+}
+
+function deleteDocument(fileId, fileName) {
+  showDeleteConfirmModal(fileName, () => {
+    state.pinnedFiles = state.pinnedFiles.filter((f) => f.id !== fileId);
+    state.recentFiles = state.recentFiles.filter((f) => f.id !== fileId);
+
+    const wasCurrent = state.currentDocument === state.documents[fileId];
+    delete state.documents[fileId];
+
+    if (wasCurrent) {
+      stopPlayback();
+      state.currentDocument = null;
+    }
+
+    renderFileNav();
+    render();
+  });
 }
 
 function rewind() {

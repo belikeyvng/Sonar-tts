@@ -13,23 +13,20 @@
 
     <div class="splash-screen" id="splash-screen">
         <span class="splash-screen__logo" aria-hidden="true">
-            <svg width="84" height="84" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="24" height="24" rx="12" fill="url(#splash-gradient)" />
-                <g clip-path="url(#splash-clip)">
-                    <path
-                        d="M6 10.6667V12.6667M8.4 8V15.3333M10.8 6V18M13.2 9.33333V14M15.6 7.33333V16M18 10.6667V12.6667"
-                        stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
-                </g>
+            <svg width="90" height="90" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="42" height="43" rx="21" fill="url(#paint0_linear_356_2420)" />
+                <path
+                    d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
+                    stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
                 <defs>
-                    <linearGradient id="splash-gradient" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                    <linearGradient id="paint0_linear_356_2420" x1="0" y1="0" x2="42" y2="0"
+                        gradientUnits="userSpaceOnUse">
                         <stop stop-color="#3B82F6" />
                         <stop offset="1" stop-color="#9333EA" />
                     </linearGradient>
-                    <clipPath id="splash-clip">
-                        <rect width="12" height="12" fill="white" transform="translate(6 6)" />
-                    </clipPath>
                 </defs>
             </svg>
+
         </span>
     </div>
 
@@ -89,6 +86,8 @@
         <div id="mini-player-slot" data-slot="mini-player"></div>
     </div>
 
+    <div id="modal-slot"></div>
+
     <!-- ======================================================================
          UPGRADE PAGE TEMPLATES
          ====================================================================== -->
@@ -136,24 +135,20 @@
             <section class="onboarding-step" data-step="preferences">
                 <div class="onboarding-step__brand">
                     <span class="onboarding-step__brand-logo" aria-hidden="true">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="24" height="24" rx="12" fill="url(#onboarding-logo-gradient)" />
-                            <g clip-path="url(#onboarding-logo-clip)">
-                                <path
-                                    d="M6 10.6667V12.6667M8.4 8V15.3333M10.8 6V18M13.2 9.33333V14M15.6 7.33333V16M18 10.6667V12.6667"
-                                    stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
-                            </g>
+                        <svg width="42" height="42" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="42" height="43" rx="21" fill="url(#paint0_linear_356_2420)" />
+                            <path
+                                d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
+                                stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
                             <defs>
-                                <linearGradient id="onboarding-logo-gradient" x1="0" y1="0" x2="24" y2="0"
+                                <linearGradient id="paint0_linear_356_2420" x1="0" y1="0" x2="42" y2="0"
                                     gradientUnits="userSpaceOnUse">
                                     <stop stop-color="#3B82F6" />
                                     <stop offset="1" stop-color="#9333EA" />
                                 </linearGradient>
-                                <clipPath id="onboarding-logo-clip">
-                                    <rect width="12" height="12" fill="white" transform="translate(6 6)" />
-                                </clipPath>
                             </defs>
                         </svg>
+
                     </span>
                     <span class="onboarding-step__brand-name">Sonar</span>
                 </div>
@@ -209,27 +204,8 @@
             </section>
 
             <aside class="onboarding-visual" aria-hidden="true">
-                <div class="onboarding-visual__field">
-                    <div class="onboarding-visual__ring onboarding-visual__ring--1"></div>
-                    <div class="onboarding-visual__ring onboarding-visual__ring--2"></div>
-                    <div class="onboarding-visual__ring onboarding-visual__ring--3"></div>
-
-                    <span class="onboarding-visual__particle onboarding-visual__particle--1"></span>
-                    <span class="onboarding-visual__particle onboarding-visual__particle--2"></span>
-                    <span class="onboarding-visual__particle onboarding-visual__particle--3"></span>
-                    <span class="onboarding-visual__particle onboarding-visual__particle--4"></span>
-                    <span class="onboarding-visual__particle onboarding-visual__particle--5"></span>
-                    <span class="onboarding-visual__particle onboarding-visual__particle--6"></span>
-
-                    <div class="onboarding-visual__orb-wrap">
-                        <video src="./assets/orb/orb-2.webm" autoplay loop muted width="220" height="220"></video>
-                    </div>
-
-                    <div class="onboarding-visual__waveform" aria-hidden="true">
-                        <span></span><span></span><span></span><span></span><span></span>
-                        <span></span><span></span><span></span><span></span><span></span>
-                        <span></span><span></span>
-                    </div>
+                <div class="onboarding-visual__orb-wrap">
+                    <video src="./assets/orb/orb-2.webm" autoplay loop muted width="220" height="220"></video>
                 </div>
             </aside>
         </div>
@@ -252,7 +228,7 @@
         </button>
     </template>
 
-    
+
 
     <!-- ---------- STEP 3: LICENSE ---------- -->
     <template id="tpl-onboarding-license">
@@ -295,25 +271,21 @@
         <aside class="file-nav">
             <div class="file-nav__brand">
                 <span class="file-nav__logo" aria-hidden="true">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="24" height="24" rx="12" fill="#3B82F6" />
-                        <rect width="24" height="24" rx="12" fill="url(#paint0_linear_356_1831)" />
-                        <g clip-path="url(#clip0_356_1831)">
-                            <path
-                                d="M6 10.6667V12.6667M8.4 8V15.3333M10.8 6V18M13.2 9.33333V14M15.6 7.33333V16M18 10.6667V12.6667"
-                                stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
-                        </g>
+                    <svg width="30" height="30" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="42" height="43" rx="21" fill="url(#paint0_linear_356_2420)" />
+                        <path
+                            d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
+                            stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
                         <defs>
-                            <linearGradient id="paint0_linear_356_1831" x1="0" y1="0" x2="24" y2="0"
+                            <linearGradient id="paint0_linear_356_2420" x1="0" y1="0" x2="42" y2="0"
                                 gradientUnits="userSpaceOnUse">
                                 <stop stop-color="#3B82F6" />
                                 <stop offset="1" stop-color="#9333EA" />
                             </linearGradient>
-                            <clipPath id="clip0_356_1831">
-                                <rect width="12" height="12" fill="white" transform="translate(6 6)" />
-                            </clipPath>
                         </defs>
                     </svg>
+
+
 
                 </span>
                 <span class="file-nav__name">Sonar</span>
@@ -404,6 +376,7 @@
     </template>
 
     <!-- ---------- FILE NAV LIST ITEM (cloned per file into the lists above) ---------- -->
+    <!-- ---------- FILE NAV LIST ITEM (Pinned) ---------- -->
     <template id="tpl-file-nav-item">
         <li class="file-nav__item">
             <button class="file-nav__item-button" type="button">
@@ -418,10 +391,30 @@
                 </span>
                 <span class="file-nav__item-name" data-bind="fileName"></span>
             </button>
+            <div class="file-nav__item-actions">
+                <button class="file-nav__item-action" type="button" data-action="unpin" aria-label="Unpin">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 17v5" />
+                        <path
+                            d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 0-1-1H10a1 1 0 0 0-1 1z" />
+                        <line x1="2" y1="2" x2="22" y2="22" />
+                    </svg>
+                </button>
+                <button class="file-nav__item-action file-nav__item-action--danger" type="button" data-action="delete"
+                    aria-label="Delete">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                </button>
+            </div>
         </li>
     </template>
 
-
+    <!-- ---------- FILE NAV LIST ITEM (Recents / Search results) ---------- -->
     <template id="tpl-recent-file-nav-item">
         <li class="file-nav__item">
             <button class="file-nav__item-button" type="button">
@@ -437,6 +430,25 @@
                 </span>
                 <span class="file-nav__item-name" data-bind="fileName"></span>
             </button>
+            <div class="file-nav__item-actions">
+                <button class="file-nav__item-action" type="button" data-action="pin" aria-label="Pin">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 17v5" />
+                        <path
+                            d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 0-1-1H10a1 1 0 0 0-1 1z" />
+                    </svg>
+                </button>
+                <button class="file-nav__item-action file-nav__item-action--danger" type="button" data-action="delete"
+                    aria-label="Delete">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                </button>
+            </div>
         </li>
     </template>
 
@@ -665,6 +677,21 @@
         <li class="file-nav__item file-nav__item--empty">
             <span class="file-nav__empty-message">No files found</span>
         </li>
+    </template>
+
+    <!-- ---------- DELETE CONFIRM MODAL ---------- -->
+    <template id="tpl-delete-confirm-modal">
+        <div class="modal-backdrop" data-action="modal-backdrop">
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-heading">
+                <h2 class="modal__heading" id="delete-modal-heading">Delete document?</h2>
+                <p class="modal__body" data-bind="modalBody"></p>
+                <div class="modal__actions">
+                    <button class="modal__button" type="button" data-action="modal-cancel">Cancel</button>
+                    <button class="modal__button modal__button--danger" type="button"
+                        data-action="modal-confirm">Delete</button>
+                </div>
+            </div>
+        </div>
     </template>
 
     <script src="app.js"></script>

@@ -55,3 +55,13 @@
 .reading-pane__document::-webkit-scrollbar {
     display: none;               /* Chrome/Edge/Electron (Chromium-based) */
 }
+
+.reading-pane__sentence {
+  transition: background-color 200ms ease, color 200ms ease;
+  border-radius: 4px;
+}
+
+.reading-pane__sentence--active {
+  background: var(--color-accent-subtle);
+  color: var(--color-text-primary);
+}
