@@ -6,7 +6,10 @@
 // extend `state` and the render*() functions as real features land.
 
 const ACCENT_COLOR_OPTIONS = ["violet", "blue", "green", "rose", "amber"];
-
+const ACCENT_OPTIONS = [
+  { id: "british", name: "British English", flag: "🇬🇧" },
+  { id: "american", name: "American English", flag: "🇺🇸" },
+];
 // TODO: real "has this user onboarded before" check needs a persisted
 // settings file (same pattern as UsageStore/LicenseStore — an IPC call
 // backed by app.getPath("userData")). Hardcoded false for now so the
@@ -40,11 +43,11 @@ const state = {
   previousView: "app", // where "Back to app" on the upgrade page returns to
 
   // --- Onboarding ---
-  onboardingStep: "name", // "name" | "preferences" | "license"
+  onboardingStep: "preferences", // "name" | "preferences" | "license"
   onboardingData: {
     name: "",
     voiceGender: "female",
-    theme: "light",
+    accent: "american",
     accentColor: "violet",
     licensePath: null,
     licenseStatus: "", // "", "checking", "valid", "invalid"
@@ -297,86 +300,74 @@ function handlePlanCta(planId) {
 function renderOnboardingStep() {
   const step = state.onboardingStep;
 
-  if (step === "name") {
-    renderOnboardingName();
-  } else if (step === "preferences") {
+  if (step === "preferences") {
     renderOnboardingPreferences();
   } else if (step === "license") {
     renderOnboardingLicense();
   }
 }
 
-function renderOnboardingName() {
-  const fragment = clone("tpl-onboarding-name");
-  const data = state.onboardingData;
 
-  const input = fragment.querySelector('[data-bind="nameInput"]');
-  input.value = data.name;
-  input.addEventListener("input", (e) => {
-    data.name = e.target.value;
-  });
-
-  on(fragment, "next", () => {
-    // Minimal validation — real UX would show an inline message
-    // instead of blocking silently. Left as a TODO since this is
-    // structure-only, no visual/error-state design yet.
-    if (!data.name.trim()) return;
-    state.onboardingStep = "preferences";
-    renderOnboardingStep();
-  });
-
-  slots.onboardingStep.replaceChildren(fragment);
-}
 
 function renderOnboardingPreferences() {
   const fragment = clone("tpl-onboarding-preferences");
   const data = state.onboardingData;
 
-  fragment.querySelector('[data-bind="voiceGenderFemale"]').checked =
-    data.voiceGender === "female";
-  fragment.querySelector('[data-bind="voiceGenderMale"]').checked =
-    data.voiceGender === "male";
-  fragment.querySelectorAll('input[name="voiceGender"]').forEach((el) => {
-    el.addEventListener("change", (e) => {
-      data.voiceGender = e.target.value;
+  const nameInput = fragment.querySelector('[data-bind="nameInput"]');
+  nameInput.value = data.name;
+  nameInput.addEventListener("input", (e) => {
+    data.name = e.target.value;
+  });
+
+  const pillGroup = fragment.querySelector('[data-group="voiceGender"]');
+  pillGroup.querySelectorAll(".onboarding-step__pill").forEach((pill) => {
+    pill.setAttribute(
+      "aria-pressed",
+      String(pill.dataset.value === data.voiceGender),
+    );
+    pill.addEventListener("click", () => {
+      data.voiceGender = pill.dataset.value;
+      pillGroup.querySelectorAll(".onboarding-step__pill").forEach((p) => {
+        p.setAttribute("aria-pressed", String(p.dataset.value === data.voiceGender));
+      });
     });
   });
 
-  fragment.querySelector('[data-bind="themeLight"]').checked =
-    data.theme === "light";
-  fragment.querySelector('[data-bind="themeDark"]').checked =
-    data.theme === "dark";
-  fragment.querySelectorAll('input[name="theme"]').forEach((el) => {
-    el.addEventListener("change", (e) => {
-      data.theme = e.target.value;
-      document.documentElement.dataset.theme = e.target.value;
+  const accentGroup = fragment.querySelector('[data-group="accent"]');
+  for (const accent of ACCENT_OPTIONS) {
+    const cardFrag = clone("tpl-onboarding-accent-card");
+    const card = cardFrag.querySelector(".onboarding-step__accent-card");
+    card.dataset.accentId = accent.id;
+    card.setAttribute("aria-pressed", String(accent.id === data.accent));
+    bind(cardFrag, "accentFlag", accent.flag);
+    bind(cardFrag, "accentName", accent.name);
+    card.addEventListener("click", () => {
+      data.accent = accent.id;
+      accentGroup.querySelectorAll(".onboarding-step__accent-card").forEach((c) => {
+        c.setAttribute("aria-pressed", String(c.dataset.accentId === accent.id));
+      });
     });
-  });
+    accentGroup.appendChild(cardFrag);
+  }
 
   const swatchGroup = fragment.querySelector('[data-group="accentColor"]');
   for (const color of ACCENT_COLOR_OPTIONS) {
     const swatch = clone("tpl-onboarding-swatch");
     const button = swatch.querySelector(".onboarding-step__swatch");
     button.dataset.colorValue = color;
-    button.textContent = color;
+    button.setAttribute("aria-label", color);
     button.setAttribute("aria-pressed", String(color === data.accentColor));
     button.addEventListener("click", () => {
       data.accentColor = color;
       swatchGroup.querySelectorAll(".onboarding-step__swatch").forEach((el) => {
-        el.setAttribute(
-          "aria-pressed",
-          String(el.dataset.colorValue === color),
-        );
+        el.setAttribute("aria-pressed", String(el.dataset.colorValue === color));
       });
     });
     swatchGroup.appendChild(swatch);
   }
 
-  on(fragment, "back", () => {
-    state.onboardingStep = "name";
-    renderOnboardingStep();
-  });
   on(fragment, "next", () => {
+    if (!data.name.trim()) return;
     state.onboardingStep = "license";
     renderOnboardingStep();
   });

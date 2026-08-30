@@ -12,26 +12,26 @@
 <body>
 
     <div class="splash-screen" id="splash-screen">
-    <span class="splash-screen__logo" aria-hidden="true">
-        <svg width="84" height="84" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="24" height="24" rx="12" fill="url(#splash-gradient)" />
-            <g clip-path="url(#splash-clip)">
-                <path
-                    d="M6 10.6667V12.6667M8.4 8V15.3333M10.8 6V18M13.2 9.33333V14M15.6 7.33333V16M18 10.6667V12.6667"
-                    stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
-            </g>
-            <defs>
-                <linearGradient id="splash-gradient" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#3B82F6" />
-                    <stop offset="1" stop-color="#9333EA" />
-                </linearGradient>
-                <clipPath id="splash-clip">
-                    <rect width="12" height="12" fill="white" transform="translate(6 6)" />
-                </clipPath>
-            </defs>
-        </svg>
-    </span>
-</div>
+        <span class="splash-screen__logo" aria-hidden="true">
+            <svg width="84" height="84" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="24" rx="12" fill="url(#splash-gradient)" />
+                <g clip-path="url(#splash-clip)">
+                    <path
+                        d="M6 10.6667V12.6667M8.4 8V15.3333M10.8 6V18M13.2 9.33333V14M15.6 7.33333V16M18 10.6667V12.6667"
+                        stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
+                </g>
+                <defs>
+                    <linearGradient id="splash-gradient" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#3B82F6" />
+                        <stop offset="1" stop-color="#9333EA" />
+                    </linearGradient>
+                    <clipPath id="splash-clip">
+                        <rect width="12" height="12" fill="white" transform="translate(6 6)" />
+                    </clipPath>
+                </defs>
+            </svg>
+        </span>
+    </div>
 
     <!-- ======================================================================
          UPGRADE PAGE — shown when "Upgrade to Pro" is triggered from
@@ -130,86 +130,129 @@
          ONBOARDING TEMPLATES
          ====================================================================== -->
 
-    <!-- ---------- STEP 1: NAME ---------- -->
-    <template id="tpl-onboarding-name">
-        <section class="onboarding-step" data-step="name">
-            <p class="onboarding-step__progress">Step 1 of 3</p>
-
-            <h1 class="onboarding-step__heading">What should we call you?</h1>
-            <p class="onboarding-step__subheading">This is how Sonar will greet you.</p>
-
-            <div class="onboarding-step__field">
-                <label class="onboarding-step__label" for="onboarding-name-input">Your name</label>
-                <input class="onboarding-step__input" type="text" id="onboarding-name-input" placeholder="Alex"
-                    data-bind="nameInput" />
-            </div>
-
-            <div class="onboarding-step__actions">
-                <button class="onboarding-step__button onboarding-step__button--primary" type="button"
-                    data-action="next">
-                    Continue
-                </button>
-            </div>
-        </section>
-    </template>
-
-    <!-- ---------- STEP 2: PREFERENCES ---------- -->
+    <!-- ---------- STEP 1: PREFERENCES (name + voice gender + accent + brand color, combined) ---------- -->
     <template id="tpl-onboarding-preferences">
-        <section class="onboarding-step" data-step="preferences">
-            <p class="onboarding-step__progress">Step 2 of 3</p>
-
-            <h1 class="onboarding-step__heading">Set up your preferences</h1>
-            <p class="onboarding-step__subheading">You can change these anytime in settings.</p>
-
-            <div class="onboarding-step__field">
-                <span class="onboarding-step__label">Voice</span>
-                <div class="onboarding-step__option-group" data-group="voiceGender">
-                    <label class="onboarding-step__option">
-                        <input type="radio" name="voiceGender" value="female" data-bind="voiceGenderFemale" />
-                        Female
-                    </label>
-                    <label class="onboarding-step__option">
-                        <input type="radio" name="voiceGender" value="male" data-bind="voiceGenderMale" />
-                        Male
-                    </label>
+        <div class="onboarding-split">
+            <section class="onboarding-step" data-step="preferences">
+                <div class="onboarding-step__brand">
+                    <span class="onboarding-step__brand-logo" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="24" height="24" rx="12" fill="url(#onboarding-logo-gradient)" />
+                            <g clip-path="url(#onboarding-logo-clip)">
+                                <path
+                                    d="M6 10.6667V12.6667M8.4 8V15.3333M10.8 6V18M13.2 9.33333V14M15.6 7.33333V16M18 10.6667V12.6667"
+                                    stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
+                            </g>
+                            <defs>
+                                <linearGradient id="onboarding-logo-gradient" x1="0" y1="0" x2="24" y2="0"
+                                    gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#3B82F6" />
+                                    <stop offset="1" stop-color="#9333EA" />
+                                </linearGradient>
+                                <clipPath id="onboarding-logo-clip">
+                                    <rect width="12" height="12" fill="white" transform="translate(6 6)" />
+                                </clipPath>
+                            </defs>
+                        </svg>
+                    </span>
+                    <span class="onboarding-step__brand-name">Sonar</span>
                 </div>
-            </div>
 
-            <div class="onboarding-step__field">
-                <span class="onboarding-step__label">Theme</span>
-                <div class="onboarding-step__option-group" data-group="theme">
-                    <label class="onboarding-step__option">
-                        <input type="radio" name="theme" value="light" data-bind="themeLight" />
-                        Light
-                    </label>
-                    <label class="onboarding-step__option">
-                        <input type="radio" name="theme" value="dark" data-bind="themeDark" />
-                        Dark
-                    </label>
+                <h1 class="onboarding-step__heading">Preferences</h1>
+                <p class="onboarding-step__subheading">Customize your experience</p>
+
+                <div class="onboarding-step__field">
+                    <label class="onboarding-step__label" for="onboarding-name-input">What would you like to be
+                        called?</label>
+                    <input class="onboarding-step__input" type="text" id="onboarding-name-input"
+                        placeholder="Enter your preferred name" data-bind="nameInput" />
                 </div>
-            </div>
 
-            <div class="onboarding-step__field">
-                <span class="onboarding-step__label">Accent color</span>
-                <div class="onboarding-step__swatch-group" data-group="accentColor">
-                    <!-- swatch buttons injected by app.js from ACCENT_COLOR_OPTIONS -->
+                <div class="onboarding-step__field">
+                    <span class="onboarding-step__label">Choose your voice model</span>
+                    <p class="onboarding-step__field-hint">Choose a voice and accent to personalize your experience.</p>
+                    <div class="onboarding-step__pill-group" data-group="voiceGender">
+                        <button type="button" class="onboarding-step__pill" data-value="male"
+                            data-bind="voiceGenderMale">
+                            <span class="onboarding-step__pill-label">Male</span>
+                            <span class="onboarding-step__pill-check" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="onboarding-step__pill" data-value="female"
+                            data-bind="voiceGenderFemale">
+                            <span class="onboarding-step__pill-label">Female</span>
+                            <span class="onboarding-step__pill-check" aria-hidden="true"></span>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="onboarding-step__actions">
-                <button class="onboarding-step__button" type="button" data-action="back">Back</button>
-                <button class="onboarding-step__button onboarding-step__button--primary" type="button"
-                    data-action="next">
-                    Continue
-                </button>
-            </div>
-        </section>
+                <div class="onboarding-step__field">
+                    <span class="onboarding-step__label">Select Accent</span>
+                    <div class="onboarding-step__accent-group" data-group="accent">
+                        <!-- accent cards injected by app.js from ACCENT_OPTIONS -->
+                    </div>
+                </div>
+
+                <div class="onboarding-step__field">
+                    <span class="onboarding-step__label">Brand color</span>
+                    <p class="onboarding-step__field-hint">Select your brand color</p>
+                    <div class="onboarding-step__swatch-group" data-group="accentColor">
+                        <!-- swatch buttons injected by app.js from ACCENT_COLOR_OPTIONS -->
+                    </div>
+                </div>
+
+                <div class="onboarding-step__actions">
+                    <button class="onboarding-step__button onboarding-step__button--primary" type="button"
+                        data-action="next">
+                        Continue
+                    </button>
+                </div>
+            </section>
+
+            <aside class="onboarding-visual" aria-hidden="true">
+                <div class="onboarding-visual__field">
+                    <div class="onboarding-visual__ring onboarding-visual__ring--1"></div>
+                    <div class="onboarding-visual__ring onboarding-visual__ring--2"></div>
+                    <div class="onboarding-visual__ring onboarding-visual__ring--3"></div>
+
+                    <span class="onboarding-visual__particle onboarding-visual__particle--1"></span>
+                    <span class="onboarding-visual__particle onboarding-visual__particle--2"></span>
+                    <span class="onboarding-visual__particle onboarding-visual__particle--3"></span>
+                    <span class="onboarding-visual__particle onboarding-visual__particle--4"></span>
+                    <span class="onboarding-visual__particle onboarding-visual__particle--5"></span>
+                    <span class="onboarding-visual__particle onboarding-visual__particle--6"></span>
+
+                    <div class="onboarding-visual__orb-wrap">
+                        <video src="./assets/orb/orb-2.webm" autoplay loop muted width="220" height="220"></video>
+                    </div>
+
+                    <div class="onboarding-visual__waveform" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span>
+                    </div>
+                </div>
+            </aside>
+        </div>
     </template>
 
     <!-- ---------- ACCENT COLOR SWATCH (cloned per option) ---------- -->
     <template id="tpl-onboarding-swatch">
         <button class="onboarding-step__swatch" type="button" data-bind="swatchValue"></button>
     </template>
+
+    <!-- ---------- ACCENT CARD (cloned per accent option) ---------- -->
+    <template id="tpl-onboarding-accent-card">
+        <button type="button" class="onboarding-step__accent-card">
+            <span class="onboarding-step__accent-card-top">
+                <span class="onboarding-step__accent-flag" data-bind="accentFlag"></span>
+                <span class="onboarding-step__accent-check" aria-hidden="true"></span>
+            </span>
+            <span class="onboarding-step__accent-name" data-bind="accentName"></span>
+            <span class="onboarding-step__accent-meta">Accent</span>
+        </button>
+    </template>
+
+    
 
     <!-- ---------- STEP 3: LICENSE ---------- -->
     <template id="tpl-onboarding-license">

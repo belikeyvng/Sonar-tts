@@ -5,3 +5,363 @@
    already defines this component's structure independently of this
    file.
    ========================================================================== */
+/* ==========================================================================
+   ONBOARDING — PREFERENCES STEP (combined name/voice/accent/brand-color)
+   ========================================================================== */
+
+.onboarding-split {
+  display: grid;
+  grid-template-columns: minmax(360px, 640px) 1fr;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.onboarding-step {
+  padding: 56px 64px;
+  overflow-y: auto;
+  max-width: 640px;
+}
+
+.onboarding-step__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+
+.onboarding-step__brand-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #0F172A;
+}
+
+.onboarding-step__heading {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+
+.onboarding-step__subheading {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0 0 32px;
+}
+
+.onboarding-step__field {
+  margin-bottom: 28px;
+}
+
+.onboarding-step__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+  margin-bottom: 4px;
+}
+
+.onboarding-step__field-hint {
+  font-size: 13px;
+  color: #94A3B8;
+  margin: 0 0 12px;
+}
+
+.onboarding-step__input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #0F172A;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.onboarding-step__input::placeholder {
+  color: #94A3B8;
+}
+
+.onboarding-step__input:focus {
+  outline: none;
+  border-color: #9333EA;
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.12);
+}
+
+/* --- Voice gender pills --- */
+
+.onboarding-step__pill-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.onboarding-step__pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+  transition: border-color 150ms ease;
+}
+
+.onboarding-step__pill[aria-pressed="true"] {
+  border-color: #9333EA;
+  border-width: 1.5px;
+}
+
+.onboarding-step__pill-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.onboarding-step__pill[aria-pressed="true"] .onboarding-step__pill-check {
+  background: #9333EA;
+  position: relative;
+}
+
+.onboarding-step__pill[aria-pressed="true"] .onboarding-step__pill-check::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: translate(-50%, -60%) rotate(45deg);
+}
+
+/* --- Accent cards --- */
+
+.onboarding-step__accent-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.onboarding-step__accent-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.onboarding-step__accent-card[aria-pressed="true"] {
+  border-color: #9333EA;
+  border-width: 1.5px;
+}
+
+.onboarding-step__accent-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.onboarding-step__accent-flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.onboarding-step__accent-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.onboarding-step__accent-card[aria-pressed="true"] .onboarding-step__accent-check {
+  background: #9333EA;
+  position: relative;
+}
+
+.onboarding-step__accent-card[aria-pressed="true"] .onboarding-step__accent-check::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: translate(-50%, -60%) rotate(45deg);
+}
+
+.onboarding-step__accent-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.onboarding-step__accent-meta {
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+/* --- Brand color swatches --- */
+
+.onboarding-step__swatch-group {
+  display: flex;
+  gap: 16px;
+}
+
+.onboarding-step__swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 3px;
+  background-clip: content-box;
+  position: relative;
+}
+
+.onboarding-step__swatch[aria-pressed="true"] {
+  border-color: currentColor;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px currentColor;
+}
+
+.onboarding-step__swatch[data-color-value="purple"] { background-color: #9333EA; color: #9333EA; }
+.onboarding-step__swatch[data-color-value="blue"]   { background-color: #3B82F6; color: #3B82F6; }
+.onboarding-step__swatch[data-color-value="coral"]  { background-color: #FB7156; color: #FB7156; }
+.onboarding-step__swatch[data-color-value="pink"]   { background-color: #EC0C8C; color: #EC0C8C; }
+.onboarding-step__swatch[data-color-value="teal"]   { background-color: #22D3EE; color: #22D3EE; }
+
+/* --- Continue button --- */
+
+.onboarding-step__actions {
+  margin-top: 8px;
+}
+
+.onboarding-step__button--primary {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #9333EA;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.onboarding-step__button--primary:hover {
+  background: #7E22CE;
+}
+
+/* ==========================================================================
+   ONBOARDING — RIGHT VISUAL PANEL
+   ========================================================================== */
+
+.onboarding-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #F5F3FF 0%, #E0E7FF 100%);
+  overflow: hidden;
+}
+
+.onboarding-visual__field {
+  position: relative;
+  width: 480px;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onboarding-visual__ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.onboarding-visual__ring--1 { width: 320px; height: 320px; }
+.onboarding-visual__ring--2 { width: 420px; height: 420px; }
+.onboarding-visual__ring--3 { width: 520px; height: 520px; }
+
+.onboarding-visual__orb-wrap {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  z-index: 2;
+  filter: drop-shadow(0 0 40px rgba(147, 51, 234, 0.45));
+}
+
+.onboarding-visual__orb-wrap video {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.onboarding-visual__particle {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.onboarding-visual__particle--1 { width: 6px; height: 6px; background: #A78BFA; top: 18%; left: 20%; }
+.onboarding-visual__particle--2 { width: 8px; height: 8px; background: #3B82F6; top: 30%; right: 12%; }
+.onboarding-visual__particle--3 { width: 4px; height: 4px; background: #F8FAFC; top: 55%; left: 8%; }
+.onboarding-visual__particle--4 { width: 5px; height: 5px; background: #FDA4AF; bottom: 20%; right: 22%; }
+.onboarding-visual__particle--5 { width: 6px; height: 6px; background: #818CF8; bottom: 12%; left: 32%; }
+.onboarding-visual__particle--6 { width: 4px; height: 4px; background: #FDA4AF; top: 8%; left: 48%; }
+
+.onboarding-visual__waveform {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  z-index: 2;
+}
+
+.onboarding-visual__waveform span {
+  display: block;
+  width: 3px;
+  border-radius: 2px;
+  background: #9333EA;
+  opacity: 0.8;
+}
+
+.onboarding-visual__waveform span:nth-child(1) { height: 10px; }
+.onboarding-visual__waveform span:nth-child(2) { height: 18px; }
+.onboarding-visual__waveform span:nth-child(3) { height: 8px; }
+.onboarding-visual__waveform span:nth-child(4) { height: 22px; }
+.onboarding-visual__waveform span:nth-child(5) { height: 14px; }
+.onboarding-visual__waveform span:nth-child(6) { height: 26px; }
+.onboarding-visual__waveform span:nth-child(7) { height: 12px; }
+.onboarding-visual__waveform span:nth-child(8) { height: 20px; }
+.onboarding-visual__waveform span:nth-child(9) { height: 9px; }
+.onboarding-visual__waveform span:nth-child(10) { height: 24px; }
+.onboarding-visual__waveform span:nth-child(11) { height: 11px; }
+.onboarding-visual__waveform span:nth-child(12) { height: 16px; }
+
+@media (max-width: 900px) {
+  .onboarding-split {
+    grid-template-columns: 1fr;
+  }
+  .onboarding-visual {
+    display: none;
+  }
+}
