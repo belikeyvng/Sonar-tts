@@ -12,7 +12,7 @@ src/engines/tts/kokoro/onnx
 src/engines/tts/kokoro/voices
 
 
-tools/license/keys/
+
 
 # Sonar DRM private signing key
 tools/license/keys/private_key.pem
