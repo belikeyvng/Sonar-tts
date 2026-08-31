@@ -30,6 +30,24 @@
         </span>
     </div>
 
+    <div class="splash-screen splash-screen--welcome" id="welcome-splash-screen">
+        <span class="splash-screen__logo" aria-hidden="true">
+            <svg width="90" height="90" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="42" height="43" rx="21" fill="url(#paint-logo-welcome)" />
+                <path
+                    d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
+                    stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
+                <defs>
+                    <linearGradient id="paint-logo-welcome" x1="0" y1="0" x2="42" y2="0" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#3B82F6" />
+                        <stop offset="1" stop-color="#9333EA" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </span>
+        <p class="splash-screen__message" id="welcome-splash-message"></p>
+    </div>
+
     <!-- ======================================================================
          UPGRADE PAGE — shown when "Upgrade to Pro" is triggered from
          anywhere (file-nav footer button, any future data-tier="pro"
@@ -136,19 +154,18 @@
                 <div class="onboarding-step__brand">
                     <span class="onboarding-step__brand-logo" aria-hidden="true">
                         <svg width="42" height="42" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="42" height="43" rx="21" fill="url(#paint0_linear_356_2420)" />
+                            <rect width="42" height="43" rx="21" fill="url(#paint-logo-onboarding-prefs)" />
                             <path
                                 d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
                                 stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
                             <defs>
-                                <linearGradient id="paint0_linear_356_2420" x1="0" y1="0" x2="42" y2="0"
+                                <linearGradient id="paint-logo-onboarding-prefs" x1="0" y1="0" x2="42" y2="0"
                                     gradientUnits="userSpaceOnUse">
                                     <stop stop-color="#3B82F6" />
                                     <stop offset="1" stop-color="#9333EA" />
                                 </linearGradient>
                             </defs>
                         </svg>
-
                     </span>
                     <span class="onboarding-step__brand-name">Sonar</span>
                 </div>
@@ -236,12 +253,12 @@
                 <div class="onboarding-step__brand">
                     <span class="onboarding-step__brand-logo" aria-hidden="true">
                         <svg width="42" height="42" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="42" height="43" rx="21" fill="url(#paint0_linear_356_2420)" />
+                            <rect width="42" height="43" rx="21" fill="url(#paint-logo-onboarding-license)" />
                             <path
                                 d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
                                 stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
                             <defs>
-                                <linearGradient id="paint0_linear_356_2420" x1="0" y1="0" x2="42" y2="0"
+                                <linearGradient id="paint-logo-onboarding-license" x1="0" y1="0" x2="42" y2="0"
                                     gradientUnits="userSpaceOnUse">
                                     <stop stop-color="#3B82F6" />
                                     <stop offset="1" stop-color="#9333EA" />
@@ -301,21 +318,18 @@
             <div class="file-nav__brand">
                 <span class="file-nav__logo" aria-hidden="true">
                     <svg width="30" height="30" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="42" height="43" rx="21" fill="url(#paint0_linear_356_2420)" />
+                        <rect width="42" height="43" rx="21" fill="url(#paint-logo-filenav)" />
                         <path
                             d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
                             stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
                         <defs>
-                            <linearGradient id="paint0_linear_356_2420" x1="0" y1="0" x2="42" y2="0"
+                            <linearGradient id="paint-logo-filenav" x1="0" y1="0" x2="42" y2="0"
                                 gradientUnits="userSpaceOnUse">
                                 <stop stop-color="#3B82F6" />
                                 <stop offset="1" stop-color="#9333EA" />
                             </linearGradient>
                         </defs>
                     </svg>
-
-
-
                 </span>
                 <span class="file-nav__name">Sonar</span>
                 <button class="file-nav__pin-toggle" type="button" aria-label="Pin sidebar open">

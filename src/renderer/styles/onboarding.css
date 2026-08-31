@@ -261,6 +261,7 @@ body {
    font-size: 13px;
    font-weight: 600;
    color: #0F172A;
+   text-wrap: nowrap;
 }
 
 .onboarding-step__accent-meta {
@@ -387,6 +388,7 @@ body {
    font-size: 14px;
    font-weight: 600;
    cursor: pointer;
+   margin: 0 !important;
 }
 
 .onboarding-step__button--primary:hover {
@@ -413,6 +415,12 @@ body {
 
 .onboarding-step__button--secondary {
    font-family: var(--font-ui-mono);
+}
+
+.onboarding-step__button.onboarding-step__button--primary:disabled {
+   background: var(--color-border);
+   color: var(--color-text-secondary);
+   cursor: not-allowed;
 }
 
 /* .onboarding-split .onboarding-step {

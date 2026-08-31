@@ -41,7 +41,7 @@
 .onboarding-step__actions--license {
    display: flex;
    align-items: center;
-   justify-content: flex-start;
+   justify-content: start;
    gap: 4px;
    margin-top: 8px;
 }

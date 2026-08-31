@@ -561,15 +561,29 @@ function renderOnboardingLicense() {
   }
   setStatus(data.licenseStatusText || "", data.licenseState || "");
 
+  const activateButton = fragment.querySelector('[data-action="activate-and-finish"]');
+
+  // Gated until a license file has actually been chosen — picking a
+  // file (regardless of whether it later validates) is what unlocks
+  // this button; validity itself is checked when it's clicked.
+  function updateActivateButtonState() {
+    if (!activateButton) return;
+    activateButton.disabled = !data.licensePath;
+  }
+  updateActivateButtonState();
+
   on(fragment, "browse-license", async () => {
     const result = await window.sonar.license.browseFile();
-    if (!result.ok) return; // user canceled — leave everything as-is
+    if (!result.ok) return;
 
     data.licensePath = result.filePath;
+
     const pathInput = slots.onboardingStep.querySelector(
       '[data-bind="licensePathDisplay"]',
     );
     if (pathInput) pathInput.value = result.filePath;
+
+    updateActivateButtonState();
 
     setStatus("Checking license…", "checking");
     data.licenseStatusText = "Checking license…";
@@ -583,7 +597,7 @@ function renderOnboardingLicense() {
       setStatus(text, "valid");
       data.licenseStatusText = text;
       data.licenseState = "valid";
-      data.licenseValidated = true; // gate for activate-and-finish below
+      data.licenseValidated = true;
     } else {
       const text = licenseErrorMessage(activateResult.reason);
       setStatus(text, "invalid");
@@ -603,10 +617,21 @@ function renderOnboardingLicense() {
   });
 
   on(fragment, "activate-and-finish", () => {
-    // License was already activated (main process holds the active
-    // license) the moment browse-license succeeded above — this
-    // button just confirms and moves on. If validation never
-    // succeeded, treat it the same as skip.
+    if (!data.licensePath) return; // shouldn't be reachable — button is disabled — but guard anyway
+
+    if (data.licenseValidated) {
+      showToast("Sonar Pro activated!", { variant: "success" });
+    } else {
+      showToast(
+        data.licenseStatusText || "Couldn't activate this license.",
+        { variant: "error" },
+      );
+    }
+
+    // Proceed to the app either way once a file's been through the
+    // check — a failed license doesn't trap the user on this screen,
+    // it just means they continue on the free plan (activeLicense
+    // reflects the truth: only true if it actually validated).
     finishOnboarding({ activateLicense: Boolean(data.licenseValidated) });
   });
 
@@ -639,16 +664,46 @@ function finishOnboarding({ activateLicense }) {
   state.firstName = trimmedName || state.firstName;
   state.accountName = trimmedName || state.accountName;
 
-  // activateLicense is informational only here — license:activate
-  // already ran (and licenseStore.save persisted it) inside the
-  // browse-license handler in renderOnboardingLicense, since that's
-  // the point where we actually have a validated file. Nothing left
-  // to do here except proceed.
+  showWelcomeSplash(state.firstName, () => {
+    state.currentView = "app";
+    showActiveRoot();
+    renderFileNav();
+    render();
+  });
+}
 
-  state.currentView = "app";
-  showActiveRoot();
-  renderFileNav();
-  render();
+// Plays a short "Welcome, {name}" splash after onboarding completes,
+// distinct from the app-boot splash (different chime, personalized
+// text) — then calls onDone once it's faded out. Mirrors the boot
+// splash's timing/fade pattern from the DOMContentLoaded handler below.
+function showWelcomeSplash(firstName, onDone) {
+  const splash = document.getElementById("welcome-splash-screen");
+  if (!splash) {
+    onDone();
+    return;
+  }
+
+  const messageEl = document.getElementById("welcome-splash-message");
+  if (messageEl) {
+    messageEl.textContent = firstName ? `Welcome, ${firstName}` : "You're all set";
+  }
+
+  splash.classList.remove("splash-screen--hidden");
+  splash.style.display = "";
+
+  const chime = new Audio("./assets/sound/splash-3.wav");
+  chime.volume = 0.6;
+  chime.play().catch((err) => {
+    console.warn("Welcome splash chime blocked or failed to play:", err);
+  });
+
+  setTimeout(() => {
+    splash.classList.add("splash-screen--hidden");
+    setTimeout(() => {
+      splash.style.display = "none";
+      onDone();
+    }, 300);
+  }, 1200);
 }
 // --- Root switching --------------------------------------------------
 
