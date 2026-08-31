@@ -115,11 +115,6 @@ const ACCENT_OPTIONS = [
   { id: "british", name: "British English", flag: "🇬🇧" },
   { id: "american", name: "American English", flag: "🇺🇸" },
 ];
-// TODO: real "has this user onboarded before" check needs a persisted
-// settings file (same pattern as UsageStore/LicenseStore — an IPC call
-// backed by app.getPath("userData")). Hardcoded false for now so the
-// flow is always visible during development.
-const HAS_ONBOARDED_BEFORE = false;
 
 const SUN_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.5458 1.38933C6.34549 1.47489 5.19102 1.88442 4.20569 2.57415C3.22037 3.26388 2.44121 4.20791 1.95145 5.3054C1.46169 6.40289 1.27972 7.6126 1.425 8.80531C1.57027 9.99802 2.03732 11.1289 2.77625 12.0772C3.51519 13.0255 4.49825 13.7556 5.62042 14.1894C6.7426 14.6232 7.96173 14.7446 9.14758 14.5404C10.3334 14.3362 11.4415 13.8142 12.3533 13.0302C13.2652 12.2462 13.9466 11.2295 14.3247 10.0889C13.1666 10.5664 11.8836 10.6514 10.6725 10.331C9.46134 10.0105 8.38888 9.30227 7.61956 8.31484C6.85023 7.32742 6.42651 6.1153 6.41335 4.86435C6.40019 3.6134 6.79833 2.39267 7.54671 1.38933M2.94606e-08 8.00504C-9.90165e-05 6.85143 0.249546 5.71143 0.731834 4.66314C1.21412 3.61484 1.91765 2.68302 2.79424 1.93151C3.67083 1.17999 4.69975 0.626543 5.81052 0.309071C6.9213 -0.00840044 8.08768 -0.0823922 9.22977 0.0921649C9.36363 0.112574 9.48848 0.172022 9.58862 0.263042C9.68876 0.354062 9.75973 0.472596 9.79262 0.603757C9.82551 0.734919 9.81885 0.872859 9.77348 1.00025C9.72811 1.12765 9.64605 1.23882 9.53761 1.3198C9.07553 1.66606 8.68713 2.10071 8.39506 2.5984C8.10299 3.0961 7.91309 3.64688 7.83643 4.21862C7.75978 4.79036 7.79791 5.37162 7.9486 5.92849C8.09929 6.48536 8.35952 7.00671 8.71412 7.46211C9.06871 7.91752 9.51058 8.29787 10.0139 8.58099C10.5173 8.8641 11.0721 9.04432 11.6459 9.11112C12.2198 9.17792 12.8012 9.12997 13.3563 8.97006C13.9114 8.81016 14.429 8.5415 14.879 8.17976C14.9842 8.09429 15.1123 8.04179 15.2473 8.02887C15.3822 8.01595 15.518 8.04319 15.6375 8.10714C15.757 8.1711 15.8549 8.26893 15.9188 8.38831C15.9827 8.50769 16.0099 8.64328 15.9968 8.77803C15.7955 10.8225 14.8146 12.7115 13.2573 14.054C11.6999 15.3966 9.68518 16.0899 7.63006 15.9906C5.57494 15.8913 3.63671 15.007 2.21646 13.5205C0.796206 12.0341 0.00264918 10.0594 2.94606e-08 8.00504Z" fill="#94A3B8"/></svg>`;
 
@@ -158,7 +153,10 @@ function updateThemeToggleIcons() {
 const state = {
   // --- View routing ---
   // "onboarding" | "app" | "upgrade"
-  currentView: HAS_ONBOARDED_BEFORE ? "app" : "onboarding",
+  // Set at boot time by boot(), once persisted settings have been read —
+  // starts as "onboarding" here purely as a safe default in case
+  // something renders before boot() resolves.
+  currentView: "onboarding",
   previousView: "app", // where "Back to app" on the upgrade page returns to
 
   // --- Onboarding ---
@@ -333,6 +331,19 @@ function getInitials(name) {
   if (parts.length === 0) return "?";
   if (parts.length === 1) return parts[0][0].toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+// Persists a partial slice of user settings (merged server-side by
+// UserSettings.saveSettings — callers only need to pass the fields
+// that changed). Fire-and-forget from most call sites: settings
+// persistence failing shouldn't block the UI action that triggered
+// it, so this just logs rather than surfacing an error to the user.
+async function persistUserSettings(partial) {
+  try {
+    await window.sonar.settings.save(partial);
+  } catch (err) {
+    console.error("Failed to persist user settings:", err);
+  }
 }
 
 // --- Root containers -----------------------------------------------------
@@ -528,6 +539,7 @@ function renderOnboardingPreferences() {
     button.addEventListener("click", () => {
       data.accentColor = color;
       applyAccentColor(color);
+      persistUserSettings({ accentColor: color });
       swatchGroup.querySelectorAll(".onboarding-step__swatch").forEach((el) => {
         el.setAttribute(
           "aria-pressed",
@@ -664,6 +676,17 @@ function finishOnboarding({ activateLicense }) {
   state.firstName = trimmedName || state.firstName;
   state.accountName = trimmedName || state.accountName;
 
+  // Persist the onboarding flag + every collected preference in one
+  // shot — this is the point at which "new user" becomes "returning
+  // user" for all future launches.
+  persistUserSettings({
+    hasOnboarded: true,
+    name: trimmedName || state.firstName,
+    voiceGender: data.voiceGender,
+    accent: data.accent,
+    accentColor: data.accentColor,
+  });
+
   showWelcomeSplash(
     state.firstName,
     () => {
@@ -681,10 +704,10 @@ function finishOnboarding({ activateLicense }) {
   );
 }
 
-// Plays a short "Welcome, {name}" splash after onboarding completes,
-// distinct from the app-boot splash (different chime, personalized
-// text) — then calls onDone once it's faded out. Mirrors the boot
-// splash's timing/fade pattern from the DOMContentLoaded handler below.
+// Plays a short "Welcome, {name}" splash — used both right after
+// onboarding completes, and on boot for returning users (see boot()
+// below). Distinct from the app-boot splash (different chime,
+// personalized text) — then calls onDone once it's faded out.
 function showWelcomeSplash(firstName, onShownFullyOpaque, onDone) {
   const splash = document.getElementById("welcome-splash-screen");
   if (!splash) {
@@ -2123,6 +2146,7 @@ async function openSettingsModal() {
     );
     pill.addEventListener("click", () => {
       data.voiceGender = pill.dataset.value;
+      persistUserSettings({ voiceGender: data.voiceGender });
       pillGroup.querySelectorAll(".onboarding-step__pill").forEach((p) => {
         p.setAttribute(
           "aria-pressed",
@@ -2142,6 +2166,7 @@ async function openSettingsModal() {
     bind(cardFrag, "accentName", accent.name);
     card.addEventListener("click", () => {
       data.accent = accent.id;
+      persistUserSettings({ accent: data.accent });
       accentGroup
         .querySelectorAll(".onboarding-step__accent-card")
         .forEach((c) => {
@@ -2168,6 +2193,7 @@ async function openSettingsModal() {
     button.addEventListener("click", () => {
       data.accentColor = color;
       applyAccentColor(color);
+      persistUserSettings({ accentColor: color });
       settingsSwatchGroup
         .querySelectorAll(".onboarding-step__swatch")
         .forEach((el) => {
@@ -2213,6 +2239,7 @@ async function openSettingsModal() {
         if (trimmed) {
           state.accountName = trimmed;
           state.firstName = trimmed.split(/\s+/)[0];
+          persistUserSettings({ name: trimmed });
         }
         renderFileNav();
 
@@ -2371,29 +2398,73 @@ function render() {
 }
 
 // --- Boot ----------------------------------------------------------------
+//
+// Boot is now async: persisted settings must be read before we know
+// whether this is a new user (→ onboarding, plain boot splash) or a
+// returning one (→ straight to the app, welcome-back splash only,
+// no plain boot splash at all).
 
-applyAccentColor(state.onboardingData.accentColor);
-showActiveRoot();
+async function boot() {
+  let settings;
+  try {
+    settings = await window.sonar.settings.get();
+  } catch (err) {
+    console.error("Failed to load user settings, defaulting to onboarding:", err);
+    settings = { hasOnboarded: false };
+  }
 
-if (state.currentView === "app") {
-  renderFileNav();
-  render();
-} else if (state.currentView === "onboarding") {
-  renderOnboardingStep();
+  if (settings.hasOnboarded) {
+    // Returning user — populate state from what was persisted, skip
+    // onboarding and the plain boot splash entirely.
+    state.onboardingData.name = settings.name || state.onboardingData.name;
+    state.onboardingData.voiceGender =
+      settings.voiceGender || state.onboardingData.voiceGender;
+    state.onboardingData.accent = settings.accent || state.onboardingData.accent;
+    state.onboardingData.accentColor =
+      settings.accentColor || state.onboardingData.accentColor;
+
+    state.firstName = settings.name
+      ? settings.name.split(/\s+/)[0]
+      : state.firstName;
+    state.accountName = settings.name || state.accountName;
+
+    state.currentView = "app";
+
+    applyAccentColor(state.onboardingData.accentColor);
+    showActiveRoot();
+    renderFileNav();
+    render();
+
+    // Returning-user splash: skip #splash-screen entirely (it's
+    // removed below without ever being shown), go straight to the
+    // welcome-back splash on top of the already-rendered app.
+    const bootSplash = document.getElementById("splash-screen");
+    if (bootSplash) bootSplash.remove();
+
+    showWelcomeSplash(
+      state.firstName,
+      () => {
+        // App view is already live underneath — nothing to swap.
+      },
+      () => {
+        // Nothing further to do once faded out.
+      },
+    );
+  } else {
+    // New user — unchanged flow: plain boot splash, then onboarding.
+    state.currentView = "onboarding";
+    applyAccentColor(state.onboardingData.accentColor);
+    showActiveRoot();
+    renderOnboardingStep();
+    runBootSplash();
+  }
 }
 
-// --- Splash screen -------------------------------------------------------
 // Fixed ~1s show, then fades regardless of boot state (explicit choice —
 // not tied to render() completion). Chime plays alongside it — browsers
 // block audio autoplay without a user gesture in some contexts, so this
 // is wrapped in a catch; a silent splash is an acceptable fallback, a
-// thrown error is not.
-//
-// Called directly (not on DOMContentLoaded) — this script tag sits at
-// the bottom of <body>, so the DOM is already fully parsed by the time
-// this file executes; waiting for DOMContentLoaded here was unreliable
-// since that event has often already fired before a bottom-of-body
-// script runs, leaving the splash listener registered too late.
+// thrown error is not. Only called for new users now — see boot() above.
 function runBootSplash() {
   const splash = document.getElementById("splash-screen");
   if (!splash) return;
@@ -2410,4 +2481,9 @@ function runBootSplash() {
   }, 1000);
 }
 
-runBootSplash();
+// Called directly (not on DOMContentLoaded) — this script tag sits at
+// the bottom of <body>, so the DOM is already fully parsed by the time
+// this file executes; waiting for DOMContentLoaded here was unreliable
+// since that event has often already fired before a bottom-of-body
+// script runs, leaving the splash listener registered too late.
+boot();
