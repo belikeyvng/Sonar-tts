@@ -33,8 +33,9 @@
 
 .splash-screen__message {
     margin-top: 16px;
-    font-family: var(--font-ui);
-    font-size: 16px;
+    font-family: var(--font-heading-display);
+    font-size: 30px;
+    margin-left: 25px;
     font-weight: 600;
     color: #F8FAFC; /* same off-white used for the logo's stroke color — guaranteed visible on the dark splash bg regardless of theme vars */
     opacity: 0;
