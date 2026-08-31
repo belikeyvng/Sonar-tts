@@ -1,4 +1,3 @@
-//preload.js
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 contextBridge.exposeInMainWorld("sonar", {
@@ -37,5 +36,9 @@ contextBridge.exposeInMainWorld("sonar", {
     getSettings: () => ipcRenderer.invoke("export:getSettings"),
     chooseFolder: () => ipcRenderer.invoke("export:chooseFolder"),
     saveAudio: (payload) => ipcRenderer.invoke("export:saveAudio", payload),
+  },
+  settings: {
+    get: () => ipcRenderer.invoke("settings:get"),
+    save: (partial) => ipcRenderer.invoke("settings:save", partial),
   },
 });
