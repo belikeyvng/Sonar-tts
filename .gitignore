@@ -5,8 +5,13 @@ node_modules/
 release/
 
 # App-specific ignores
-src/engines/tts/
-src/engines/tts/kokoro/onnx/model
+src/engines/tts/piper/runtime
+src/engines/tts/piper/voices
+
+src/engines/tts/kokoro/onnx
+src/engines/tts/kokoro/voices
+
+
 tools/license/keys/
 
 # Sonar DRM private signing key

@@ -1,0 +1,52 @@
+{
+  "voices": [
+    {
+      "id": "en_US-amy-medium",
+      "name": "Amy",
+      "gender": "female",
+      "accent": "American",
+      "quality": "medium",
+      "tier": "free"
+    },
+    {
+      "id": "en_US-ryan-medium",
+      "name": "Ryan",
+      "gender": "male",
+      "accent": "American",
+      "quality": "medium",
+      "tier": "free"
+    },
+    {
+      "id": "en_US-hfc_female-medium",
+      "name": "HFC Female",
+      "gender": "female",
+      "accent": "American",
+      "quality": "medium",
+      "tier": "free"
+    },
+    {
+      "id": "en_US-arctic-medium",
+      "name": "Arctic",
+      "gender": "male",
+      "accent": "American",
+      "quality": "medium",
+      "tier": "pro"
+    },
+    {
+      "id": "en_US-libritts_r-medium",
+      "name": "LibriTTS-R",
+      "gender": "mixed",
+      "accent": "American",
+      "quality": "medium",
+      "tier": "pro"
+    },
+    {
+      "id": "en_US-libritts-high",
+      "name": "LibriTTS High",
+      "gender": "mixed",
+      "accent": "American",
+      "quality": "high",
+      "tier": "pro"
+    }
+  ]
+}
