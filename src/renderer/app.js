@@ -664,21 +664,31 @@ function finishOnboarding({ activateLicense }) {
   state.firstName = trimmedName || state.firstName;
   state.accountName = trimmedName || state.accountName;
 
-  showWelcomeSplash(state.firstName, () => {
-    state.currentView = "app";
-    showActiveRoot();
-    renderFileNav();
-    render();
-  });
+  showWelcomeSplash(
+    state.firstName,
+    () => {
+      // Runs while splash is fully opaque — safe to swap the view
+      // underneath without anything flashing through.
+      state.currentView = "app";
+      showActiveRoot();
+      renderFileNav();
+      render();
+    },
+    () => {
+      // Runs after the splash has fully faded out — nothing left
+      // to do here, the app view is already live underneath.
+    },
+  );
 }
 
 // Plays a short "Welcome, {name}" splash after onboarding completes,
 // distinct from the app-boot splash (different chime, personalized
 // text) — then calls onDone once it's faded out. Mirrors the boot
 // splash's timing/fade pattern from the DOMContentLoaded handler below.
-function showWelcomeSplash(firstName, onDone) {
+function showWelcomeSplash(firstName, onShownFullyOpaque, onDone) {
   const splash = document.getElementById("welcome-splash-screen");
   if (!splash) {
+    onShownFullyOpaque();
     onDone();
     return;
   }
@@ -686,6 +696,9 @@ function showWelcomeSplash(firstName, onDone) {
   const messageEl = document.getElementById("welcome-splash-message");
   if (messageEl) {
     messageEl.textContent = firstName ? `Welcome, ${firstName}` : "You're all set";
+    messageEl.style.animation = "none";
+    void messageEl.offsetWidth;
+    messageEl.style.animation = "";
   }
 
   splash.classList.remove("splash-screen--hidden");
@@ -695,6 +708,15 @@ function showWelcomeSplash(firstName, onDone) {
   chime.volume = 0.6;
   chime.play().catch((err) => {
     console.warn("Welcome splash chime blocked or failed to play:", err);
+  });
+
+  // Swap the underlying view while the splash is still fully opaque
+  // (shortly after it's shown) rather than waiting for it to fade
+  // back out — otherwise there's a brief window where the splash is
+  // gone but the view-swap hasn't happened yet, flashing the old
+  // onboarding screen underneath.
+  requestAnimationFrame(() => {
+    onShownFullyOpaque();
   });
 
   setTimeout(() => {
@@ -2366,7 +2388,13 @@ if (state.currentView === "app") {
 // block audio autoplay without a user gesture in some contexts, so this
 // is wrapped in a catch; a silent splash is an acceptable fallback, a
 // thrown error is not.
-window.addEventListener("DOMContentLoaded", () => {
+//
+// Called directly (not on DOMContentLoaded) — this script tag sits at
+// the bottom of <body>, so the DOM is already fully parsed by the time
+// this file executes; waiting for DOMContentLoaded here was unreliable
+// since that event has often already fired before a bottom-of-body
+// script runs, leaving the splash listener registered too late.
+function runBootSplash() {
   const splash = document.getElementById("splash-screen");
   if (!splash) return;
 
@@ -2380,4 +2408,6 @@ window.addEventListener("DOMContentLoaded", () => {
     splash.classList.add("splash-screen--hidden");
     setTimeout(() => splash.remove(), 300);
   }, 1000);
-});
+}
+
+runBootSplash();
