@@ -61,6 +61,7 @@
 /* Status pill — idle (no file chosen yet) stays invisible via :empty,
    so there's no empty box floating under the input before a check runs. */
 .onboarding-step__field-status {
+   align-self: flex-start; /* stop the flex-column parent from stretching this to full width */
    margin: 8px 0 0;
    font-size: 12px;
    font-weight: 600;
@@ -68,7 +69,7 @@
    align-items: center;
    gap: 6px;
    padding: 4px 10px;
-   border-radius: 999px;
+   border-radius: 10px; /* was 999px — now matches input/button radius */
 }
 
 .onboarding-step__field-status:empty {

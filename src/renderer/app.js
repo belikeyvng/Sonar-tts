@@ -566,7 +566,9 @@ function renderOnboardingLicense() {
     if (!result.ok) return; // user canceled — leave everything as-is
 
     data.licensePath = result.filePath;
-    const pathInput = fragment.querySelector('[data-bind="licensePathDisplay"]');
+    const pathInput = slots.onboardingStep.querySelector(
+      '[data-bind="licensePathDisplay"]',
+    );
     if (pathInput) pathInput.value = result.filePath;
 
     setStatus("Checking license…", "checking");
