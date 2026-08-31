@@ -230,36 +230,65 @@
 
 
 
-    <!-- ---------- STEP 3: LICENSE ---------- -->
     <template id="tpl-onboarding-license">
-        <section class="onboarding-step" data-step="license">
-            <p class="onboarding-step__progress">Step 3 of 3</p>
-
-            <h1 class="onboarding-step__heading">Activate Pro?</h1>
-            <p class="onboarding-step__subheading">
-                If you have a Sonar Pro license, activate it now. Otherwise, continue with the free plan —
-                you can activate later from settings.
-            </p>
-
-            <div class="onboarding-step__field">
-                <label class="onboarding-step__label" for="onboarding-license-input">License file</label>
-                <div class="onboarding-step__file-row">
-                    <input class="onboarding-step__input" type="text" id="onboarding-license-input"
-                        placeholder="No file selected" readonly data-bind="licensePathDisplay" />
-                    <button class="onboarding-step__button" type="button" data-action="browse-license">Browse</button>
+        <div class="onboarding-split">
+            <section class="onboarding-step" data-step="license">
+                <div class="onboarding-step__brand">
+                    <span class="onboarding-step__brand-logo" aria-hidden="true">
+                        <svg width="42" height="42" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="42" height="43" rx="21" fill="url(#paint0_linear_356_2420)" />
+                            <path
+                                d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
+                                stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
+                            <defs>
+                                <linearGradient id="paint0_linear_356_2420" x1="0" y1="0" x2="42" y2="0"
+                                    gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#3B82F6" />
+                                    <stop offset="1" stop-color="#9333EA" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </span>
+                    <span class="onboarding-step__brand-name">Sonar</span>
                 </div>
-                <p class="onboarding-step__field-status" data-bind="licenseStatus"></p>
-            </div>
 
-            <div class="onboarding-step__actions">
-                <button class="onboarding-step__button" type="button" data-action="back">Back</button>
-                <button class="onboarding-step__button" type="button" data-action="skip">Skip, continue free</button>
-                <button class="onboarding-step__button onboarding-step__button--primary" type="button"
-                    data-action="activate-and-finish">
-                    Activate &amp; finish
-                </button>
-            </div>
-        </section>
+                <p class="onboarding-step__progress">Step 3 of 3</p>
+
+                <h1 class="onboarding-step__heading">Activate Pro?</h1>
+                <p class="onboarding-step__subheading">
+                    If you have a Sonar Pro license, activate it now. Otherwise, continue with the free plan —
+                    you can activate later from settings.
+                </p>
+
+                <div class="onboarding-step__field">
+                    <label class="onboarding-step__label" for="onboarding-license-input">License file</label>
+                    <div class="onboarding-step__file-row">
+                        <input class="onboarding-step__input" type="text" id="onboarding-license-input"
+                            placeholder="No file selected" readonly data-bind="licensePathDisplay" />
+                        <button class="onboarding-step__button" type="button"
+                            data-action="browse-license">Browse</button>
+                    </div>
+                    <p class="onboarding-step__field-status" data-bind="licenseStatus" data-state=""></p>
+                </div>
+
+                <div class="onboarding-step__actions onboarding-step__actions--license">
+                    <button class="onboarding-step__button onboarding-step__button--secondary" type="button"
+                        data-action="back">Back</button>
+                    <button class="onboarding-step__button onboarding-step__button--secondary" type="button"
+                        data-action="skip">Skip, continue free</button>
+                    <button class="onboarding-step__button onboarding-step__button--primary" type="button"
+                        data-action="activate-and-finish">
+                        Activate &amp; finish
+                    </button>
+                </div>
+            </section>
+
+            <aside class="onboarding-visual" aria-hidden="true">
+                <div class="onboarding-visual__orb-wrap">
+                    <video src="./assets/orb/orb-2.webm" autoplay loop muted width="220" height="220"></video>
+                </div>
+            </aside>
+        </div>
     </template>
 
     <!-- ======================================================================

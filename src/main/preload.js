@@ -2,14 +2,12 @@
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 contextBridge.exposeInMainWorld("sonar", {
-  license: {
+ license: {
     activate: (filePath) => ipcRenderer.invoke("license:activate", filePath),
-
     getStatus: () => ipcRenderer.invoke("license:getStatus"),
-
     hasFeature: (feature) => ipcRenderer.invoke("license:hasFeature", feature),
-
     deactivate: () => ipcRenderer.invoke("license:deactivate"),
+    browseFile: () => ipcRenderer.invoke("license:browseFile"),
   },
   tts: {
     getVoices: () => ipcRenderer.invoke("tts:getVoices"),

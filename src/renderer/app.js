@@ -552,12 +552,43 @@ function renderOnboardingLicense() {
   const data = state.onboardingData;
 
   bind(fragment, "licensePathDisplay", data.licensePath || "");
-  bind(fragment, "licenseStatus", data.licenseStatus);
+
+  const statusEl = fragment.querySelector('[data-bind="licenseStatus"]');
+  function setStatus(text, stateName) {
+    if (!statusEl) return;
+    statusEl.textContent = text;
+    statusEl.dataset.state = stateName || "";
+  }
+  setStatus(data.licenseStatusText || "", data.licenseState || "");
 
   on(fragment, "browse-license", async () => {
-    // TODO: wire to a real file picker via IPC (e.g. an
-    // "dialog:openFile" handler in main process, filtered to .json).
-    console.log("TODO: open native file picker for license file");
+    const result = await window.sonar.license.browseFile();
+    if (!result.ok) return; // user canceled — leave everything as-is
+
+    data.licensePath = result.filePath;
+    const pathInput = fragment.querySelector('[data-bind="licensePathDisplay"]');
+    if (pathInput) pathInput.value = result.filePath;
+
+    setStatus("Checking license…", "checking");
+    data.licenseStatusText = "Checking license…";
+    data.licenseState = "checking";
+
+    const activateResult = await window.sonar.license.activate(result.filePath);
+
+    if (activateResult.success) {
+      const plan = activateResult.license?.plan || "pro";
+      const text = `Valid — ${plan} license found`;
+      setStatus(text, "valid");
+      data.licenseStatusText = text;
+      data.licenseState = "valid";
+      data.licenseValidated = true; // gate for activate-and-finish below
+    } else {
+      const text = licenseErrorMessage(activateResult.reason);
+      setStatus(text, "invalid");
+      data.licenseStatusText = text;
+      data.licenseState = "invalid";
+      data.licenseValidated = false;
+    }
   });
 
   on(fragment, "back", () => {
@@ -569,13 +600,34 @@ function renderOnboardingLicense() {
     finishOnboarding({ activateLicense: false });
   });
 
-  on(fragment, "activate-and-finish", async () => {
-    // TODO: wire to window.sonar.license.activate(data.licensePath)
-    // once a real file path exists from the picker above.
-    finishOnboarding({ activateLicense: Boolean(data.licensePath) });
+  on(fragment, "activate-and-finish", () => {
+    // License was already activated (main process holds the active
+    // license) the moment browse-license succeeded above — this
+    // button just confirms and moves on. If validation never
+    // succeeded, treat it the same as skip.
+    finishOnboarding({ activateLicense: Boolean(data.licenseValidated) });
   });
 
   slots.onboardingStep.replaceChildren(fragment);
+}
+
+// Turns a licenseEngine validation failure reason into user-facing copy.
+function licenseErrorMessage(reason) {
+  switch (reason) {
+    case "INVALID_LICENSE_FILE":
+      return "That file isn't a valid license file.";
+    case "INVALID_STRUCTURE":
+    case "MISSING_FIELDS":
+      return "This license file is malformed or incomplete.";
+    case "INVALID_PLAN":
+      return "This license specifies an unrecognized plan.";
+    case "INVALID_SIGNATURE":
+      return "This license failed signature verification.";
+    case "LICENSE_EXPIRED":
+      return "This license has expired.";
+    default:
+      return "Couldn't activate this license.";
+  }
 }
 
 function finishOnboarding({ activateLicense }) {
@@ -585,16 +637,17 @@ function finishOnboarding({ activateLicense }) {
   state.firstName = trimmedName || state.firstName;
   state.accountName = trimmedName || state.accountName;
 
-  if (activateLicense) {
-    console.log("TODO: call window.sonar.license.activate(licensePath)");
-  }
+  // activateLicense is informational only here — license:activate
+  // already ran (and licenseStore.save persisted it) inside the
+  // browse-license handler in renderOnboardingLicense, since that's
+  // the point where we actually have a validated file. Nothing left
+  // to do here except proceed.
 
   state.currentView = "app";
   showActiveRoot();
   renderFileNav();
   render();
 }
-
 // --- Root switching --------------------------------------------------
 
 function showActiveRoot() {

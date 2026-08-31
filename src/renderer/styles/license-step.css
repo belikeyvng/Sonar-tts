@@ -1,0 +1,93 @@
+/* --- License step (Step 3) --- */
+
+.onboarding-step__progress {
+   font-size: 12px;
+   font-weight: 600;
+   color: var(--color-accent);
+   text-transform: uppercase;
+   letter-spacing: 0.06em;
+   margin: 0 0 12px;
+}
+
+.onboarding-step__button {
+   height: 44px;
+   padding: 0 20px;
+   border-radius: 10px;
+   font-size: 13px;
+   font-weight: 600;
+   cursor: pointer;
+   border: 1px solid var(--color-border);
+   background: var(--color-bg-raised);
+   color: var(--color-text-primary);
+   transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.onboarding-step__button:hover {
+   background: var(--color-bg-subtle);
+}
+
+.onboarding-step__button--secondary {
+   background: transparent;
+   border-color: transparent;
+   color: var(--color-text-secondary);
+   padding: 0 8px;
+}
+
+.onboarding-step__button--secondary:hover {
+   color: var(--color-text-primary);
+   background: transparent;
+}
+
+.onboarding-step__actions--license {
+   display: flex;
+   align-items: center;
+   justify-content: flex-start;
+   gap: 4px;
+   margin-top: 8px;
+}
+
+.onboarding-step__actions--license .onboarding-step__button--primary {
+   margin-left: auto;
+   min-width: 0;
+   padding: 12px 28px;
+}
+
+.onboarding-step__file-row .onboarding-step__button {
+   flex-shrink: 0;
+   height: auto;
+   padding: 0 16px;
+}
+
+/* Status pill — idle (no file chosen yet) stays invisible via :empty,
+   so there's no empty box floating under the input before a check runs. */
+.onboarding-step__field-status {
+   margin: 8px 0 0;
+   font-size: 12px;
+   font-weight: 600;
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   padding: 4px 10px;
+   border-radius: 999px;
+}
+
+.onboarding-step__field-status:empty {
+   display: none;
+   padding: 0;
+   margin: 0;
+}
+
+.onboarding-step__field-status[data-state="checking"] {
+   color: var(--color-text-secondary);
+   background: var(--color-bg-subtle);
+}
+
+.onboarding-step__field-status[data-state="valid"] {
+   color: var(--color-success, #22c55e);
+   background: color-mix(in srgb, var(--color-success, #22c55e) 12%, transparent);
+}
+
+.onboarding-step__field-status[data-state="invalid"] {
+   color: var(--color-danger, #ef4444);
+   background: color-mix(in srgb, var(--color-danger, #ef4444) 12%, transparent);
+}

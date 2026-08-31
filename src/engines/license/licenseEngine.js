@@ -1,3 +1,4 @@
+//license engine js
 const fs = require("node:fs");
 const path = require("node:path");
 

@@ -1,4 +1,4 @@
-const { ipcMain } = require("electron");
+const { ipcMain ,  dialog} = require("electron");
 
 const CryptoService = require("../../engines/license/CryptoService");
 const LicenseValidator = require("../../engines/license/licenseValidator");
@@ -59,6 +59,20 @@ function registerLicenseIpc(publicKeyPem) {
     return { success: true };
   });
 
+    ipcMain.handle("license:browseFile", async () => {
+    const result = await dialog.showOpenDialog({
+      title: "Select your Sonar license file",
+      properties: ["openFile"],
+      filters: [{ name: "License files", extensions: ["json"] }],
+    });
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return { ok: false, error: "canceled" };
+    }
+
+    return { ok: true, filePath: result.filePaths[0] };
+  });
+  
   // Exposed in case other main-process code (not just IPC) needs it.
   return licenseEngine;
 }
