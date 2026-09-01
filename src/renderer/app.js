@@ -2060,6 +2060,7 @@ function toggleTheme() {
   const next = html.dataset.theme === "dark" ? "light" : "dark";
   html.dataset.theme = next;
   updateThemeToggleIcons();
+  persistUserSettings({ theme: next });
 }
 
 async function browseFiles() {
@@ -2647,6 +2648,8 @@ async function boot() {
       settings.accent || state.onboardingData.accent;
     state.onboardingData.accentColor =
       settings.accentColor || state.onboardingData.accentColor;
+
+    document.documentElement.dataset.theme = settings.theme || "light";
 
     state.firstName = settings.name
       ? settings.name.split(/\s+/)[0]
