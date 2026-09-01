@@ -65,3 +65,12 @@
   background: var(--color-accent-subtle);
   color: var(--color-accent);
 }
+
+/* When a mini-player is mounted, the reading-pane's bottom border and
+   the mini-player's top border would otherwise stack into a doubled
+   line at the seam — suppress the reading-pane's bottom edge so the
+   mini-player's top edge is the only line drawn there. */
+#main-outer:has(#mini-player-slot:not(:empty)) #main-slot > * {
+    border-radius: var(--radius-lg, 12px) var(--radius-lg, 12px) 0 0;
+    border-bottom: none;
+}
