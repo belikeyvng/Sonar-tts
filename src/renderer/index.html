@@ -56,7 +56,21 @@
     <div class="upgrade-page" id="upgrade-page-root">
         <header class="upgrade-page__header">
             <div class="upgrade-page__brand">
-                <span class="upgrade-page__logo" aria-hidden="true"></span>
+                <span class="upgrade-page__logo" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="42" height="43" rx="21" fill="url(#paint-logo-upgrade)" />
+                        <path
+                            d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
+                            stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
+                        <defs>
+                            <linearGradient id="paint-logo-upgrade" x1="0" y1="0" x2="42" y2="0"
+                                gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#3B82F6" />
+                                <stop offset="1" stop-color="#9333EA" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </span>
                 <span class="upgrade-page__brand-name">Sonar</span>
             </div>
             <button class="upgrade-page__back" type="button" data-action="back-to-app">
@@ -74,6 +88,12 @@
                 <br />
                 <button class="upgrade-page__cancel-link" type="button" data-action="cancel-subscription-info">
                     Cancel subscription anytime in settings.
+                </button>
+            </p>
+
+            <p class="upgrade-page__license-note">
+                <button class="upgrade-page__license-link" type="button" data-action="have-license">
+                    Have a license? Click here
                 </button>
             </p>
         </div>
@@ -271,7 +291,6 @@
                     <span class="onboarding-step__brand-name">Sonar</span>
                 </div>
 
-                <p class="onboarding-step__progress">Step 3 of 3</p>
 
                 <h1 class="onboarding-step__heading">Activate Pro?</h1>
                 <p class="onboarding-step__subheading">

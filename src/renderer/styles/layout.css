@@ -1128,36 +1128,49 @@ body {
         max-height: 50vh;
     }
 
-    /* Collapsed rail state (default at this breakpoint) */
+    /* Collapsed docking bar — the default at this breakpoint. Fixed
+       width, no hover behavior at all. Clicking anywhere on the bar
+       (see click handler in app.js) is what pulls the sidebar open —
+       hover no longer does anything, since a mouse merely passing
+       over it isn't real intent to open it. */
     .file-nav {
         width: var(--file-nav-rail-width);
         overflow: hidden;
-        transition: width 0.15s ease;
+        cursor: pointer;
     }
 
-    /* Text/labels hidden in rail state — icons (separate elements)
-       remain visible at all times. Restored below once expanded. */
-    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__name,
-    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__search,
-    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__new-file-label,
-    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__section-label,
-    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__item-name,
-    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__upgrade-label,
-    .file-nav:not(.file-nav--pinned):not(:hover) .file-nav__account-info {
+    /* Collapsed: strip everything down to just the brand mark + dock
+       toggle. No search, no new-file, no pinned/recents lists, no
+       account row — this is a docking bar, not a mini file browser. */
+    .file-nav:not(.file-nav--pinned) .file-nav__search,
+    .file-nav:not(.file-nav--pinned) .file-nav__new-file,
+    .file-nav:not(.file-nav--pinned) .file-nav__section,
+    .file-nav:not(.file-nav--pinned) .file-nav__footer {
         display: none;
     }
 
-    /* Expanded state — hover-to-peek OR click-to-pin. Fixed overlay so
-       it covers content instead of pushing it (grid column still
-       reserves rail width beneath it for layout purposes). */
-    .file-nav:hover,
+    .file-nav:not(.file-nav--pinned) .file-nav__brand {
+        flex-direction: column;
+        gap: var(--space-3);
+        margin-bottom: 0;
+    }
+
+    .file-nav:not(.file-nav--pinned) .file-nav__name {
+        display: none;
+    }
+
+    /* Pulled-open state (click-to-open only). Fixed length capped at
+       85vw so it can never span the entire viewport even on very
+       narrow screens — this was the "covers the whole screen" bug. */
     .file-nav--pinned {
         position: fixed;
         top: 0;
         left: 0;
-        width: var(--file-nav-width);
+        /* width: min(var(--file-nav-width), 85vw); */
+        max-width: 280px;
         height: 100vh;
         z-index: 100;
+        cursor: default;
     }
 
     .file-nav__pin-toggle {

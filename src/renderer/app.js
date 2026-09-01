@@ -396,10 +396,14 @@ function renderUpgradePage() {
 
   on(root, "back-to-app", backToApp);
   on(root, "cancel-subscription-info", () => {
-    // TODO: real behavior once settings exists — likely just
-    // navigates to a settings/billing view rather than doing
-    // anything inline here.
     console.log("TODO: show cancel-subscription info (settings not built yet)");
+  });
+  on(root, "have-license", () => {
+    state.onboardingData.licenseReturnTo = "upgrade";
+    state.currentView = "onboarding";
+    state.onboardingStep = "license";
+    showActiveRoot();
+    renderOnboardingStep();
   });
 
   const plansContainer = slots.upgradePagePlans;
@@ -756,16 +760,26 @@ function renderOnboardingLicense() {
   });
 
   on(fragment, "back", () => {
+    if (data.licenseReturnTo === "upgrade") {
+      data.licenseReturnTo = null;
+      goToUpgradePage();
+      return;
+    }
     state.onboardingStep = "preferences";
     renderOnboardingStep();
   });
 
   on(fragment, "skip", () => {
+    if (data.licenseReturnTo === "upgrade") {
+      data.licenseReturnTo = null;
+      goToUpgradePage();
+      return;
+    }
     finishOnboarding({ activateLicense: false });
   });
 
-  on(fragment, "activate-and-finish", () => {
-    if (!data.licensePath) return; // shouldn't be reachable — button is disabled — but guard anyway
+   on(fragment, "activate-and-finish", () => {
+    if (!data.licensePath) return;
 
     if (data.licenseValidated) {
       showToast("Sonar Pro activated!", { variant: "success" });
@@ -775,10 +789,15 @@ function renderOnboardingLicense() {
       });
     }
 
-    // Proceed to the app either way once a file's been through the
-    // check — a failed license doesn't trap the user on this screen,
-    // it just means they continue on the free plan (activeLicense
-    // reflects the truth: only true if it actually validated).
+    if (data.licenseReturnTo === "upgrade") {
+      data.licenseReturnTo = null;
+      state.currentView = "app";
+      showActiveRoot();
+      updateFileNavPlanLabel();
+      render();
+      return;
+    }
+
     finishOnboarding({ activateLicense: Boolean(data.licenseValidated) });
   });
 
@@ -929,7 +948,9 @@ async function renderFileNav() {
     avatarEl.dataset.accentColor = state.onboardingData.accentColor;
   }
 
-  on(fragment, "toggle-pin", togglePin);
+  fragment
+    .querySelector(".file-nav")
+    .addEventListener("click", handleDockBarClick);
   on(fragment, "new-file", goToNewFile);
   on(fragment, "upgrade-to-pro", goToUpgradePage);
 
@@ -978,6 +999,18 @@ document.addEventListener("click", (event) => {
     state.sidebarPinned = false;
   }
 });
+
+// At the rail breakpoint (see layout.css @media max-width:960px), the
+// collapsed sidebar is a docking bar — clicking anywhere on it (not
+// just the toggle icon) pulls it open. No-ops once already pinned, so
+// clicks on the now-expanded content (search, file items, etc.) work
+// normally instead of re-toggling shut.
+function handleDockBarClick(event) {
+  if (window.innerWidth > 960) return;
+  const fileNavEl = slots.fileNav.querySelector(".file-nav");
+  if (!fileNavEl || fileNavEl.classList.contains("file-nav--pinned")) return;
+  togglePin();
+}
 
 function renderFileNavItem(file, templateId = "tpl-recent-file-nav-item") {
   const fragment = clone(templateId);
@@ -1248,8 +1281,17 @@ async function renderPlayerPanelGenerate(doc) {
   const isPro = status.activated && status.plan === "pro";
 
   if (!doc.voiceId || !voices.some((v) => v.id === doc.voiceId)) {
+    const prefs = state.onboardingData;
+    const preferredId = ACCENT_PREVIEW_VOICE[prefs.accent]?.[prefs.voiceGender];
+    const preferredVoice = voices.find(
+      (v) => v.id === preferredId && v.tier !== "pro",
+    );
     const firstFree = voices.find((v) => v.tier !== "pro");
-    doc.voiceId = firstFree ? firstFree.id : voices[0]?.id;
+    doc.voiceId = preferredVoice
+      ? preferredVoice.id
+      : firstFree
+        ? firstFree.id
+        : voices[0]?.id;
   }
 
   await setupVoiceDropdown(fragment, doc, voices, isPro);
@@ -1398,6 +1440,22 @@ async function setupVoiceDropdown(fragment, doc, voices, isPro) {
 
     doc.voiceId = chosen.id;
     doc.narratorName = chosen.name;
+
+    // Picking a voice here also updates the onboarding gender/accent
+    // prefs, so future documents default to this same voice.
+    if (chosen.gender)
+      state.onboardingData.voiceGender = chosen.gender.toLowerCase();
+    if (chosen.accent) {
+      const matchedAccentId = ACCENT_OPTIONS.find((a) =>
+        a.name.toLowerCase().includes(chosen.accent.toLowerCase()),
+      )?.id;
+      if (matchedAccentId) state.onboardingData.accent = matchedAccentId;
+    }
+    persistUserSettings({
+      voiceGender: state.onboardingData.voiceGender,
+      accent: state.onboardingData.accent,
+    });
+
     closeDropdown();
     render();
   }
