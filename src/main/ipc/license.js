@@ -35,11 +35,22 @@ function registerLicenseIpc(publicKeyPem) {
     const result = licenseEngine.activateFromFile(filePath);
 
     if (result.success) {
-      licenseStore.save(result.rawLicense);
+      const saveResult = licenseStore.save(result.rawLicense);
+      if (!saveResult.success) {
+        // License validated and is active in-memory for this session,
+        // but couldn't be persisted — deactivate it now rather than
+        // let the renderer believe it's durably Pro when a relaunch
+        // will silently drop back to Free.
+        licenseEngine.deactivate();
+        return {
+          success: false,
+          reason: saveResult.reason || "PERSIST_FAILED",
+        };
+      }
     }
 
     return result;
-  });
+});
 
   ipcMain.handle("license:getStatus", async () => {
     return {

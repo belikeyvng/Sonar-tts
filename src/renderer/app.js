@@ -818,6 +818,9 @@ function licenseErrorMessage(reason) {
       return "This license failed signature verification.";
     case "LICENSE_EXPIRED":
       return "This license has expired.";
+    case "ENCRYPTION_UNAVAILABLE":
+    case "PERSIST_FAILED":
+      return "This license is valid, but couldn't be saved securely on this device. Try again, or contact support.";
     default:
       return "Couldn't activate this license.";
   }
