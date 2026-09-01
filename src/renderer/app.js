@@ -1342,12 +1342,14 @@ async function setupVoiceDropdown(fragment, doc, voices, isPro) {
   ];
 
   const usageByVoiceId = {};
-  await Promise.all(
-    voices.map(async (v) => {
-      const usage = await window.sonar.tts.getUsage(v.id);
-      if (usage.limited) usageByVoiceId[v.id] = usage;
-    }),
-  );
+  if (!isPro) {
+    await Promise.all(
+      voices.map(async (v) => {
+        const usage = await window.sonar.tts.getUsage(v.id);
+        if (usage.limited) usageByVoiceId[v.id] = usage;
+      }),
+    );
+  }
 
   const optionEls = [];
 
@@ -2652,7 +2654,6 @@ function deleteDocument(fileId, fileName) {
   });
 }
 
-
 // Confirm-then-deactivate for Pro users canceling from Settings.
 // Mirrors showDeleteConfirmModal's backdrop/Escape pattern — built
 // inline (no <template>) since this is the only place it's needed.
@@ -2685,15 +2686,19 @@ function showCancelSubscriptionConfirm() {
     if (e.key === "Escape") close();
   }
 
-  modal.querySelector('[data-action="cancel"]').addEventListener("click", close);
+  modal
+    .querySelector('[data-action="cancel"]')
+    .addEventListener("click", close);
   backdrop.addEventListener("click", (e) => {
     if (e.target === backdrop) close();
   });
 
-  modal.querySelector('[data-action="confirm"]').addEventListener("click", async () => {
-    close();
-    await deactivateLicenseAndNotify();
-  });
+  modal
+    .querySelector('[data-action="confirm"]')
+    .addEventListener("click", async () => {
+      close();
+      await deactivateLicenseAndNotify();
+    });
 
   document.addEventListener("keydown", onKeydown);
   modalSlot.replaceChildren(backdrop);
