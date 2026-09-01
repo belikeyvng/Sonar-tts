@@ -9,10 +9,17 @@
    Visual styling ONLY. Structure lives entirely in layout.css.
    ========================================================================== */
 
+/* .mini-player {
+    background: var(--color-bg-raised);
+    border-top: 1px solid var(--color-border);
+} */
+
 .mini-player {
     background: var(--color-bg-raised);
     border-top: 1px solid var(--color-border);
 }
+
+
 
 .mini-player__play-button {
     border-radius: var(--radius-full);

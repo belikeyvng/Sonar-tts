@@ -99,9 +99,11 @@
          ====================================================================== -->
     <div class="app-shell" id="app-shell">
         <div id="file-nav-slot" data-slot="file-nav"></div>
-        <div id="main-slot" data-slot="main"></div>
+        <div class="main-with-player" id="main-outer">
+            <div id="main-slot" data-slot="main"></div>
+            <div id="mini-player-slot" data-slot="mini-player"></div>
+        </div>
         <div id="player-panel-slot" data-slot="player-panel"></div>
-        <div id="mini-player-slot" data-slot="mini-player"></div>
     </div>
 
     <div id="modal-slot"></div>

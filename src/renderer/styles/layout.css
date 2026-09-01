@@ -21,7 +21,7 @@
     --file-nav-width: 270px;
     --file-nav-rail-width: 64px;
     --player-panel-width: 360px;
-    --mini-player-height: 76px;
+    --mini-player-height: 86px;
     --reading-toolbar-height: 56px;
     --icon-chip-size: 56px;
 
@@ -309,9 +309,12 @@
 }
 
 /* ==========================================================================
-   APP SHELL — CSS Grid, 3 columns x 2 rows
-   [ file-nav ][ reading-pane ][ player-panel ]
-   [           mini-player (full span)          ]
+   APP SHELL — CSS Grid, 2 columns... wait, 3 columns x 1 row now.
+   [ file-nav ][ main (wraps reading-pane + mini-player) ][ player-panel ]
+   mini-player is no longer a separate grid row — it lives inside the
+   main column's card as a flex sibling under whatever's mounted in
+   #main-slot (empty-state or reader-view), so it can share that card's
+   rounded container and only flatten the shared bottom corners.
    ========================================================================== */
 
 * {
@@ -328,10 +331,9 @@ body {
 .app-shell {
     display: grid;
     grid-template-columns: var(--file-nav-width) 1fr var(--player-panel-width);
-    grid-template-rows: 1fr var(--mini-player-height);
+    grid-template-rows: 1fr;
     grid-template-areas:
-        "file-nav main player-panel"
-        "mini-player mini-player mini-player";
+        "file-nav main player-panel";
     height: 100vh;
     width: 100vw;
     column-gap: 25px;
@@ -353,52 +355,77 @@ body {
     min-width: 0;
 }
 
-#main-slot {
+/* #main-outer is the actual grid item now — it wraps #main-slot (the
+   reading-pane/empty-state card) and #mini-player-slot as a vertical
+   flex stack, both sharing one rounded card. #main-slot itself keeps
+   its own overflow/scroll behavior; #main-outer just stacks the two
+   and owns the shared border-radius. */
+#main-outer {
     grid-area: main;
     min-height: 0;
     min-width: 0;
-    overflow: hidden;
     margin: 25px 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg, 12px);
+    overflow: hidden; /* clips both children to the shared rounded corners */
+}
+
+#main-slot {
+    min-height: 0;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
 }
 
 #player-panel-slot {
     grid-area: player-panel;
     min-height: 0;
     min-width: 0;
-    margin: 25px 25px  25px 0;
-
+    margin: 25px 25px 25px 0;
 }
-
-
 
 #mini-player-slot {
-    grid-area: mini-player;
     min-height: 0;
     min-width: 0;
+    flex-shrink: 0;
 }
 
-#file-nav-slot>*,
-#main-slot>*,
-#player-panel-slot>*,
-#mini-player-slot>* {
+#file-nav-slot > *,
+#main-slot > *,
+#player-panel-slot > *,
+#mini-player-slot > * {
     height: 100%;
     width: 100%;
 }
 
-/* When player-panel/mini-player slots are empty (no document loaded),
-   collapse their grid tracks so main expands to fill the space.
-   Scoped to desktop widths only — otherwise this out-specifies the
-   mobile breakpoint below (a :has() clause counts as a class for
-   specificity, beating the plain .app-shell selector there regardless
-   of source order) and the sidebar never collapses on narrow screens. */
+/* When player-panel slot is empty (no document loaded), collapse its
+   grid track so main expands to fill the space. mini-player collapsing
+   is now handled inside #main-outer via :has() below, not a grid-row
+   collapse, since it's no longer a separate row. Scoped to desktop
+   widths only — otherwise this out-specifies the mobile breakpoint. */
 @media (min-width: 961px) {
     .app-shell:has(#player-panel-slot:empty) {
         grid-template-columns: var(--file-nav-width) 1fr 0;
     }
+}
 
-    .app-shell:has(#mini-player-slot:empty) {
-        grid-template-rows: 1fr 0;
-    }
+/* mini-player slot empty → no gap/border reserved for it, and #main-slot's
+   card gets full corner rounding back (nothing sticking to its bottom). */
+#main-outer:has(#mini-player-slot:empty) #main-slot > * {
+    border-radius: var(--radius-lg, 12px);
+}
+
+/* mini-player present → #main-slot's card only rounds its TOP corners,
+   since the mini-player continues its bottom edge visually. */
+#main-outer:has(#mini-player-slot:not(:empty)) #main-slot > * {
+    border-radius: var(--radius-lg, 12px) var(--radius-lg, 12px) 0 0;
+}
+
+/* mini-player itself only rounds its BOTTOM corners — its top edge is
+   flush/continuous with the reading-pane card above it. */
+#main-outer:has(#mini-player-slot:not(:empty)) #mini-player-slot > * {
+    border-radius: 0 0 var(--radius-lg, 12px) var(--radius-lg, 12px);
 }
 
 /* ==========================================================================
@@ -803,18 +830,6 @@ body {
     text-align: center;
 }
 
-/* --- Generate state: voice picker + button --- */
-
-.player-panel__voice-picker {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    width: 100%;
-    margin-bottom: var(--space-6);
-}
-
-/* --- Generate state: voice picker + button --- */
-
 .player-panel__voice-picker {
     display: flex;
     flex-direction: column;
@@ -828,8 +843,6 @@ body {
     padding: 0 var(--space-3);
     width: 100%;
 }
-
-/* ===== PASTE THE NEW BLOCK RIGHT HERE ===== */
 
 .player-panel__voice-dropdown {
     position: relative;
@@ -885,19 +898,11 @@ body {
     cursor: pointer;
 }
 
-/* ===== END NEW BLOCK ===== */
-
-
-
 .player-panel__generate-button {
     height: var(--control-input-height);
     width: 100%;
     cursor: pointer;
 }
-
-
-
-/* --- Ready state: speed/volume toolbar --- */
 
 .player-panel__toolbar {
     display: flex;
@@ -987,7 +992,7 @@ body {
 }
 
 /* ==========================================================================
-   MINI PLAYER (bottom bar, full width)
+   MINI PLAYER (bottom of the main/reading card — see #main-outer above)
    ========================================================================== */
 
 .mini-player {
@@ -995,8 +1000,9 @@ body {
     grid-template-columns: auto auto 1fr auto;
     align-items: center;
     gap: var(--space-5);
-    height: 100%;
-    padding: 0 var(--space-6);
+    height: auto;
+    min-height: var(--mini-player-height);
+    padding: var(--space-4) var(--space-6);
 }
 
 .mini-player__play-button {
@@ -1070,18 +1076,17 @@ body {
    rail. Hover peeks it open as a fixed overlay (doesn't push content);
    clicking the pin toggle keeps it open until toggled again or a click
    lands outside it (see app.js togglePin/click-outside handler).
-   main/player-panel/mini-player stack vertically in the remaining column
-   — the rail column persists across all three rows.
+   main-outer/player-panel stack vertically in the remaining column —
+   the rail column persists across both rows.
    ========================================================================== */
 
 @media (max-width: 960px) {
     .app-shell {
         grid-template-columns: var(--file-nav-rail-width) 1fr;
-        grid-template-rows: 1fr auto var(--mini-player-height);
+        grid-template-rows: 1fr auto;
         grid-template-areas:
             "file-nav main"
-            "file-nav player-panel"
-            "file-nav mini-player";
+            "file-nav player-panel";
     }
 
     .player-panel {
