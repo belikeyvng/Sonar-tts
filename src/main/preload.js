@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 contextBridge.exposeInMainWorld("sonar", {
- license: {
+  license: {
     activate: (filePath) => ipcRenderer.invoke("license:activate", filePath),
     getStatus: () => ipcRenderer.invoke("license:getStatus"),
     hasFeature: (feature) => ipcRenderer.invoke("license:hasFeature", feature),
@@ -48,5 +48,17 @@ contextBridge.exposeInMainWorld("sonar", {
     // src/main/ipc/payment.js for the full flow.
     startCheckout: (email) =>
       ipcRenderer.invoke("payment:startCheckout", email),
+  },
+
+  history: {
+    getAll: () => ipcRenderer.invoke("history:getAll"),
+    saveDocument: (docId, doc) =>
+      ipcRenderer.invoke("history:saveDocument", { docId, doc }),
+    removeDocument: (docId) =>
+      ipcRenderer.invoke("history:removeDocument", docId),
+    setPinned: (pinnedIds) =>
+      ipcRenderer.invoke("history:setPinned", pinnedIds),
+    setRecents: (recentIds) =>
+      ipcRenderer.invoke("history:setRecents", recentIds),
   },
 });

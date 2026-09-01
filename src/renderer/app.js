@@ -2158,15 +2158,12 @@ async function handlePdfLoadResult(result) {
   stopPlayback();
   state.currentDocument = doc;
 
-  // New file becomes the most recent recent-file too, and jumps to
-  // the top even if it was already listed (real "recently used"
-  // behavior). file-nav mounts once and is never re-rendered (see
-  // renderFileNav's doc comment), so we surgically move the DOM node
-  // instead of re-cloning the whole sidebar — that would wipe pin
-  // state and scroll position for no reason.
   state.recentFiles = state.recentFiles.filter((f) => f.id !== docId);
   state.recentFiles.unshift({ id: docId, name: doc.fileName });
   moveRecentFileNavItemToTop({ id: docId, name: doc.fileName });
+
+  window.sonar.history.saveDocument(docId, doc);
+  window.sonar.history.setRecents(state.recentFiles.map((f) => f.id));
 
   render();
 }
@@ -2275,6 +2272,8 @@ function pinDocument(fileId) {
     state.pinnedFiles.push({ id: fileId, name: doc.fileName });
   }
   state.recentFiles = state.recentFiles.filter((f) => f.id !== fileId);
+  window.sonar.history.setPinned(state.pinnedFiles.map((f) => f.id));
+  window.sonar.history.setRecents(state.recentFiles.map((f) => f.id));
   renderFileNav();
 }
 
@@ -2285,6 +2284,8 @@ function unpinDocument(fileId) {
     state.recentFiles = state.recentFiles.filter((f) => f.id !== fileId);
     state.recentFiles.unshift({ id: fileId, name: doc.fileName });
   }
+  window.sonar.history.setPinned(state.pinnedFiles.map((f) => f.id));
+  window.sonar.history.setRecents(state.recentFiles.map((f) => f.id));
   renderFileNav();
 }
 
@@ -2803,6 +2804,31 @@ async function boot() {
       ? settings.name.split(/\s+/)[0]
       : state.firstName;
     state.accountName = settings.name || state.accountName;
+
+    // ↓↓↓ NEW BLOCK GOES HERE ↓↓↓
+    try {
+      const history = await window.sonar.history.getAll();
+      for (const [docId, savedDoc] of Object.entries(history.documents || {})) {
+        state.documents[docId] = {
+          ...savedDoc,
+          audioReady: false,
+          audioFile: null,
+          generating: false,
+          speed: "1x",
+          timeElapsed: "0:00",
+          timeTotal: "0:00",
+          progress: 0,
+        };
+      }
+      state.pinnedFiles = (history.pinnedIds || [])
+        .filter((id) => state.documents[id])
+        .map((id) => ({ id, name: state.documents[id].fileName }));
+      state.recentFiles = (history.recentIds || [])
+        .filter((id) => state.documents[id])
+        .map((id) => ({ id, name: state.documents[id].fileName }));
+    } catch (err) {
+      console.error("Failed to restore document history:", err);
+    }
 
     state.currentView = "app";
 

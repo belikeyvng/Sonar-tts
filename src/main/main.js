@@ -2,6 +2,7 @@ const { app, BrowserWindow, Menu } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
 const registerTtsIpc = require("./ipc/tts");
+const registerHistoryIpc = require("./ipc/history");
 
 const registerLicenseIpc = require("./ipc/license");
 const registerPdfIpc = require("./ipc/pdf");
@@ -47,7 +48,8 @@ app.whenReady().then(() => {
   registerPdfIpc();
   registerExportHandlers();
   registerSettingsHandlers();
-  registerPaymentIpc({ licenseEngine, licenseStore }); // NEW
+  registerPaymentIpc({ licenseEngine, licenseStore });
+  registerHistoryIpc();
 
   createWindow();
 
