@@ -778,7 +778,7 @@ function renderOnboardingLicense() {
     finishOnboarding({ activateLicense: false });
   });
 
-   on(fragment, "activate-and-finish", () => {
+  on(fragment, "activate-and-finish", () => {
     if (!data.licensePath) return;
 
     if (data.licenseValidated) {
@@ -2580,28 +2580,22 @@ async function openSettingsModal() {
     '[data-action="settings-logout"]',
   );
   const logoutLabel = logoutButton?.querySelector("span");
-  if (logoutButton && logoutLabel) {
+
+  if (logoutButton) {
     if (isPro) {
-      logoutLabel.textContent = "Deactivate Sonar";
+      if (logoutLabel) logoutLabel.textContent = "Cancel Subscription";
       logoutButton.classList.add("settings-modal__logout--deactivate");
       logoutButton.classList.remove("settings-modal__logout--activate");
+      logoutButton.addEventListener("click", () => {
+        showCancelSubscriptionConfirm();
+      });
     } else {
-      logoutLabel.textContent = "Activate Sonar";
-      logoutButton.classList.add("settings-modal__logout--activate");
-      logoutButton.classList.remove("settings-modal__logout--deactivate");
+      // Free users already have "Go Pro" in this same modal — a
+      // second "Activate Sonar" button was redundant. Remove it
+      // entirely rather than disabling/hiding, so no dead space.
+      logoutButton.remove();
     }
   }
-
-  on(fragment, "settings-logout", () => {
-    if (isPro) {
-      // TODO: real deactivation — clear license state via IPC (e.g.
-      // window.sonar.license.deactivate()) once that handler exists.
-      console.log("TODO: implement real license deactivation");
-    } else {
-      close();
-      goToUpgradePage();
-    }
-  });
 
   function close() {
     modalSlot.replaceChildren();
@@ -2653,6 +2647,116 @@ function deleteDocument(fileId, fileName) {
     renderFileNav();
     render();
   });
+}
+
+
+// Confirm-then-deactivate for Pro users canceling from Settings.
+// Mirrors showDeleteConfirmModal's backdrop/Escape pattern — built
+// inline (no <template>) since this is the only place it's needed.
+function showCancelSubscriptionConfirm() {
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+
+  modal.innerHTML = `
+    <h2 class="modal__heading">Cancel your subscription?</h2>
+    <p class="modal__body">This deactivates your Sonar Pro license immediately. You'll lose access to premium voices, unlimited exports, and longer documents.</p>
+    <div class="modal__actions">
+      <button class="modal__button" type="button" data-action="cancel">Keep Pro</button>
+      <button class="modal__button modal__button--danger" type="button" data-action="confirm">Cancel subscription</button>
+    </div>
+  `;
+
+  backdrop.appendChild(modal);
+
+  function close() {
+    modalSlot.replaceChildren();
+    document.removeEventListener("keydown", onKeydown);
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") close();
+  }
+
+  modal.querySelector('[data-action="cancel"]').addEventListener("click", close);
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) close();
+  });
+
+  modal.querySelector('[data-action="confirm"]').addEventListener("click", async () => {
+    close();
+    await deactivateLicenseAndNotify();
+  });
+
+  document.addEventListener("keydown", onKeydown);
+  modalSlot.replaceChildren(backdrop);
+}
+
+// Runs the actual deactivation, then shows a result modal (success or
+// failure) — separate from the confirm step so a failed deactivation
+// doesn't silently look like nothing happened.
+async function deactivateLicenseAndNotify() {
+  let result;
+  try {
+    result = await window.sonar.license.deactivate();
+  } catch (err) {
+    console.error("License deactivation error:", err);
+    result = { success: false };
+  }
+
+  showDeactivationResultModal(result?.success !== false);
+
+  await updateFileNavPlanLabel();
+  if (state.currentView === "app") render();
+}
+
+function showDeactivationResultModal(success) {
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+
+  modal.innerHTML = success
+    ? `
+      <h2 class="modal__heading">Subscription canceled</h2>
+      <p class="modal__body">Your Sonar Pro license has been deactivated. You're back on the Free plan.</p>
+      <div class="modal__actions">
+        <button class="modal__button" type="button" data-action="ok">OK</button>
+      </div>
+    `
+    : `
+      <h2 class="modal__heading">Something went wrong</h2>
+      <p class="modal__body">We couldn't cancel your subscription. Please try again, or contact support if this keeps happening.</p>
+      <div class="modal__actions">
+        <button class="modal__button" type="button" data-action="ok">OK</button>
+      </div>
+    `;
+
+  backdrop.appendChild(modal);
+
+  function close() {
+    modalSlot.replaceChildren();
+    document.removeEventListener("keydown", onKeydown);
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") close();
+  }
+
+  modal.querySelector('[data-action="ok"]').addEventListener("click", close);
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) close();
+  });
+
+  document.addEventListener("keydown", onKeydown);
+  modalSlot.replaceChildren(backdrop);
 }
 
 // Lightweight toast, mounted into its own fixed-position container so it
