@@ -92,3 +92,19 @@
    color: var(--color-danger, #ef4444);
    background: color-mix(in srgb, var(--color-danger, #ef4444) 12%, transparent);
 }
+
+
+.onboarding-step__file-row .onboarding-step__input {
+   background: #F8FAFC;
+   color: #0F172A;
+   border: 1px solid #E2E8F0;
+   border-radius: 10px;
+}
+
+.onboarding-step__file-row .onboarding-step__input::placeholder {
+   color: #94A3B8;
+}
+
+.onboarding-step__file-row .onboarding-step__input:read-only {
+   cursor: default;
+}
