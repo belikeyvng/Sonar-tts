@@ -1455,6 +1455,83 @@ async function setupVoiceDropdown(fragment, doc, voices, isPro) {
   setTriggerLabel();
 }
 
+// Regenerate button now opens an inline voice picker directly under the
+// transport row instead of bouncing back to the "Generate audio" screen —
+// picking a voice here regenerates immediately with the new voice.
+async function setupRegenerateMenu(doc) {
+  const menu = slots.playerPanel.querySelector('[data-bind="regenerateMenu"]');
+  const listbox = slots.playerPanel.querySelector(
+    '[data-bind="regenerateVoiceListbox"]',
+  );
+  const regenButton = slots.playerPanel.querySelector(
+    '[data-action="regenerate"]',
+  );
+  if (!menu || !listbox || !regenButton) return;
+
+  const [voices, status] = await Promise.all([
+    window.sonar.tts.getVoices(),
+    window.sonar.license.getStatus(),
+  ]);
+  const isPro = status.activated && status.plan === "pro";
+
+  function buildOptions() {
+    listbox.replaceChildren();
+    for (const voice of voices) {
+      const locked = voice.tier === "pro" && !isPro;
+      const li = document.createElement("li");
+      li.className = "player-panel__voice-option";
+      li.dataset.value = voice.id;
+      li.textContent = formatVoiceLabel(voice, locked);
+      li.setAttribute("aria-disabled", String(locked));
+      if (locked) li.classList.add("player-panel__voice-option--locked");
+      if (voice.id === doc.voiceId) {
+        li.classList.add("player-panel__voice-option--selected");
+      }
+      listbox.appendChild(li);
+    }
+  }
+  buildOptions();
+
+  function closeMenu() {
+    menu.hidden = true;
+    document.removeEventListener("click", onOutsideClick);
+  }
+
+  function onOutsideClick(e) {
+    if (!menu.contains(e.target) && !regenButton.contains(e.target)) closeMenu();
+  }
+
+  regenButton.addEventListener("click", () => {
+    if (!menu.hidden) {
+      closeMenu();
+      return;
+    }
+    menu.hidden = false;
+    document.addEventListener("click", onOutsideClick);
+  });
+
+  listbox.addEventListener("click", (e) => {
+    const optEl = e.target.closest(".player-panel__voice-option");
+    if (!optEl || optEl.getAttribute("aria-disabled") === "true") return;
+
+    const chosen = voices.find((v) => v.id === optEl.dataset.value);
+    if (!chosen) return;
+    closeMenu();
+
+    if (chosen.tier === "pro" && !isPro) {
+      goToUpgradePage();
+      return;
+    }
+
+    stopPlayback();
+    doc.voiceId = chosen.id;
+    doc.narratorName = chosen.name;
+    doc.audioReady = false;
+    doc.audioFile = null;
+    generateAudioForCurrentDocument();
+  });
+}
+
 async function renderPlayerPanelReady(doc) {
   const fragment = clone("tpl-player-panel-ready");
 
@@ -1467,12 +1544,12 @@ async function renderPlayerPanelReady(doc) {
   on(fragment, "play-pause", playPause);
   on(fragment, "rewind", rewind);
   on(fragment, "skip-forward", skipForward);
-  on(fragment, "regenerate", () => {
-    stopPlayback();
-    doc.audioReady = false;
-    doc.audioFile = null;
-    render();
-  });
+  // on(fragment, "regenerate", () => {
+  //   stopPlayback();
+  //   doc.audioReady = false;
+  //   doc.audioFile = null;
+  //   render();
+  // });
   on(fragment, "cycle-speed", () => cycleSpeed(doc));
   const progressInput = fragment.querySelector('[data-bind="progress"]');
 
@@ -1508,19 +1585,19 @@ async function renderPlayerPanelReady(doc) {
   });
 
   // --- Export ---
-  on(fragment, "choose-export-folder", async () => {
-    const result = await window.sonar.export.chooseFolder();
-    if (result.ok) {
-      renderPlayerPanel(); // re-render to reflect new path
-    }
-  });
+  // on(fragment, "choose-export-folder", async () => {
+  //   const result = await window.sonar.export.chooseFolder();
+  //   if (result.ok) {
+  //     renderPlayerPanel(); // re-render to reflect new path
+  //   }
+  // });
 
   on(fragment, "save-audio", () => saveCurrentDocumentAudio(doc));
 
   slots.playerPanel.replaceChildren(fragment);
   updateRangeFill(progressInput);
 
-  await updateExportUI(doc);
+  await setupRegenerateMenu(doc);
 
   const playIcon = slots.playerPanel.querySelector(
     ".player-panel__transport-button--primary .player-panel__transport-icon",
@@ -1662,7 +1739,10 @@ async function saveCurrentDocumentAudio(doc) {
 
   if (!result.ok) {
     if (result.reason === "EXPORT_LIMIT_REACHED") {
-      await updateExportUI(doc);
+      // await updateExportUI(doc);
+      showToast("Daily export limit reached. Upgrade to Pro for unlimited exports.", {
+        variant: "error",
+      });
       return;
     }
     showToast("Export failed. Check the console for details.", {

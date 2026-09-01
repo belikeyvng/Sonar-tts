@@ -136,9 +136,6 @@
     color: var(--color-text-on-accent);
 }
 
-.player-panel__transport-button--primary:hover {
-    filter: brightness(1.05);
-}
 
 .player-panel__transport-icon {
     display: flex;
@@ -441,4 +438,11 @@
 
 .player-panel__volume-button:hover {
   color: var(--color-text-primary); /* subtle hover feedback since border/bg are gone */
+}
+
+.player-panel__regenerate-menu {
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
 }

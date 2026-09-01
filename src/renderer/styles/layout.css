@@ -1203,3 +1203,16 @@ body {
 .modal__button--danger:hover {
     background: #DC2626;
 }
+
+.player-panel__regenerate-menu {
+    width: 100%;
+    margin-top: var(--space-3);
+}
+
+.player-panel__regenerate-listbox {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-1) 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
