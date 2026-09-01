@@ -9,7 +9,6 @@ const { KokoroTTS } = require("kokoro-js");
 // can just be hand-corrected in this one place.
 const VOICE_LIST = [
     { id: "af_sky", name: "Sky", gender: "female", accent: "American", tier: "free" },
-    { id: "af", name: "AF", gender: "female", accent: "American", tier: "pro" },
     { id: "af_bella", name: "Bella", gender: "female", accent: "American", tier: "pro" },
     { id: "af_nicole", name: "Nicole", gender: "female", accent: "American", tier: "pro" },
     { id: "af_sarah", name: "Sarah", gender: "female", accent: "American", tier: "pro" },

@@ -146,6 +146,7 @@ body {
    display: grid;
    grid-template-columns: 1fr 1fr;
    gap: 10px;
+   padding-right: 200px;
 }
 
 .onboarding-step__pill {
@@ -280,9 +281,9 @@ body {
    width: 36px;
    height: 36px;
    border-radius: 50%;
-   border: 2px solid transparent;
+   border: 0;
    cursor: pointer;
-   padding: 3px;
+   padding: 1px;
    background-clip: content-box;
    position: relative;
    /* background-color now set inline via JS (button.style.backgroundColor)
@@ -295,29 +296,19 @@ body {
    border-radius: 50%;
    border: 2px solid transparent;
    cursor: pointer;
-   padding: 3px;
+   padding: 1px;
    background-clip: content-box;
    position: relative;
    transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .onboarding-step__swatch[aria-pressed="true"] {
-   border-color: var(--color-text-primary);
-   box-shadow: 0 0 0 2px var(--color-bg-raised), 0 0 0 3.5px var(--color-accent);
+   /* border-color: var(--color-text-primary); */
+   /* box-shadow: 0 0 0 2px var(--color-bg-raised), 0 0 0 3.5px var(--color-accent); */
+   box-shadow: 0 0 0 2px var(--color-bg-raised), 0 0 0 4px currentColor;
 }
 
-.onboarding-step__swatch[aria-pressed="true"]::after {
-   content: "";
-   position: absolute;
-   left: 50%;
-   top: 50%;
-   width: 5px;
-   height: 9px;
-   border-right: 2px solid #fff;
-   border-bottom: 2px solid #fff;
-   transform: translate(-50%, -60%) rotate(45deg);
-   filter: drop-shadow(0 0 1px rgba(0,0,0,0.4));
-}
+
 
 
 

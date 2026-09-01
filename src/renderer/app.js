@@ -590,6 +590,7 @@ function renderOnboardingPreferences() {
           String(p.dataset.value === data.voiceGender),
         );
       });
+      previewAccentVoice(data.accent, data.voiceGender);
     });
   });
 
@@ -611,6 +612,7 @@ function renderOnboardingPreferences() {
             String(c.dataset.accentId === accent.id),
           );
         });
+      previewAccentVoice(accent.id, data.voiceGender);
     });
     accentGroup.appendChild(cardFrag);
   }
@@ -645,6 +647,50 @@ function renderOnboardingPreferences() {
   });
 
   slots.onboardingStep.replaceChildren(fragment);
+}
+
+// Maps onboarding's accent+gender choice to a concrete, cheap-to-run
+// voice id purely for instant preview playback — has no bearing on
+// which voice actually narrates documents later (that's chosen
+// per-document in the player panel).
+const ACCENT_PREVIEW_VOICE = {
+  american: { male: "en_US-ryan-medium", female: "en_US-amy-medium" },
+  british: { male: "bm_george", female: "bf_emma" },
+};
+
+let previewAudio = null;
+
+// Fire-and-forget: synthesizes a short fixed line in the selected
+// accent/gender and plays it immediately, so clicking an accent card
+// gives instant audible feedback. Cancels any in-flight preview if
+// the user clicks another card quickly.
+async function previewAccentVoice(accentId, gender) {
+  const voiceId =
+    ACCENT_PREVIEW_VOICE[accentId]?.[gender] ||
+    ACCENT_PREVIEW_VOICE[accentId]?.female;
+  if (!voiceId) return;
+
+  if (previewAudio) {
+    previewAudio.pause();
+    previewAudio = null;
+  }
+
+  try {
+    const result = await window.sonar.tts.speak(
+      "Hi there, this is a quick preview of this voice.",
+      voiceId,
+    );
+    if (!result.success) {
+      console.warn("Accent preview failed:", result.reason);
+      return;
+    }
+    previewAudio = new Audio("file://" + result.file);
+    previewAudio.play().catch((err) => {
+      console.warn("Accent preview playback blocked:", err);
+    });
+  } catch (err) {
+    console.error("Accent preview error:", err);
+  }
 }
 
 function renderOnboardingLicense() {
@@ -1498,7 +1544,8 @@ async function setupRegenerateMenu(doc) {
   }
 
   function onOutsideClick(e) {
-    if (!menu.contains(e.target) && !regenButton.contains(e.target)) closeMenu();
+    if (!menu.contains(e.target) && !regenButton.contains(e.target))
+      closeMenu();
   }
 
   regenButton.addEventListener("click", () => {
@@ -1740,9 +1787,12 @@ async function saveCurrentDocumentAudio(doc) {
   if (!result.ok) {
     if (result.reason === "EXPORT_LIMIT_REACHED") {
       // await updateExportUI(doc);
-      showToast("Daily export limit reached. Upgrade to Pro for unlimited exports.", {
-        variant: "error",
-      });
+      showToast(
+        "Daily export limit reached. Upgrade to Pro for unlimited exports.",
+        {
+          variant: "error",
+        },
+      );
       return;
     }
     showToast("Export failed. Check the console for details.", {
