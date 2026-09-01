@@ -903,6 +903,20 @@
                         <div class="onboarding-step__swatch-group" data-group="settingsAccentColor"></div>
                     </div>
 
+                    <hr class="settings-modal__divider settings-modal__divider--dashed" />
+
+                    <div class="settings-modal__field">
+                        <span class="onboarding-step__label">Default download location</span>
+                        <p class="onboarding-step__field-hint">Where generated audio files are saved</p>
+                        <div class="settings-modal__export-path-row">
+                            <span class="settings-modal__export-path" data-bind="settingsExportPath" title=""></span>
+                            <button class="settings-modal__export-browse" type="button"
+                                data-action="settings-choose-export-folder">
+                                Change
+                            </button>
+                        </div>
+                    </div>
+
                     <button class="settings-modal__logout" type="button" data-action="settings-logout">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" stroke-width="1.8"

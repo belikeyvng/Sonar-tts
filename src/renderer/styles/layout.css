@@ -618,6 +618,41 @@ body {
     height: 100%;
 }
 
+
+.settings-modal__export-path-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.settings-modal__export-path {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: var(--control-input-height);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-3);
+}
+
+.settings-modal__export-browse {
+    height: var(--control-input-height);
+    padding: 0 var(--space-4);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-subtle);
+    color: var(--color-text-primary);
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.settings-modal__export-browse:hover {
+    background: var(--color-bg-raised);
+}
 /* ==========================================================================
    READING PANE (center)
    ========================================================================== */

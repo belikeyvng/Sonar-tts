@@ -342,3 +342,27 @@ html[data-theme="dark"] .settings-modal__theme-icon--moon { opacity: 1; }
 .settings-modal__logout--deactivate:hover {
   background: color-mix(in srgb, var(--color-danger, #ef4444) 10%, transparent);
 }
+
+.settings-modal__scroll {
+    /* ...existing rules... */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+.settings-modal__scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.settings-modal__scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.settings-modal__scroll::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full, 999px);
+}
+
+.settings-modal__scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-tertiary);
+}

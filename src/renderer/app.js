@@ -2428,6 +2428,35 @@ async function openSettingsModal() {
     settingsSwatchGroup.appendChild(swatch);
   }
 
+  // --- Default export/download path ---
+  const exportPathEl = fragment.querySelector(
+    '[data-bind="settingsExportPath"]',
+  );
+  const changeExportButton = fragment.querySelector(
+    '[data-action="settings-choose-export-folder"]',
+  );
+
+  if (exportPathEl) {
+    const exportSettings = await window.sonar.export.getSettings();
+    exportPathEl.textContent = truncatePath(exportSettings.exportPath);
+    exportPathEl.title = exportSettings.exportPath;
+  }
+
+  if (changeExportButton) {
+    changeExportButton.addEventListener("click", async () => {
+      const result = await window.sonar.export.chooseFolder();
+      if (result.ok) {
+        const liveExportPathEl = modalSlot.querySelector(
+          '[data-bind="settingsExportPath"]',
+        );
+        if (liveExportPathEl) {
+          liveExportPathEl.textContent = truncatePath(result.exportPath);
+          liveExportPathEl.title = result.exportPath;
+        }
+      }
+    });
+  }
+
   // Edit (pencil) button — swaps the name span for an inline input,
   // commits on blur/Enter, discards on Escape.
   const editButton = fragment.querySelector(".settings-modal__edit");

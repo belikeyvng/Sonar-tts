@@ -103,7 +103,7 @@ body {
    display: block;
    font-size: 13px;
    font-weight: 600;
-   color: #0F172A;
+   color: var(--color-text-primary);
    margin-bottom: 4px;
 }
 
