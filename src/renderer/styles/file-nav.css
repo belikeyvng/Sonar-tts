@@ -228,3 +228,15 @@
         box-shadow: var(--shadow-overlay);
     }
 }
+
+.file-nav__item--empty {
+    padding: var(--space-2);
+}
+
+.file-nav__empty-message {
+    display: block;
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
+    font-style: italic;
+}
