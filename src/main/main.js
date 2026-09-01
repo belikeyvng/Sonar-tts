@@ -9,10 +9,13 @@ const { registerExportHandlers } = require("./ipc/export");
 const { registerSettingsHandlers } = require("./ipc/settings");
 const registerPaymentIpc = require("./ipc/payment"); // NEW
 
+const APP_ICON_PATH = path.join(__dirname, "../../resources/icons/icon.png");
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
+    icon: APP_ICON_PATH,
 
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
