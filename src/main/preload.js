@@ -41,4 +41,12 @@ contextBridge.exposeInMainWorld("sonar", {
     get: () => ipcRenderer.invoke("settings:get"),
     save: (partial) => ipcRenderer.invoke("settings:save", partial),
   },
+  payment: {
+    // Kicks off the Paystack checkout popup + polling in the main
+    // process; resolves once the license is issued and activated
+    // (or the popup is closed / times out / fails). See
+    // src/main/ipc/payment.js for the full flow.
+    startCheckout: (email) =>
+      ipcRenderer.invoke("payment:startCheckout", email),
+  },
 });

@@ -7,6 +7,7 @@ const registerLicenseIpc = require("./ipc/license");
 const registerPdfIpc = require("./ipc/pdf");
 const { registerExportHandlers } = require("./ipc/export");
 const { registerSettingsHandlers } = require("./ipc/settings");
+const registerPaymentIpc = require("./ipc/payment"); // NEW
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -38,11 +39,12 @@ app.whenReady().then(() => {
     "utf8",
   );
 
-  const licenseEngine = registerLicenseIpc(publicKeyPem);
+  const { licenseEngine, licenseStore } = registerLicenseIpc(publicKeyPem); // CHANGED — now destructures both
   registerTtsIpc(licenseEngine);
   registerPdfIpc();
   registerExportHandlers();
   registerSettingsHandlers();
+  registerPaymentIpc({ licenseEngine, licenseStore }); // NEW
 
   createWindow();
 

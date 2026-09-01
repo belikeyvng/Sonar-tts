@@ -73,8 +73,11 @@ function registerLicenseIpc(publicKeyPem) {
     return { ok: true, filePath: result.filePaths[0] };
   });
   
-  // Exposed in case other main-process code (not just IPC) needs it.
-  return licenseEngine;
+  // Exposed in case other main-process code (not just IPC) needs it —
+  // payment.js needs both: licenseEngine to activate a license
+  // obtained via checkout, licenseStore to persist it, same as
+  // license:activate already does for file-based activation.
+  return { licenseEngine, licenseStore };
 }
 
 module.exports = registerLicenseIpc;

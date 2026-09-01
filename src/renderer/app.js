@@ -456,12 +456,100 @@ function renderPlanCard(plan) {
 
 function handlePlanCta(planId) {
   if (planId === "pro") {
-    // TODO: wire to real Paystack checkout flow. On success, that
-    // flow should call window.sonar.license.activate(...) (or an
-    // equivalent purchase-then-activate IPC call) and only then
-    // return the user to the app.
-    console.log("TODO: launch Paystack checkout for Pro upgrade");
+    showEmailPromptModal(async (email) => {
+      await startProCheckout(email);
+    });
   }
+}
+
+// Small modal collecting the email Paystack needs for checkout.
+// Reuses the same modal-slot / backdrop / Escape-to-close pattern
+// as the delete-confirm and settings modals — no new template
+// needed, built inline since it's just one field + two buttons.
+function showEmailPromptModal(onSubmit) {
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+
+  modal.innerHTML = `
+        <h2 class="modal__heading">Enter your email</h2>
+        <p class="modal__body">We'll use this for your Paystack receipt.</p>
+        <input type="email" class="onboarding-step__input" placeholder="you@example.com" style="margin: 12px 0; width: 100%;" />
+        <div class="modal__actions">
+          <button class="modal__button" type="button" data-action="cancel">Cancel</button>
+          <button class="modal__button modal__button--danger" type="button" data-action="submit">Continue to payment</button>
+        </div>
+      `;
+
+  backdrop.appendChild(modal);
+
+  function close() {
+    modalSlot.replaceChildren();
+    document.removeEventListener("keydown", onKeydown);
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") close();
+  }
+
+  const input = modal.querySelector("input");
+  const submitButton = modal.querySelector('[data-action="submit"]');
+  const cancelButton = modal.querySelector('[data-action="cancel"]');
+
+  cancelButton.addEventListener("click", close);
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) close();
+  });
+
+  submitButton.addEventListener("click", () => {
+    const email = input.value.trim();
+    if (!email || !email.includes("@")) {
+      input.focus();
+      return;
+    }
+    close();
+    onSubmit(email);
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitButton.click();
+  });
+
+  document.addEventListener("keydown", onKeydown);
+  modalSlot.replaceChildren(backdrop);
+  input.focus();
+}
+
+// Kicks off the Paystack popup + polling in the main process, and
+// reacts to the result. The heavy lifting (opening the popup,
+// polling, calling licenseEngine.activate) all happens in
+// payment:startCheckout — this just waits on that one promise and
+// updates the UI once it resolves.
+async function startProCheckout(email) {
+  showToast("Opening checkout…", { variant: "success", duration: 2000 });
+
+  const result = await window.sonar.payment.startCheckout(email);
+
+  if (!result.ok) {
+    if (result.reason === "POPUP_CLOSED") {
+      showToast("Checkout closed.", { variant: "neutral" });
+      return;
+    }
+    showToast("Payment didn't go through. Please try again.", {
+      variant: "error",
+    });
+    console.error("Checkout failed:", result.reason, result.message);
+    return;
+  }
+
+  showToast("Sonar Pro activated!", { variant: "success" });
+  backToApp();
+  await updateFileNavPlanLabel();
+  render();
 }
 
 // ==========================================================================
@@ -573,7 +661,9 @@ function renderOnboardingLicense() {
   }
   setStatus(data.licenseStatusText || "", data.licenseState || "");
 
-  const activateButton = fragment.querySelector('[data-action="activate-and-finish"]');
+  const activateButton = fragment.querySelector(
+    '[data-action="activate-and-finish"]',
+  );
 
   // Gated until a license file has actually been chosen — picking a
   // file (regardless of whether it later validates) is what unlocks
@@ -634,10 +724,9 @@ function renderOnboardingLicense() {
     if (data.licenseValidated) {
       showToast("Sonar Pro activated!", { variant: "success" });
     } else {
-      showToast(
-        data.licenseStatusText || "Couldn't activate this license.",
-        { variant: "error" },
-      );
+      showToast(data.licenseStatusText || "Couldn't activate this license.", {
+        variant: "error",
+      });
     }
 
     // Proceed to the app either way once a file's been through the
@@ -718,7 +807,9 @@ function showWelcomeSplash(firstName, onShownFullyOpaque, onDone) {
 
   const messageEl = document.getElementById("welcome-splash-message");
   if (messageEl) {
-    messageEl.textContent = firstName ? `Welcome, ${firstName}` : "You're all set";
+    messageEl.textContent = firstName
+      ? `Welcome, ${firstName}`
+      : "You're all set";
     messageEl.style.animation = "none";
     void messageEl.offsetWidth;
     messageEl.style.animation = "";
@@ -2409,7 +2500,10 @@ async function boot() {
   try {
     settings = await window.sonar.settings.get();
   } catch (err) {
-    console.error("Failed to load user settings, defaulting to onboarding:", err);
+    console.error(
+      "Failed to load user settings, defaulting to onboarding:",
+      err,
+    );
     settings = { hasOnboarded: false };
   }
 
@@ -2419,7 +2513,8 @@ async function boot() {
     state.onboardingData.name = settings.name || state.onboardingData.name;
     state.onboardingData.voiceGender =
       settings.voiceGender || state.onboardingData.voiceGender;
-    state.onboardingData.accent = settings.accent || state.onboardingData.accent;
+    state.onboardingData.accent =
+      settings.accent || state.onboardingData.accent;
     state.onboardingData.accentColor =
       settings.accentColor || state.onboardingData.accentColor;
 
