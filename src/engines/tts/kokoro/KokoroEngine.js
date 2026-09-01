@@ -2,8 +2,6 @@ const { KokoroTTS } = require("kokoro-js");
 
 // Voice metadata — id must match what tts.js will match voiceId against.
 // tier: "free" | "pro" — adjust to match your licensing plan.
-// Voice metadata — id must match what tts.js will match voiceId against.
-// tier: "free" | "pro" — adjust to match your licensing plan.
 // gender/accent are explicit here (not parsed from id at render time)
 // so any voice that doesn't follow Kokoro's af_/am_/bf_/bm_ convention
 // can just be hand-corrected in this one place.
@@ -52,10 +50,85 @@ class KokoroEngine {
 
     async synthesize(text, voiceId, outputFile) {
         const tts = await this._ensureReady();
-        const audio = await tts.generate(text, { voice: voiceId });
-        audio.save(outputFile);
+
+        const chunks = chunkText(text);
+        const audioParts = [];
+        let samplingRate = null;
+        let RawAudioCtor = null;
+
+        for (const chunk of chunks) {
+            const audio = await tts.generate(chunk, { voice: voiceId });
+            audioParts.push(audio.audio); // Float32Array of samples for this chunk
+            samplingRate = audio.sampling_rate;
+            RawAudioCtor = RawAudioCtor || audio.constructor; // reuse the class kokoro-js returns
+        }
+
+        // Concatenate with a short silence gap between chunks so sentence
+        // boundaries don't run together.
+        const gapSamples = Math.round(samplingRate * 0.12);
+        const gap = new Float32Array(gapSamples);
+        const totalLength =
+            audioParts.reduce((sum, a) => sum + a.length, 0) +
+            gap.length * (audioParts.length - 1);
+        const combined = new Float32Array(totalLength);
+
+        let offset = 0;
+        audioParts.forEach((part, i) => {
+            combined.set(part, offset);
+            offset += part.length;
+            if (i < audioParts.length - 1) {
+                combined.set(gap, offset);
+                offset += gap.length;
+            }
+        });
+
+        const finalAudio = new RawAudioCtor(combined, samplingRate);
+        finalAudio.save(outputFile);
         return outputFile;
     }
+}
+
+// Groups sentences into chunks under a conservative character budget.
+// Kokoro's hard limit is ~510 phoneme tokens, and phoneme count tends to
+// run higher than raw character count, so this stays well under that.
+function chunkText(text, maxChars = 200) {
+    const sentences = text
+        .split(/(?<=[.!?])\s+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+    const chunks = [];
+    let current = "";
+
+    for (const sentence of sentences) {
+        // A single sentence longer than the budget on its own — hard-split it
+        // on whitespace so nothing gets silently dropped or overflows.
+        if (sentence.length > maxChars) {
+            if (current) {
+                chunks.push(current);
+                current = "";
+            }
+            let remaining = sentence;
+            while (remaining.length > maxChars) {
+                let cut = remaining.lastIndexOf(" ", maxChars);
+                if (cut <= 0) cut = maxChars;
+                chunks.push(remaining.slice(0, cut).trim());
+                remaining = remaining.slice(cut).trim();
+            }
+            if (remaining) current = remaining;
+            continue;
+        }
+
+        if ((current + " " + sentence).trim().length > maxChars) {
+            chunks.push(current);
+            current = sentence;
+        } else {
+            current = (current + " " + sentence).trim();
+        }
+    }
+    if (current) chunks.push(current);
+
+    return chunks;
 }
 
 module.exports = KokoroEngine;
