@@ -175,77 +175,15 @@ const state = {
   accountEmail: "alex@sonar.ai",
   firstName: "Alex",
 
-  pinnedFiles: [{ id: "meeting-notes", name: "Meeting_Notes.pdf" }],
-  recentFiles: [
-    { id: "project-notes", name: "Project_Notes.pdf" },
-    { id: "cook", name: "Cook.pdf" },
-    { id: "story", name: "Story.pdf" },
-  ],
+  pinnedFiles: [],
+  recentFiles: [],
 
   // Sample documents keyed by file id — stands in for real PDF loading/
   // extraction until that pipeline exists. TODO: replace with actual
   // PDF text extraction + IPC call when that's wired up.
-  documents: {
-    "meeting-notes": {
-      fileName: "Meeting_Notes.pdf",
-      title: "Meeting Notes",
-      paragraphs: [
-        "Placeholder content for Meeting_Notes.pdf.",
-        "Real PDF text extraction isn't wired up yet — this is stand-in copy.",
-      ],
-      narratorName: "Helen (NGA)",
-      voiceId: "en_US-amy-medium",
-      audioReady: false,
-      audioFile: null,
-      speed: "1x",
-      timeElapsed: "0:00",
-      timeTotal: "0:00",
-      progress: 0,
-      sectionLabel: "Section 1 of 1",
-    },
-    "project-notes": {
-      fileName: "Project_Notes.pdf",
-      title: "Project Notes",
-      paragraphs: ["Placeholder content for Project_Notes.pdf."],
-      narratorName: "Helen (NGA)",
-      voiceId: "en_US-amy-medium",
-      audioReady: false,
-      audioFile: null,
-      speed: "1x",
-      timeElapsed: "0:00",
-      timeTotal: "0:00",
-      progress: 0,
-      sectionLabel: "Section 1 of 1",
-    },
-    cook: {
-      fileName: "Cook.pdf",
-      title: "Cook",
-      paragraphs: ["Placeholder content for Cook.pdf."],
-      narratorName: "Helen (NGA)",
-      voiceId: "en_US-amy-medium",
-      audioReady: false,
-      audioFile: null,
-      speed: "1x",
-      timeElapsed: "0:00",
-      timeTotal: "0:00",
-      progress: 0,
-      sectionLabel: "Section 1 of 1",
-    },
-    story: {
-      fileName: "Story.pdf",
-      title: "Story",
-      paragraphs: ["Placeholder content for Story.pdf."],
-      narratorName: "Helen (NGA)",
-      voiceId: "en_US-amy-medium",
-      audioReady: false,
-      audioFile: null,
-      speed: "1x",
-      timeElapsed: "0:00",
-      timeTotal: "0:00",
-      progress: 0,
-      sectionLabel: "Section 1 of 1",
-    },
-  },
+  // Populated entirely by handlePdfLoadResult() as real PDFs are
+  // loaded — no placeholder/sample content. Keyed by file path.
+  documents: {},
   // null = show empty-state; an object (one of `documents` above) =
   // show reader-view + player-panel + mini-player
   currentDocument: null,
@@ -963,15 +901,23 @@ async function renderFileNav() {
   });
 
   const pinnedList = fragment.querySelector('[data-list="pinned"]');
-  for (const file of state.pinnedFiles) {
-    pinnedList.appendChild(renderFileNavItem(file, "tpl-file-nav-item"));
+  if (state.pinnedFiles.length === 0) {
+    pinnedList.appendChild(clone("tpl-pinned-empty"));
+  } else {
+    for (const file of state.pinnedFiles) {
+      pinnedList.appendChild(renderFileNavItem(file, "tpl-file-nav-item"));
+    }
   }
 
   const recentsList = fragment.querySelector('[data-list="recents"]');
-  for (const file of state.recentFiles) {
-    recentsList.appendChild(
-      renderFileNavItem(file, "tpl-recent-file-nav-item"),
-    );
+  if (state.recentFiles.length === 0) {
+    recentsList.appendChild(clone("tpl-recents-empty"));
+  } else {
+    for (const file of state.recentFiles) {
+      recentsList.appendChild(
+        renderFileNavItem(file, "tpl-recent-file-nav-item"),
+      );
+    }
   }
 
   const settingsButton = fragment.querySelector(".file-nav__settings");
@@ -2281,6 +2227,9 @@ function buildSentenceMap(paragraphs) {
 function moveRecentFileNavItemToTop(file) {
   const recentsList = slots.fileNav.querySelector('[data-list="recents"]');
   if (!recentsList) return;
+
+  const emptyPlaceholder = recentsList.querySelector(".file-nav__item--empty");
+  if (emptyPlaceholder) emptyPlaceholder.remove();
 
   const existing = Array.from(
     recentsList.querySelectorAll(".file-nav__item-button"),
