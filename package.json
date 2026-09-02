@@ -11,7 +11,9 @@
     "test:license": "node tools/license/test-license.js",
     "license:check": "node tools/license/license-cli.js check",
     "license:activate": "node tools/license/license-cli.js activate",
-    "license:deactivate": "node tools/license/license-cli.js deactivate"
+    "license:deactivate": "node tools/license/license-cli.js deactivate",
+    "pack": "electron-builder --dir",
+    "dist:win": "electron-builder --win"
   },
   "keywords": [],
   "author": "",
@@ -24,5 +26,34 @@
   "dependencies": {
     "kokoro-js": "^1.2.1",
     "pdfjs-dist": "^6.3.289"
+  },
+  "build": {
+    "appId": "com.yourcompany.sonar",
+    "productName": "Sonar",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/node_modules/kokoro-js/**/*",
+      "**/node_modules/onnxruntime-node/**/*",
+      "**/node_modules/sharp/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

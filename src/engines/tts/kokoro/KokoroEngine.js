@@ -1,10 +1,15 @@
-const { KokoroTTS } = require("kokoro-js");
+// src/engines/tts/kokoro/KokoroEngine.js
+//
+// Runs in the MAIN process, but does none of the actual inference itself.
+// All it does is own a utilityProcess running kokoroWorker.js and proxy
+// synthesize/cancel calls to it over process messaging. This keeps
+// long-running ONNX inference off the main thread entirely, so app-wide
+// IPC (settings reads, license checks, everything) stays responsive no
+// matter how long a document takes to synthesize.
 
-// Voice metadata — id must match what tts.js will match voiceId against.
-// tier: "free" | "pro" — adjust to match your licensing plan.
-// gender/accent are explicit here (not parsed from id at render time)
-// so any voice that doesn't follow Kokoro's af_/am_/bf_/bm_ convention
-// can just be hand-corrected in this one place.
+const path = require("node:path");
+const { utilityProcess } = require("electron");
+
 const VOICE_LIST = [
     { id: "af_sky", name: "Sky", gender: "female", accent: "American", tier: "free" },
     { id: "af_bella", name: "Bella", gender: "female", accent: "American", tier: "pro" },
@@ -18,117 +23,95 @@ const VOICE_LIST = [
     { id: "bm_lewis", name: "Lewis", gender: "male", accent: "British", tier: "pro" },
 ];
 
-// Free-tier users get a capped number of generations on the one free
-// Kokoro voice (Kokoro is more expensive to run than Piper).
 const FREE_KOKORO_VOICE_ID = "af_sky";
 const FREE_KOKORO_GENERATION_LIMIT = 3;
 
+let nextMsgId = 1;
+
 class KokoroEngine {
     constructor() {
-        this.tts = null;
-        this.readyPromise = null;
+        this.child = null;
+        this.pending = new Map(); // msgId -> { resolve, reject }
+        this.currentJobId = null; // msgId of the in-flight synthesize, for cancel()
     }
 
-    async _ensureReady() {
-        if (this.tts) return this.tts;
-        if (!this.readyPromise) {
-            this.readyPromise = KokoroTTS.from_pretrained(__dirname, {
-                dtype: "q8",
-                device: "cpu",
-            }).then((tts) => {
-                this.tts = tts;
-                return tts;
-            });
-        }
-        return this.readyPromise;
-    }
+    _ensureChild() {
+        if (this.child) return this.child;
 
-    getVoices() {
-        // Tagged so tts:speak / the renderer can tell which engine owns each voice.
-        return VOICE_LIST.map((v) => ({ ...v, engine: "kokoro" }));
-    }
+        this.child = utilityProcess.fork(path.join(__dirname, "kokoroWorker.js"), [], {
+            // stdio inherited by default; set to "pipe" here if you want to
+            // capture/log the worker's console output separately.
+        });
 
-    async synthesize(text, voiceId, outputFile) {
-        const tts = await this._ensureReady();
+        this.child.on("message", (msg) => {
+            const waiter = this.pending.get(msg.id);
+            if (!waiter) return; // stale/cancelled reply, ignore
+            this.pending.delete(msg.id);
 
-        const chunks = chunkText(text);
-        const audioParts = [];
-        let samplingRate = null;
-        let RawAudioCtor = null;
-
-        for (const chunk of chunks) {
-            const audio = await tts.generate(chunk, { voice: voiceId });
-            audioParts.push(audio.audio); // Float32Array of samples for this chunk
-            samplingRate = audio.sampling_rate;
-            RawAudioCtor = RawAudioCtor || audio.constructor; // reuse the class kokoro-js returns
-        }
-
-        // Concatenate with a short silence gap between chunks so sentence
-        // boundaries don't run together.
-        const gapSamples = Math.round(samplingRate * 0.12);
-        const gap = new Float32Array(gapSamples);
-        const totalLength =
-            audioParts.reduce((sum, a) => sum + a.length, 0) +
-            gap.length * (audioParts.length - 1);
-        const combined = new Float32Array(totalLength);
-
-        let offset = 0;
-        audioParts.forEach((part, i) => {
-            combined.set(part, offset);
-            offset += part.length;
-            if (i < audioParts.length - 1) {
-                combined.set(gap, offset);
-                offset += gap.length;
+            if (msg.type === "result") {
+                waiter.resolve(msg.outputFile);
+            } else if (msg.type === "cancelled") {
+                const err = new Error("Synthesis cancelled");
+                err.cancelled = true;
+                waiter.reject(err);
+            } else if (msg.type === "error") {
+                waiter.reject(new Error(msg.message));
             }
         });
 
-        const finalAudio = new RawAudioCtor(combined, samplingRate);
-        finalAudio.save(outputFile);
-        return outputFile;
+        this.child.on("exit", (code) => {
+            // Worker died (crash, or we killed it for cancel). Reject anything
+            // still waiting so callers don't hang forever, then clear the
+            // handle so the next synthesize() call spins up a fresh one.
+            for (const waiter of this.pending.values()) {
+                const err = new Error(`Kokoro worker exited (code ${code})`);
+                waiter.reject(err);
+            }
+            this.pending.clear();
+            this.child = null;
+            this.currentJobId = null;
+        });
+
+        return this.child;
     }
-}
 
-// Groups sentences into chunks under a conservative character budget.
-// Kokoro's hard limit is ~510 phoneme tokens, and phoneme count tends to
-// run higher than raw character count, so this stays well under that.
-function chunkText(text, maxChars = 200) {
-    const sentences = text
-        .split(/(?<=[.!?])\s+/)
-        .map((s) => s.trim())
-        .filter(Boolean);
+    getVoices() {
+        return VOICE_LIST.map((v) => ({ ...v, engine: "kokoro" }));
+    }
 
-    const chunks = [];
-    let current = "";
+    synthesize(text, voiceId, outputFile) {
+        const child = this._ensureChild();
+        const id = nextMsgId++;
+        this.currentJobId = id;
 
-    for (const sentence of sentences) {
-        // A single sentence longer than the budget on its own — hard-split it
-        // on whitespace so nothing gets silently dropped or overflows.
-        if (sentence.length > maxChars) {
-            if (current) {
-                chunks.push(current);
-                current = "";
-            }
-            let remaining = sentence;
-            while (remaining.length > maxChars) {
-                let cut = remaining.lastIndexOf(" ", maxChars);
-                if (cut <= 0) cut = maxChars;
-                chunks.push(remaining.slice(0, cut).trim());
-                remaining = remaining.slice(cut).trim();
-            }
-            if (remaining) current = remaining;
-            continue;
+        return new Promise((resolve, reject) => {
+            this.pending.set(id, { resolve, reject });
+            child.postMessage({ id, type: "synthesize", text, voiceId, outputFile });
+        });
+    }
+
+    // Cancel the in-flight synthesis, if any. Because inference inside the
+    // worker can't be interrupted mid-chunk (see kokoroWorker.js), the only
+    // way to guarantee an immediate stop is killing the worker process
+    // outright — the next synthesize() call transparently spins up a new
+    // one via _ensureChild(). This is quick since the model itself is only
+    // reloaded once (on that fresh worker's first synthesize call).
+    cancel() {
+        if (!this.child || this.currentJobId === null) return;
+
+        const jobId = this.currentJobId;
+        const waiter = this.pending.get(jobId);
+        if (waiter) {
+            const err = new Error("Synthesis cancelled");
+            err.cancelled = true;
+            waiter.reject(err);
+            this.pending.delete(jobId);
         }
 
-        if ((current + " " + sentence).trim().length > maxChars) {
-            chunks.push(current);
-            current = sentence;
-        } else {
-            current = (current + " " + sentence).trim();
-        }
+        this.child.kill();
+        this.child = null;
+        this.currentJobId = null;
     }
-    if (current) chunks.push(current);
-
-    return chunks;
 }
 
 module.exports = KokoroEngine;
