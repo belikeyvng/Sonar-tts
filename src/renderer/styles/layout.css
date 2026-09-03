@@ -280,6 +280,7 @@
 .onboarding-step__swatch-group {
     display: flex;
     gap: var(--space-3);
+    padding-left: var(--space-2);
 }
 
 .onboarding-step__swatch {
