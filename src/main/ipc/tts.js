@@ -7,7 +7,7 @@ const KokoroEngine = require("../../engines/tts/kokoro/KokoroEngine");
 const UsageStore = require("../../data/settings/UsageStore");
 const { checkTextLength } = require("../../data/settings/text-limits");
 
-const { FREE_KOKORO_VOICE_ID, FREE_KOKORO_GENERATION_LIMIT } = KokoroEngine;
+const { FREE_KOKORO_VOICE_IDS, FREE_KOKORO_GENERATION_LIMIT } = KokoroEngine;
 
 function registerTtsIpc(licenseEngine) {
   const engines = {
@@ -26,10 +26,10 @@ function registerTtsIpc(licenseEngine) {
   });
 
   ipcMain.handle("tts:getUsage", async (event, voiceId) => {
-    if (voiceId !== FREE_KOKORO_VOICE_ID) {
+    if (!FREE_KOKORO_VOICE_IDS.includes(voiceId)) {
       return { limited: false };
     }
-    const used = usageStore.getCount(FREE_KOKORO_VOICE_ID);
+    const used = usageStore.getCount(voiceId);
     return {
       limited: true,
       used,
@@ -38,15 +38,15 @@ function registerTtsIpc(licenseEngine) {
     };
   });
 
-  // Dev-only convenience — resets the free-tier Kokoro usage counter
+  // Dev-only convenience — resets all free-tier Kokoro usage counters
   // so testing doesn't require deleting usage.json by hand every time.
   // TODO: gate or remove before shipping a real build.
   ipcMain.handle("tts:resetUsage", async () => {
-    usageStore.reset(FREE_KOKORO_VOICE_ID);
+    for (const id of FREE_KOKORO_VOICE_IDS) usageStore.reset(id);
     return { ok: true };
   });
 
-    ipcMain.handle("tts:checkTextLength", async (event, { text, isPro }) => {
+  ipcMain.handle("tts:checkTextLength", async (event, { text, isPro }) => {
     return checkTextLength(text, isPro);
   });
 
@@ -78,11 +78,11 @@ function registerTtsIpc(licenseEngine) {
       return { success: false, reason: "VOICE_REQUIRES_PRO" };
     }
 
-    // Free users get a capped number of generations on the free
-    // Kokoro voice specifically (not Piper's free voices — Kokoro
-    // is the more expensive engine to run).
-    if (voiceId === FREE_KOKORO_VOICE_ID && !isPro) {
-      const used = usageStore.getCount(FREE_KOKORO_VOICE_ID);
+    // Free users get a capped number of generations per free Kokoro
+    // voice (not Piper's free voices — Kokoro is the more expensive
+    // engine to run). Each free voice tracks its own daily count.
+    if (FREE_KOKORO_VOICE_IDS.includes(voiceId) && !isPro) {
+      const used = usageStore.getCount(voiceId);
       if (used >= FREE_KOKORO_GENERATION_LIMIT) {
         return {
           success: false,
@@ -106,8 +106,8 @@ function registerTtsIpc(licenseEngine) {
     try {
       const file = await engine.synthesize(text, voiceId, outputFile);
 
-      if (voiceId === FREE_KOKORO_VOICE_ID && !isPro) {
-        const used = usageStore.increment(FREE_KOKORO_VOICE_ID);
+      if (FREE_KOKORO_VOICE_IDS.includes(voiceId) && !isPro) {
+        const used = usageStore.increment(voiceId);
         return {
           success: true,
           file,

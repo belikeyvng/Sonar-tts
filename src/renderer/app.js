@@ -163,8 +163,8 @@ const state = {
   onboardingStep: "preferences", // "name" | "preferences" | "license"
   onboardingData: {
     name: "",
-    voiceGender: "female",
-    accent: "american",
+    voiceGender: "null",
+    accent: "null",
     accentColor: ACCENT_COLOR_OPTIONS[0],
     licensePath: null,
     licenseStatus: "", // "", "checking", "valid", "invalid"
@@ -583,7 +583,7 @@ function renderOnboardingPreferences() {
   }
 
   on(fragment, "next", () => {
-    if (!data.name.trim()) return;
+    if (!data.name.trim() || !data.voiceGender || !data.accent) return;
     state.onboardingStep = "license";
     renderOnboardingStep();
   });
@@ -591,48 +591,53 @@ function renderOnboardingPreferences() {
   slots.onboardingStep.replaceChildren(fragment);
 }
 
-// Maps onboarding's accent+gender choice to a concrete, cheap-to-run
-// voice id purely for instant preview playback — has no bearing on
-// which voice actually narrates documents later (that's chosen
-// per-document in the player panel).
-const ACCENT_PREVIEW_VOICE = {
+// Maps accent+gender to the actual voiceId used as the default narrator
+// when a document's audio is first generated. Distinct from
+// ACCENT_PREVIEW_CLIP below, which is just static onboarding preview
+// audio and has no bearing on which voice actually narrates documents
+// (that's chosen per-document in the player panel, this only supplies
+// the initial default).
+const ACCENT_DEFAULT_VOICE = {
   american: { male: "en_US-ryan-medium", female: "en_US-amy-medium" },
   british: { male: "bm_george", female: "bf_emma" },
 };
 
+// Static, pre-generated preview clips played during onboarding accent/
+// gender selection — no TTS engine call, no IPC round-trip, no
+// usage-limit cost. These are shipped as bundled assets (see
+// tools/tts/test-tts.js for how to regenerate them), not synthesized
+// at runtime.
+const ACCENT_PREVIEW_CLIP = {
+  american: {
+    male: "./assets/voice-previews/american-male.wav",
+    female: "./assets/voice-previews/american-female.wav",
+  },
+  british: {
+    male: "./assets/voice-previews/british-male.wav",
+    female: "./assets/voice-previews/british-female.wav",
+  },
+};
+
 let previewAudio = null;
 
-// Fire-and-forget: synthesizes a short fixed line in the selected
-// accent/gender and plays it immediately, so clicking an accent card
-// gives instant audible feedback. Cancels any in-flight preview if
-// the user clicks another card quickly.
-async function previewAccentVoice(accentId, gender) {
-  const voiceId =
-    ACCENT_PREVIEW_VOICE[accentId]?.[gender] ||
-    ACCENT_PREVIEW_VOICE[accentId]?.female;
-  if (!voiceId) return;
+// Plays a pre-generated, static preview clip — no TTS engine call, no
+// IPC round-trip, and critically no usage-limit cost. Onboarding should
+// never burn a free Kokoro generation just for accent-card previews.
+function previewAccentVoice(accentId, gender) {
+  const clipPath =
+    ACCENT_PREVIEW_CLIP[accentId]?.[gender] ||
+    ACCENT_PREVIEW_CLIP[accentId]?.female;
+  if (!clipPath) return;
 
   if (previewAudio) {
     previewAudio.pause();
     previewAudio = null;
   }
 
-  try {
-    const result = await window.sonar.tts.speak(
-      "Hi there, this is a quick preview of this voice.",
-      voiceId,
-    );
-    if (!result.success) {
-      console.warn("Accent preview failed:", result.reason);
-      return;
-    }
-    previewAudio = new Audio("file://" + result.file);
-    previewAudio.play().catch((err) => {
-      console.warn("Accent preview playback blocked:", err);
-    });
-  } catch (err) {
-    console.error("Accent preview error:", err);
-  }
+  previewAudio = new Audio(clipPath);
+  previewAudio.play().catch((err) => {
+    console.warn("Accent preview playback blocked:", err);
+  });
 }
 
 function renderOnboardingLicense() {
@@ -1231,7 +1236,7 @@ async function renderPlayerPanelGenerate(doc) {
 
   if (!doc.voiceId || !voices.some((v) => v.id === doc.voiceId)) {
     const prefs = state.onboardingData;
-    const preferredId = ACCENT_PREVIEW_VOICE[prefs.accent]?.[prefs.voiceGender];
+    const preferredId = ACCENT_DEFAULT_VOICE[prefs.accent]?.[prefs.voiceGender];
     const preferredVoice = voices.find(
       (v) => v.id === preferredId && v.tier !== "pro",
     );
@@ -1982,10 +1987,9 @@ function updatePlaybackUI(doc) {
       }
     }
   }
-
   const metaEl = slots.miniPlayer.querySelector('[data-bind="fileMeta"]');
   if (metaEl) {
-    metaEl.textContent = `${doc.sectionLabel} · ${doc.timeElapsed} / ${doc.timeTotal}`;
+    metaEl.textContent = doc.sectionLabel;
   }
 }
 const SPEED_OPTIONS = ["0.75x", "1x", "1.25x", "1.5x", "2x"];
@@ -2018,11 +2022,7 @@ function renderMiniPlayer() {
   const fragment = clone("tpl-mini-player");
 
   bind(fragment, "fileName", doc.fileName);
-  bind(
-    fragment,
-    "fileMeta",
-    `${doc.sectionLabel} · ${doc.timeElapsed} / ${doc.timeTotal}`,
-  );
+  bind(fragment, "fileMeta", doc.sectionLabel);
   bind(fragment, "timeElapsed", doc.timeElapsed);
   bind(fragment, "timeTotal", doc.timeTotal);
   bind(fragment, "progress", doc.progress);
@@ -2345,7 +2345,7 @@ async function openSettingsModal() {
   const emailEl = fragment.querySelector('[data-bind="settingsAccountEmail"]');
   if (emailEl) {
     if (isPro) {
-      emailEl.textContent = "ACTIVATED — Premium";
+      emailEl.textContent = "ACTIVATED — Pro";
       emailEl.className =
         "settings-modal__account-status settings-modal__account-status--active";
     } else {
@@ -2805,7 +2805,6 @@ async function boot() {
       : state.firstName;
     state.accountName = settings.name || state.accountName;
 
-    // ↓↓↓ NEW BLOCK GOES HERE ↓↓↓
     try {
       const history = await window.sonar.history.getAll();
       for (const [docId, savedDoc] of Object.entries(history.documents || {})) {
