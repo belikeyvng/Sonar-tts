@@ -1129,6 +1129,10 @@ body {
         max-height: 50vh;
     }
 
+    .main-with-player {
+        margin-right: 25px !important;
+    }
+
     /* Collapsed docking bar — the default at this breakpoint. Fixed
        width, no hover behavior at all. Clicking anywhere on the bar
        (see click handler in app.js) is what pulls the sidebar open —
@@ -1298,4 +1302,35 @@ body {
     width: var(--icon-size-sm);
     height: var(--icon-size-sm);
     flex-shrink: 0;
+}
+
+
+/* ==========================================================================
+   SHARED SCROLLBAR — thin, theme-aware scrollbar used across every
+   scrollable region in the app (settings modal, upgrade page, reading
+   pane, voice listboxes, etc). Apply `.scrollbar-thin` alongside whatever
+   overflow rule the component already needs — this only styles the bar
+   itself, it doesn't set overflow.
+   ========================================================================== */
+
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full, 999px);
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-tertiary);
 }

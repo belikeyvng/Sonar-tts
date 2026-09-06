@@ -30,10 +30,11 @@
     font-weight: var(--weight-bold);
     color: var(--color-text-primary);
     line-height: 1.3;
+    font-family: var(--font-ui);
 }
 
 .reading-pane__paragraph {
-    font-family: var(--font-ui-mono);
+    font-family: var(--font-ui);
     font-size: var(--text-md);
     line-height: 1.7;
     color: var(--color-text-secondary);
@@ -48,12 +49,25 @@
 }
 
 .reading-pane__document {
-    scrollbar-width: none;       /* Firefox */
-    -ms-overflow-style: none;    /* old Edge/IE, harmless elsewhere */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
 }
 
 .reading-pane__document::-webkit-scrollbar {
-    display: none;               /* Chrome/Edge/Electron (Chromium-based) */
+    width: 6px;
+}
+
+.reading-pane__document::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.reading-pane__document::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full, 999px);
+}
+
+.reading-pane__document::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
 }
 
 .reading-pane__sentence {

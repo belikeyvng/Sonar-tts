@@ -155,8 +155,8 @@
 }
 
 .plan-card[data-plan="pro"] .plan-card__badge {
-    background: var(--badge-accent-bg);
-    color: var(--badge-accent-fg);
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
 }
 
 /* Sparkle (Pro tier) — swaps the icon shape AND color for this card.
