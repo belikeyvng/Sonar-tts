@@ -41,7 +41,9 @@
     "asarUnpack": [
       "**/node_modules/kokoro-js/**/*",
       "**/node_modules/onnxruntime-node/**/*",
-      "**/node_modules/sharp/**/*"
+      "**/node_modules/sharp/**/*",
+      "src/engines/tts/piper/**/*",
+      "src/engines/tts/kokoro/**/*"
     ],
     "win": {
       "target": [
