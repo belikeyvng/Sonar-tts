@@ -348,7 +348,7 @@
     <!-- ---------- FILE NAV (shared, identical on every screen) ---------- -->
     <template id="tpl-file-nav">
         <aside class="file-nav scrollbar-thin">
-            <div class="file-nav__brand">
+            <div class="file-nav__brand" data-action="open-credits">
                 <span class="file-nav__logo" aria-hidden="true">
                     <svg width="30" height="30" viewBox="0 0 42 43" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="42" height="43" rx="21" fill="url(#paint-logo-filenav)" />
@@ -614,8 +614,8 @@
                             </svg>
                         </span>
                     </button>
-                    <ul class="player-panel__voice-listbox scrollbar-thin" role="listbox" tabindex="-1" data-bind="voiceListbox"
-                        hidden></ul>
+                    <ul class="player-panel__voice-listbox scrollbar-thin" role="listbox" tabindex="-1"
+                        data-bind="voiceListbox" hidden></ul>
                 </div>
             </div>
 
@@ -962,6 +962,91 @@
                         </svg>
                         <span>Log out</span>
                     </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- ---------- CREDITS / ABOUT MODAL ---------- -->
+    <template id="tpl-credits-modal">
+        <div class="modal-backdrop" data-action="modal-backdrop">
+            <div class="modal modal--credits" role="dialog" aria-modal="true" aria-labelledby="credits-modal-heading">
+                <button class="credits-modal__close" type="button" data-action="modal-cancel" aria-label="Close">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                </button>
+
+                <div class="credits-modal__viewport scrollbar-thin" data-bind="creditsViewport">
+                    <div class="credits-modal__scroller" data-bind="creditsScroller">
+
+                        <div class="credits-modal__header">
+                            <span class="credits-modal__logo" aria-hidden="true">
+                                <svg width="64" height="64" viewBox="0 0 42 43" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="42" height="43" rx="21" fill="url(#paint-logo-credits)" />
+                                    <path
+                                        d="M9.33203 19.1667V22.6667M13.9991 14.5V27.3333M18.6661 11V32M23.3332 16.8333V25M28.0002 13.3333V28.5M32.6672 19.1667V22.6667"
+                                        stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" />
+                                    <defs>
+                                        <linearGradient id="paint-logo-credits" x1="0" y1="0" x2="42" y2="0"
+                                            gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#3B82F6" />
+                                            <stop offset="1" stop-color="#9333EA" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </span>
+                            <h2 class="credits-modal__app-name" id="credits-modal-heading">Sonar</h2>
+                            <p class="credits-modal__version" data-bind="creditsVersion"></p>
+                            <p class="credits-modal__os" data-bind="creditsOS"></p>
+                            <p class="credits-modal__registered" data-bind="creditsRegistered"></p>
+                        </div>
+
+                        <p class="credits-modal__tagline">
+                            Sonar is a product of the IDEA Lab, Port Harcourt, Nigeria.
+                        </p>
+
+                        <h3 class="credits-modal__section-title">Credits</h3>
+
+                        <div class="credits-modal__group">
+                            <h4 class="credits-modal__group-title">Software Developers</h4>
+                            <p class="credits-modal__person"><span class="credits-modal__name">Jesse
+                                    Emmanuel</span><span class="credits-modal__role">Cross-platform Developer
+                                    (Win/macOS)</span></p>
+                            <p class="credits-modal__person"><span class="credits-modal__name">Johnny Etim
+                                    Emmanuel</span><span class="credits-modal__role">Lead Web Developer (Frontend,
+                                    Backend)</span></p>
+                            <p class="credits-modal__person"><span class="credits-modal__name">Obichukwu
+                                    Awanye</span><span class="credits-modal__role">Web Developer (Frontend)</span></p>
+                        </div>
+
+                        <div class="credits-modal__group">
+                            <h4 class="credits-modal__group-title">Project Management</h4>
+                            <p class="credits-modal__person"><span class="credits-modal__name">Joan Azike</span><span
+                                    class="credits-modal__role">Team Lead, Lead UX Designer &amp; Project Manager</span>
+                            </p>
+                        </div>
+
+                        <div class="credits-modal__group">
+                            <h4 class="credits-modal__group-title">UI/UX Designers</h4>
+                            <p class="credits-modal__person"><span class="credits-modal__name">Jayden Emeni</span><span
+                                    class="credits-modal__role">UI/UX Designer</span></p>
+                            <p class="credits-modal__person"><span class="credits-modal__name">Chizaram
+                                    Ben-Okeke</span><span class="credits-modal__role">UI/UX Designer</span></p>
+                        </div>
+
+                        <div class="credits-modal__group">
+                            <h4 class="credits-modal__group-title">Testing &amp; QA</h4>
+                            <p class="credits-modal__person"><span class="credits-modal__name">Daniel</span><span
+                                    class="credits-modal__role">QA Tester</span></p>
+                            <p class="credits-modal__person"><span class="credits-modal__name">Abraham
+                                    Dekkrol</span><span class="credits-modal__role">QA Tester</span></p>
+                        </div>
+
+                        <p class="credits-modal__copyright">© 2026 Sonar Text-to-Speech. All rights reserved.</p>
+
+                    </div>
                 </div>
             </div>
         </div>

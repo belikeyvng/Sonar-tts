@@ -1,0 +1,151 @@
+/* ==========================================================================
+   CREDITS / ABOUT MODAL — triggered by clicking the file-nav logo.
+   Reuses .modal / .modal-backdrop base from layout.css; this file only
+   adds the credits-specific internals (auto-scroll viewport, header,
+   role groups). Follows the same token-only, no-hardcoded-color rule
+   as the rest of styles/.
+   ========================================================================== */
+
+.modal--credits {
+    position: relative;
+    width: 420px;
+    max-width: 90vw;
+    padding: 0;
+    overflow: hidden;
+}
+
+.credits-modal__close {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: 2;
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-overlay-scrim);
+    color: var(--color-text-on-accent);
+    cursor: pointer;
+}
+
+.credits-modal__viewport {
+    height: 480px;
+    max-height: 70vh;
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        black 24px,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+}
+
+.credits-modal__scroller {
+    padding: var(--space-12) var(--space-8) var(--space-12);
+    text-align: center;
+    will-change: transform;
+}
+
+.credits-modal__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    margin-bottom: var(--space-5);
+}
+
+.credits-modal__logo {
+    margin-bottom: var(--space-2);
+}
+
+.credits-modal__app-name {
+    font-family: var(--font-heading-display);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.credits-modal__version,
+.credits-modal__os,
+.credits-modal__registered {
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.credits-modal__registered {
+    margin-top: var(--space-2);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.credits-modal__tagline {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    max-width: 300px;
+    line-height: 1.5;
+    margin: var(--space-6) auto;
+}
+
+.credits-modal__section-title {
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin: var(--space-8) 0 var(--space-5);
+}
+
+.credits-modal__group {
+    margin-bottom: var(--space-6);
+}
+
+.credits-modal__group-title {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-accent);
+    margin: 0 0 var(--space-3);
+}
+
+.credits-modal__person {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 0 0 var(--space-3);
+    font-family: var(--font-ui);
+}
+
+.credits-modal__name {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-primary);
+}
+
+.credits-modal__role {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+}
+
+.credits-modal__copyright {
+    font-family: var(--font-ui-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-10);
+}
+
+.credits-modal__viewport {
+    cursor: grab;
+}
+
+.credits-modal__viewport--dragging {
+    cursor: grabbing;
+}

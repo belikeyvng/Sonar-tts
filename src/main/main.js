@@ -1,3 +1,4 @@
+//main js
 const { app, BrowserWindow, Menu } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
@@ -9,6 +10,7 @@ const registerPdfIpc = require("./ipc/pdf");
 const { registerExportHandlers } = require("./ipc/export");
 const { registerSettingsHandlers } = require("./ipc/settings");
 const registerPaymentIpc = require("./ipc/payment"); // NEW
+const registerSystemIpc = require("./ipc/system"); // NEW
 
 const APP_ICON_PATH = path.join(__dirname, "../../resources/icons/icon.png");
 
@@ -50,6 +52,7 @@ app.whenReady().then(() => {
   registerSettingsHandlers();
   registerPaymentIpc({ licenseEngine, licenseStore });
   registerHistoryIpc();
+  registerSystemIpc(); // NEW
 
   createWindow();
 

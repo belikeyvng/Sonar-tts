@@ -925,6 +925,7 @@ async function renderFileNav() {
     .addEventListener("click", handleDockBarClick);
   on(fragment, "new-file", goToNewFile);
   on(fragment, "upgrade-to-pro", goToUpgradePage);
+  on(fragment, "open-credits", openCreditsModal);
 
   const searchInput = fragment.querySelector(".file-nav__search-input");
   searchInput.addEventListener("input", (e) => {
@@ -2839,6 +2840,173 @@ function showToast(message, { variant = "success", duration = 3000 } = {}) {
     toast.classList.remove("toast--visible");
     setTimeout(() => toast.remove(), 200);
   }, duration);
+}
+
+function openCreditsModal() {
+  const fragment = clone("tpl-credits-modal");
+
+  bind(fragment, "creditsVersion", "Build 1.0.0");
+  bind(
+    fragment,
+    "creditsRegistered",
+    `Sonar is registered to: ${state.accountName || "Unregistered"}`,
+  );
+
+  const osEl = fragment.querySelector('[data-bind="creditsOS"]');
+  if (osEl) {
+    osEl.textContent = "Loading system info…";
+    window.sonar.system
+      .getPlatformLabel()
+      .then((label) => {
+        const liveOsEl = modalSlot.querySelector('[data-bind="creditsOS"]');
+        if (liveOsEl) liveOsEl.textContent = label;
+      })
+      .catch(() => {
+        const liveOsEl = modalSlot.querySelector('[data-bind="creditsOS"]');
+        if (liveOsEl) liveOsEl.textContent = "";
+      });
+  }
+
+  function close() {
+    stopCreditsAutoScroll();
+    modalSlot.replaceChildren();
+    document.removeEventListener("keydown", onKeydown);
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") close();
+  }
+
+  on(fragment, "modal-cancel", close);
+
+  const backdrop = fragment.querySelector('[data-action="modal-backdrop"]');
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) close();
+  });
+
+  document.addEventListener("keydown", onKeydown);
+  modalSlot.replaceChildren(fragment);
+
+  startCreditsAutoScroll();
+}
+
+// --- Credits auto-scroll ---
+let creditsScrollState = null;
+
+function startCreditsAutoScroll() {
+  const viewport = modalSlot.querySelector('[data-bind="creditsViewport"]');
+  const scroller = modalSlot.querySelector('[data-bind="creditsScroller"]');
+  if (!viewport || !scroller) return;
+
+  const PIXELS_PER_SECOND = 12;
+  let offsetY = 0;
+  let lastTime = null;
+  let paused = false;
+  let rafId = null;
+
+  // --- Drag state ---
+  let dragging = false;
+  let dragStartY = 0;
+  let dragStartOffset = 0;
+
+  function clampOffset(value) {
+    const viewportHeight = viewport.clientHeight;
+    const scrollerHeight = scroller.scrollHeight;
+    const minOffset = -viewportHeight * 0.15; // same "pause at top" slack as the loop-reset
+    const maxOffset = scrollerHeight;
+    return Math.min(Math.max(value, minOffset), maxOffset);
+  }
+
+  function applyOffset() {
+    scroller.style.transform = `translateY(${-offsetY}px)`;
+  }
+
+  function tick(time) {
+    if (lastTime === null) lastTime = time;
+    const deltaSeconds = (time - lastTime) / 1000;
+    lastTime = time;
+
+    if (!paused && !dragging) {
+      offsetY += PIXELS_PER_SECOND * deltaSeconds;
+
+      const viewportHeight = viewport.clientHeight;
+      const scrollerHeight = scroller.scrollHeight;
+
+      if (offsetY > scrollerHeight) {
+        offsetY = -viewportHeight * 0.15;
+      }
+
+      applyOffset();
+    }
+
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function onEnter() {
+    paused = true;
+  }
+  function onLeave() {
+    paused = false;
+    lastTime = null;
+    if (dragging) endDrag();
+  }
+
+  function startDrag(e) {
+    dragging = true;
+    dragStartY = e.clientY;
+    dragStartOffset = offsetY;
+    viewport.classList.add("credits-modal__viewport--dragging");
+    viewport.setPointerCapture(e.pointerId);
+  }
+
+  function onDragMove(e) {
+    if (!dragging) return;
+    // Dragging down (positive delta) should reveal earlier content, so
+    // it moves the opposite direction to a wheel-scroll's natural feel —
+    // subtract the delta from the offset.
+    const delta = e.clientY - dragStartY;
+    offsetY = clampOffset(dragStartOffset - delta);
+    applyOffset();
+  }
+
+  function endDrag() {
+    dragging = false;
+    viewport.classList.remove("credits-modal__viewport--dragging");
+    lastTime = null; // avoid a big delta jump when auto-scroll resumes
+  }
+
+  viewport.addEventListener("mouseenter", onEnter);
+  viewport.addEventListener("mouseleave", onLeave);
+  viewport.addEventListener("pointerdown", startDrag);
+  viewport.addEventListener("pointermove", onDragMove);
+  viewport.addEventListener("pointerup", endDrag);
+  viewport.addEventListener("pointercancel", endDrag);
+
+  rafId = requestAnimationFrame(tick);
+
+  creditsScrollState = {
+    rafId,
+    viewport,
+    onEnter,
+    onLeave,
+    startDrag,
+    onDragMove,
+    endDrag,
+  };
+}
+
+function stopCreditsAutoScroll() {
+  if (!creditsScrollState) return;
+  cancelAnimationFrame(creditsScrollState.rafId);
+  const { viewport, onEnter, onLeave, startDrag, onDragMove, endDrag } =
+    creditsScrollState;
+  viewport.removeEventListener("mouseenter", onEnter);
+  viewport.removeEventListener("mouseleave", onLeave);
+  viewport.removeEventListener("pointerdown", startDrag);
+  viewport.removeEventListener("pointermove", onDragMove);
+  viewport.removeEventListener("pointerup", endDrag);
+  viewport.removeEventListener("pointercancel", endDrag);
+  creditsScrollState = null;
 }
 
 function rewind() {

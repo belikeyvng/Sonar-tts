@@ -1,3 +1,4 @@
+//PRELOAD JS
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 contextBridge.exposeInMainWorld("sonar", {
@@ -64,5 +65,8 @@ contextBridge.exposeInMainWorld("sonar", {
       ipcRenderer.invoke("history:setPinned", pinnedIds),
     setRecents: (recentIds) =>
       ipcRenderer.invoke("history:setRecents", recentIds),
+  },
+  system: {
+    getPlatformLabel: () => ipcRenderer.invoke("system:getPlatformLabel"),
   },
 });
