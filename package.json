@@ -46,7 +46,7 @@
       "src/engines/tts/kokoro/**/*"
     ],
     "win": {
-      "icon": "resources/icons/icon.png",
+      "icon": "resources/icons/icon.ico",
       "target": [
         {
           "target": "nsis",
