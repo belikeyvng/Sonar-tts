@@ -331,13 +331,29 @@ function on(root, action, handler) {
 
 function renderUpgradePage() {
   const root = roots.upgradePage;
+  const inOnboarding = state.onboardingData.licenseReturnTo === "onboarding";
 
-  on(root, "back-to-app", backToApp);
+  const backButton = root.querySelector('[data-action="back-to-app"]');
+  if (backButton) {
+    backButton.textContent = inOnboarding ? "Continue with free" : "Back to app";
+  }
+
+  on(root, "back-to-app", () => {
+    if (inOnboarding) {
+      state.onboardingData.licenseReturnTo = null;
+      finishOnboarding({ activateLicense: false });
+      return;
+    }
+    backToApp();
+  });
+
   on(root, "cancel-subscription-info", () => {
     console.log("TODO: show cancel-subscription info (settings not built yet)");
   });
   on(root, "have-license", () => {
-    state.onboardingData.licenseReturnTo = "upgrade";
+    // preserve "onboarding" as the return target if we're mid-onboarding;
+    // otherwise it's the settings/upgrade-page path
+    if (!inOnboarding) state.onboardingData.licenseReturnTo = "upgrade";
     state.currentView = "onboarding";
     state.onboardingStep = "license";
     showActiveRoot();
@@ -489,9 +505,17 @@ async function startProCheckout(email) {
   }
 
   showToast("Sonar Pro activated!", { variant: "success" });
-  backToApp();
-  await updateFileNavPlanLabel();
-  render();
+
+  const inOnboarding = state.onboardingData.licenseReturnTo === "onboarding";
+  state.onboardingData.licenseReturnTo = null;
+
+  if (inOnboarding) {
+    finishOnboarding({ activateLicense: true });
+  } else {
+    backToApp();
+    await updateFileNavPlanLabel();
+    render();
+  }
 }
 
 // ==========================================================================
@@ -583,10 +607,10 @@ function renderOnboardingPreferences() {
   }
 
   on(fragment, "next", () => {
-    if (!data.name.trim() || !data.voiceGender || !data.accent) return;
-    state.onboardingStep = "license";
-    renderOnboardingStep();
-  });
+  if (!data.name.trim() || !data.voiceGender || !data.accent) return;
+  state.onboardingData.licenseReturnTo = "onboarding";
+  goToUpgradePage();
+});
 
   slots.onboardingStep.replaceChildren(fragment);
 }
@@ -1247,6 +1271,23 @@ async function renderPlayerPanelGenerate(doc) {
         ? firstFree.id
         : voices[0]?.id;
   }
+
+  if (!doc.voiceId || !voices.some((v) => v.id === doc.voiceId)) {
+    const prefs = state.onboardingData;
+    const preferredId = ACCENT_DEFAULT_VOICE[prefs.accent]?.[prefs.voiceGender];
+    const preferredVoice = voices.find(
+      (v) => v.id === preferredId && v.tier !== "pro",
+    );
+    const firstFree = voices.find((v) => v.tier !== "pro");
+    doc.voiceId = preferredVoice
+      ? preferredVoice.id
+      : firstFree
+        ? firstFree.id
+        : voices[0]?.id;
+  }
+
+  const resolvedVoice = voices.find((v) => v.id === doc.voiceId);
+  if (resolvedVoice) doc.narratorName = resolvedVoice.name;
 
   await setupVoiceDropdown(fragment, doc, voices, isPro);
 
@@ -2139,8 +2180,11 @@ async function handlePdfLoadResult(result) {
     paragraphs: result.paragraphs.length
       ? result.paragraphs
       : ["This PDF doesn't contain any extractable text."],
-    narratorName: "Amy",
-    voiceId: "en_US-amy-medium",
+    narratorName: null,
+    voiceId:
+      ACCENT_DEFAULT_VOICE[state.onboardingData.accent]?.[
+        state.onboardingData.voiceGender
+      ] || "en_US-amy-medium",
     audioReady: false,
     audioFile: null,
     generating: false,
