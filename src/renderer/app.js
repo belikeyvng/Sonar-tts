@@ -2432,6 +2432,7 @@ async function openSettingsModal() {
           String(p.dataset.value === data.voiceGender),
         );
       });
+      previewAccentVoice(data.accent, data.voiceGender);
     });
   });
 
@@ -2454,6 +2455,7 @@ async function openSettingsModal() {
             String(c.dataset.accentId === accent.id),
           );
         });
+      previewAccentVoice(accent.id, data.voiceGender);
     });
     accentGroup.appendChild(cardFrag);
   }
