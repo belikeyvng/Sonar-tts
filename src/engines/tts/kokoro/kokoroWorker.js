@@ -19,17 +19,23 @@
 
 const { KokoroTTS } = require("kokoro-js");
 
+// Same asar-unpack path fix as PiperEngine — the ONNX model, tokenizer,
+// and voice .bin files live under this directory and need to resolve
+// to the real unpacked files on disk in a packaged build, not the
+// virtual app.asar path. No-op in dev.
+function unpackedDir(dir) {
+    return dir.replace("app.asar", "app.asar.unpacked");
+}
+
 let tts = null;
 let readyPromise = null;
 
-// Bumped on every cancel so an in-flight synthesize can tell it's been
-// superseded and just drop its result instead of posting it back.
 let currentToken = 0;
 
 async function ensureReady() {
     if (tts) return tts;
     if (!readyPromise) {
-        readyPromise = KokoroTTS.from_pretrained(__dirname, {
+        readyPromise = KokoroTTS.from_pretrained(unpackedDir(__dirname), {
             dtype: "q8",
             device: "cpu",
         }).then((instance) => {

@@ -2,9 +2,19 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawn } = require("node:child_process");
 
+// When running from a packaged app, __dirname points inside app.asar,
+// but binaries under this directory (piper.exe) are unpacked to a
+// sibling app.asar.unpacked folder (see asarUnpack in package.json)
+// since Windows can't spawn an .exe living inside an asar archive.
+// This swap resolves __dirname to the real files on disk. No-op in
+// dev (npm start), since __dirname there never contains "app.asar".
+function unpackedDir(dir) {
+    return dir.replace("app.asar", "app.asar.unpacked");
+}
+
 class PiperEngine {
     constructor() {
-        this.root = __dirname;
+        this.root = unpackedDir(__dirname);
 
         this.exePath = path.join(this.root, "runtime", "piper.exe");
         this.voicesDir = path.join(this.root, "voices");
