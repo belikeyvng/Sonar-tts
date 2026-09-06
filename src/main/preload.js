@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld("sonar", {
     deactivate: () => ipcRenderer.invoke("license:deactivate"),
     browseFile: () => ipcRenderer.invoke("license:browseFile"),
   },
+  fs: {
+    exists: (filePath) => ipcRenderer.invoke("fs:fileExists", filePath),
+  },
   tts: {
     getVoices: () => ipcRenderer.invoke("tts:getVoices"),
 
@@ -17,6 +20,7 @@ contextBridge.exposeInMainWorld("sonar", {
       ipcRenderer.invoke("tts:speak", { text, voiceId }),
     checkTextLength: (text, isPro) =>
       ipcRenderer.invoke("tts:checkTextLength", { text, isPro }),
+    cancel: () => ipcRenderer.invoke("tts:cancel"),
   },
   pdf: {
     // Renderer hands us the real dropped File object; webUtils resolves

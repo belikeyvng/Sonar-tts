@@ -107,8 +107,8 @@
 .mini-player__progress::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--color-accent);
   cursor: pointer;
@@ -118,8 +118,8 @@
 .player-panel__progress::-moz-range-thumb,
 .player-panel__volume-slider::-moz-range-thumb,
 .mini-player__progress::-moz-range-thumb {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--color-accent);
   cursor: pointer;

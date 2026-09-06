@@ -1,4 +1,5 @@
 //tts.js
+const fs = require("node:fs");
 const { ipcMain, app } = require("electron");
 const path = require("node:path");
 
@@ -16,6 +17,12 @@ function registerTtsIpc(licenseEngine) {
   };
 
   const usageStore = new UsageStore();
+
+  // Tracks the engine currently mid-synthesize, so tts:cancel knows what
+  // to kill. Null when nothing is in flight. Only one generation runs at
+  // a time from the renderer's perspective (Generate button disables
+  // itself while generating), so a single slot is sufficient.
+  let activeEngine = null;
 
   function getAllVoices() {
     return Object.values(engines).flatMap((engine) => engine.getVoices());
@@ -38,9 +45,6 @@ function registerTtsIpc(licenseEngine) {
     };
   });
 
-  // Dev-only convenience — resets all free-tier Kokoro usage counters
-  // so testing doesn't require deleting usage.json by hand every time.
-  // TODO: gate or remove before shipping a real build.
   ipcMain.handle("tts:resetUsage", async () => {
     for (const id of FREE_KOKORO_VOICE_IDS) usageStore.reset(id);
     return { ok: true };
@@ -60,10 +64,6 @@ function registerTtsIpc(licenseEngine) {
 
     const isPro = licenseEngine.hasFeature("advancedVoices");
 
-    // Defensive check — the renderer should already block this at
-    // upload time so users see it before generation, not after, but
-    // this catches anyone bypassing that (devtools, scripting) since
-    // it's the last gate before real synthesis work happens.
     const lengthCheck = checkTextLength(text, isPro);
     if (!lengthCheck.allowed) {
       return {
@@ -78,9 +78,6 @@ function registerTtsIpc(licenseEngine) {
       return { success: false, reason: "VOICE_REQUIRES_PRO" };
     }
 
-    // Free users get a capped number of generations per free Kokoro
-    // voice (not Piper's free voices — Kokoro is the more expensive
-    // engine to run). Each free voice tracks its own daily count.
     if (FREE_KOKORO_VOICE_IDS.includes(voiceId) && !isPro) {
       const used = usageStore.getCount(voiceId);
       if (used >= FREE_KOKORO_GENERATION_LIMIT) {
@@ -98,10 +95,11 @@ function registerTtsIpc(licenseEngine) {
       return { success: false, reason: "UNKNOWN_ENGINE" };
     }
 
-    const outputFile = path.join(
-      app.getPath("temp"),
-      `sonar-tts-${Date.now()}.wav`,
-    );
+    const audioDir = path.join(app.getPath("userData"), "generated-audio");
+    fs.mkdirSync(audioDir, { recursive: true });
+
+    const outputFile = path.join(audioDir, `sonar-tts-${Date.now()}.wav`);
+    activeEngine = engine;
 
     try {
       const file = await engine.synthesize(text, voiceId, outputFile);
@@ -117,8 +115,33 @@ function registerTtsIpc(licenseEngine) {
 
       return { success: true, file };
     } catch (error) {
+      if (error.cancelled) {
+        return { success: false, reason: "CANCELLED" };
+      }
       return { success: false, reason: error.message };
+    } finally {
+      if (activeEngine === engine) activeEngine = null;
     }
+  });
+
+  ipcMain.handle("fs:fileExists", async (event, filePath) => {
+    try {
+      await fs.promises.access(filePath);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
+  // Cancel whatever's currently generating. No-op if nothing's in
+  // flight (e.g. renderer double-clicks Cancel, or the request already
+  // resolved right before this arrives).
+  ipcMain.handle("tts:cancel", async () => {
+    if (activeEngine) {
+      activeEngine.cancel();
+      return { ok: true };
+    }
+    return { ok: false, reason: "NOTHING_IN_FLIGHT" };
   });
 }
 

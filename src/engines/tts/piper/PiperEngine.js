@@ -1,4 +1,3 @@
-// src/engines/tts/piper/PiperEngine.js
 const fs = require("node:fs");
 const path = require("node:path");
 const { spawn } = require("node:child_process");
@@ -10,30 +9,20 @@ class PiperEngine {
         this.exePath = path.join(this.root, "runtime", "piper.exe");
         this.voicesDir = path.join(this.root, "voices");
         this.manifestPath = path.join(this.root, "voices.json");
+        this.currentProcess = null; // track the in-flight spawn, for cancel()
     }
 
-    /**
-     * Resolve a voice id (e.g. "en_US-amy-medium") to its .onnx path.
-     */
     _resolveModelPath(voiceId) {
         return path.join(this.voicesDir, voiceId, `${voiceId}.onnx`);
     }
 
-    /**
-     * Return the list of available voices with metadata.
-     */
-        getVoices() {
+    getVoices() {
         const manifest = JSON.parse(
             fs.readFileSync(this.manifestPath, "utf8")
         );
-
         return manifest.voices.map((v) => ({ ...v, engine: "piper" }));
     }
 
-    /**
-     * Synthesize text to a WAV file using the given voice.
-     * Returns a promise that resolves with the output file path.
-     */
     synthesize(text, voiceId, outputFile) {
         return new Promise((resolve, reject) => {
             const modelPath = this._resolveModelPath(voiceId);
@@ -42,6 +31,7 @@ class PiperEngine {
                 "--model", modelPath,
                 "--output_file", outputFile
             ]);
+            this.currentProcess = piper;
 
             piper.stdin.write(text);
             piper.stdin.end();
@@ -51,8 +41,13 @@ class PiperEngine {
                 stderr += chunk.toString();
             });
 
-            piper.on("close", (code) => {
-                if (code === 0) {
+            piper.on("close", (code, signal) => {
+                if (this.currentProcess === piper) this.currentProcess = null;
+                if (signal === "SIGTERM" || signal === "SIGKILL") {
+                    const err = new Error("Synthesis cancelled");
+                    err.cancelled = true;
+                    reject(err);
+                } else if (code === 0) {
                     resolve(outputFile);
                 } else {
                     reject(new Error(`Piper exited with code ${code}: ${stderr}`));
@@ -60,9 +55,16 @@ class PiperEngine {
             });
 
             piper.on("error", (err) => {
+                if (this.currentProcess === piper) this.currentProcess = null;
                 reject(err);
             });
         });
+    }
+
+    cancel() {
+        if (!this.currentProcess) return;
+        this.currentProcess.kill();
+        this.currentProcess = null;
     }
 }
 

@@ -134,6 +134,7 @@
     background: var(--gradient-brand);
     border: none;
     color: var(--color-text-on-accent);
+    transition: background-color 0.4s ease;
 }
 
 
@@ -389,8 +390,8 @@
 .player-panel__volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--color-accent);
   cursor: pointer;
@@ -401,8 +402,8 @@
 /* Thumb - Firefox */
 .player-panel__progress::-moz-range-thumb,
 .player-panel__volume-slider::-moz-range-thumb {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--color-accent);
   cursor: pointer;
@@ -445,4 +446,34 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
+}
+
+/* --- Cancel generation (link-style, quiet — de-escalation action,
+   never competing visually with the primary Generate button above it) --- */
+
+.player-panel__generate-button--secondary {
+    background: none;
+    border: none;
+    padding: 6px 0 0;
+    width: 100%;
+    text-align: center;
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.player-panel__generate-button--secondary:hover:not(:disabled) {
+    color: #ef4444;
+    text-decoration-color: currentColor;
+}
+
+.player-panel__generate-button--secondary:disabled {
+    opacity: 0.6;
+    cursor: default;
+    text-decoration: none;
 }

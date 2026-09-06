@@ -335,7 +335,9 @@ function renderUpgradePage() {
 
   const backButton = root.querySelector('[data-action="back-to-app"]');
   if (backButton) {
-    backButton.textContent = inOnboarding ? "Continue with free" : "Back to app";
+    backButton.textContent = inOnboarding
+      ? "Continue with free"
+      : "Back to app";
   }
 
   on(root, "back-to-app", () => {
@@ -607,10 +609,10 @@ function renderOnboardingPreferences() {
   }
 
   on(fragment, "next", () => {
-  if (!data.name.trim() || !data.voiceGender || !data.accent) return;
-  state.onboardingData.licenseReturnTo = "onboarding";
-  goToUpgradePage();
-});
+    if (!data.name.trim() || !data.voiceGender || !data.accent) return;
+    state.onboardingData.licenseReturnTo = "onboarding";
+    goToUpgradePage();
+  });
 
   slots.onboardingStep.replaceChildren(fragment);
 }
@@ -1244,12 +1246,24 @@ async function renderPlayerPanelGenerate(doc) {
   const generateButton = fragment.querySelector(
     '[data-action="generate-audio"]',
   );
+  const cancelButton = fragment.querySelector(
+    '[data-action="cancel-generation"]',
+  );
+
   if (doc.generating) {
     generateButton.textContent = "Generating…";
     generateButton.disabled = true;
+    if (cancelButton) cancelButton.hidden = false;
   } else {
     generateButton.textContent = "Generate audio";
+    if (cancelButton) cancelButton.hidden = true;
   }
+
+  if (cancelButton) {
+    on(fragment, "cancel-generation", () => cancelCurrentGeneration(doc));
+  }
+
+  // ... rest unchanged (voices fetch, dropdown, generate-audio handler, etc.)
 
   const [voices, status] = await Promise.all([
     window.sonar.tts.getVoices(),
@@ -1712,19 +1726,45 @@ async function renderPlayerPanelReady(doc) {
   }
 }
 
+async function cancelCurrentGeneration(doc) {
+  if (!doc.generating) return;
+
+  doc.cancelling = true;
+  const cancelButton = slots.playerPanel.querySelector(
+    '[data-action="cancel-generation"]',
+  );
+  if (cancelButton) {
+    cancelButton.textContent = "Cancelling…";
+    cancelButton.disabled = true;
+  }
+
+  await window.sonar.tts.cancel();
+  // The in-flight speak() promise in generateAudioForCurrentDocument()
+  // will resolve with { success: false, reason: "CANCELLED" } shortly
+  // after this — that's where doc.generating actually gets reset and
+  // the panel re-renders back to the plain "Generate audio" state.
+}
+
 async function generateAudioForCurrentDocument() {
   const doc = state.currentDocument;
   if (!doc) return;
 
   doc.generating = true;
+  doc.cancelling = false;
   renderPlayerPanel();
 
   const fullText = doc.paragraphs.join(" ");
   const result = await window.sonar.tts.speak(fullText, doc.voiceId);
 
   doc.generating = false;
+  doc.cancelling = false;
 
   if (!result.success) {
+    if (result.reason === "CANCELLED") {
+      // Quiet reset — no error toast, this was requested by the user.
+      renderPlayerPanel();
+      return;
+    }
     if (result.reason === "VOICE_REQUIRES_PRO") {
       goToUpgradePage();
       return;
@@ -1759,6 +1799,14 @@ async function generateAudioForCurrentDocument() {
 
   doc.audioReady = true;
   doc.audioFile = result.file;
+
+  const docId = Object.keys(state.documents).find(
+    (id) => state.documents[id] === doc,
+  );
+  if (docId) {
+    window.sonar.history.saveDocument(docId, doc);
+  }
+
   render();
 }
 
@@ -2854,12 +2902,18 @@ async function boot() {
     try {
       const history = await window.sonar.history.getAll();
       for (const [docId, savedDoc] of Object.entries(history.documents || {})) {
+        const stillHasAudio =
+          savedDoc.audioReady &&
+          savedDoc.audioFile &&
+          (await window.sonar.fs.exists(savedDoc.audioFile));
+
         state.documents[docId] = {
           ...savedDoc,
-          audioReady: false,
-          audioFile: null,
+          audioReady: Boolean(stillHasAudio),
+          audioFile: stillHasAudio ? savedDoc.audioFile : null,
           generating: false,
-          speed: "1x",
+          cancelling: false,
+          speed: savedDoc.speed || "1x",
           timeElapsed: "0:00",
           timeTotal: "0:00",
           progress: 0,
