@@ -28,8 +28,8 @@
     "pdfjs-dist": "^6.3.289"
   },
   "build": {
-    "appId": "com.yourcompany.sonar",
-    "productName": "Sonar",
+    "appId": "com.IdeaLabs.sonar",
+    "productName": "Sonar Studio",
     "directories": {
       "output": "release"
     },
@@ -47,6 +47,7 @@
     ],
     "win": {
       "icon": "resources/icons/icon.ico",
+      "artifactName": "IdeaLabs Sonar Studio-${version}-${arch}.${ext}",
       "target": [
         {
           "target": "nsis",
