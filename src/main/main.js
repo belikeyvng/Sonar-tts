@@ -9,8 +9,8 @@ const registerLicenseIpc = require("./ipc/license");
 const registerPdfIpc = require("./ipc/pdf");
 const { registerExportHandlers } = require("./ipc/export");
 const { registerSettingsHandlers } = require("./ipc/settings");
-const registerPaymentIpc = require("./ipc/payment"); // NEW
-const registerSystemIpc = require("./ipc/system"); // NEW
+const registerPaymentIpc = require("./ipc/payment");
+const registerSystemIpc = require("./ipc/system"); 
 
 const APP_ICON_PATH = path.join(__dirname, "../../resources/icons/icon.png");
 
